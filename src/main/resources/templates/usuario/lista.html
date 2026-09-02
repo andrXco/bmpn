@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usuarios de la empresa</title>
+</head>
+<body>
+<main>
+    <header>
+        <h1>Usuarios de la empresa</h1>
+        <p th:text="${sesion.nombreCompleto}"></p>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Cerrar sesión</button>
+        </form>
+    </header>
+
+    <p th:if="${param.usuarioCreado}">Usuario creado.</p>
+    <p th:if="${param.usuarioDesactivado}">Usuario desactivado.</p>
+    <p th:if="${param.error}">No fue posible realizar la operación.</p>
+    <p th:if="${pendienteContrasena}" th:text="${pendienteContrasena}"></p>
+
+    <section>
+        <h2>Registrar usuario</h2>
+        <form th:action="@{/usuarios}" th:object="${formulario}" method="post">
+            <div th:if="${#fields.hasGlobalErrors()}">
+                <p th:each="error : ${#fields.globalErrors()}" th:text="${error}"></p>
+            </div>
+            <label>Correo <input type="email" th:field="*{email}"></label>
+            <p th:errors="*{email}"></p>
+            <label>Nombre <input type="text" th:field="*{nombre}"></label>
+            <p th:errors="*{nombre}"></p>
+            <label>Apellido <input type="text" th:field="*{apellido}"></label>
+            <p th:errors="*{apellido}"></p>
+            <label>Contraseña <input type="password" th:field="*{password}"></label>
+            <p th:errors="*{password}"></p>
+            <label>Rol
+                <select th:field="*{rolAcceso}">
+                    <option th:each="rol : ${roles}" th:value="${rol}" th:text="${rol}"></option>
+                </select>
+            </label>
+            <button type="submit">Crear usuario</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Usuarios activos</h2>
+        <table>
+            <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Acciones</th></tr></thead>
+            <tbody>
+            <tr th:each="usuario : ${usuarios}">
+                <td th:text="${usuario.nombre + ' ' + usuario.apellido}"></td>
+                <td th:text="${usuario.email}"></td>
+                <td th:text="${usuario.rolAcceso}"></td>
+                <td>
+                    <form th:action="@{/usuarios/{id}/rol(id=${usuario.id})}" method="post">
+                        <select name="rolAcceso">
+                            <option th:each="rol : ${roles}" th:value="${rol}" th:text="${rol}"
+                                    th:selected="${rol == usuario.rolAcceso}"></option>
+                        </select>
+                        <button type="submit">Cambiar rol</button>
+                    </form>
+                    <form th:action="@{/usuarios/{id}/desactivar(id=${usuario.id})}" method="post">
+                        <button type="submit">Desactivar</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

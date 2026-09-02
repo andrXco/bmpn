@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar sesión</title>
+</head>
+<body>
+<main>
+    <h1>Iniciar sesión</h1>
+    <p th:if="${param.registroExitoso}">La empresa fue registrada.</p>
+    <p th:if="${param.sesionCerrada}">La sesión fue cerrada.</p>
+    <p th:if="${pendienteContrasena}" th:text="${pendienteContrasena}"></p>
+
+    <form th:action="@{/login}" th:object="${formulario}" method="post">
+        <label>Correo <input type="email" th:field="*{email}"></label>
+        <p th:errors="*{email}"></p>
+
+        <label>Contraseña <input type="password" th:field="*{password}"></label>
+        <p th:errors="*{password}"></p>
+
+        <button type="submit">Ingresar</button>
+    </form>
+    <a th:href="@{/empresas/registro}">Registrar una empresa</a>
+</main>
+</body>
+</html>
