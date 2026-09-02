@@ -1,5 +1,7 @@
 # BPMN
 
+[![CI](https://github.com/andrXco/bmpn/actions/workflows/ci.yml/badge.svg)](https://github.com/andrXco/bmpn/actions/workflows/ci.yml)
+
 Base de un proyecto académico configurado con Spring Boot, Thymeleaf y PostgreSQL.
 
 ## Requisitos
@@ -109,3 +111,11 @@ Las eliminaciones funcionales continuan siendo logicas mediante `activo`. Los
 - Las credenciales personales no se suben a Git.
 - Antes de entregar cambios, ejecuta `.\mvnw.cmd clean test`.
 - Los cambios futuros de estructura de base de datos se versionan con Flyway.
+
+## Integración continua
+
+GitHub Actions ejecuta automáticamente `clean verify` en cada `push` y `pull
+request`. El workflow utiliza Java 17 y crea una instancia temporal de
+PostgreSQL 17, por lo que las migraciones de Flyway y las pruebas de integración
+no dependen de una base de datos externa. Los reportes de Surefire quedan
+disponibles como artefacto durante siete días, incluso cuando una prueba falla.
