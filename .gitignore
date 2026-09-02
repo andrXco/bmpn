@@ -38,6 +38,7 @@ build/
 
 /tools/
 .codex
+.agents
 
 AGENTS.md
 /Proyecto-BPMN
