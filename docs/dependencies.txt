@@ -1,0 +1,23 @@
+DEPENDENCIAS Y HERRAMIENTAS DEL PROYECTO
+
+Producción
+- Java 17
+- Spring Boot 4.1.1
+- Spring MVC
+- Spring Data JPA
+- Thymeleaf
+- PostgreSQL
+- Flyway (migraciones SQL versionadas)
+- Lombok
+
+Pruebas
+- JUnit 5
+- Spring Boot Test
+
+Construcción y entorno local
+- Maven Wrapper 3.3.4
+- Apache Maven 3.9.16
+- Docker Compose
+- PostgreSQL 17 (imagen postgres:17-alpine)
+
+Nota: Docker Compose no es una dependencia Maven. Se utiliza para iniciar el servidor PostgreSQL local con la misma versión y configuración para todos los integrantes.

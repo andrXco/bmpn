@@ -8,11 +8,11 @@
 		<version>4.1.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>javeriana.edu</groupId>
-	<artifactId>co</artifactId>
+	<groupId>co.edu.javeriana</groupId>
+	<artifactId>bmpn</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>co</name>
-	<description/>
+	<name>bmpn</name>
+	<description>Base del proyecto académico para la gestión de procesos BPMN</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -46,6 +46,15 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
