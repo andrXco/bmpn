@@ -1,13 +1,13 @@
-package javeriana.edu.co;
+package co.edu.javeriana.bmpn;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CoApplication {
+public class BmpnApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CoApplication.class, args);
+		SpringApplication.run(BmpnApplication.class, args);
 	}
 
 }
