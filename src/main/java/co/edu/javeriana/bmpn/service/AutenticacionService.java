@@ -12,6 +12,6 @@ public class AutenticacionService {
     @Transactional(readOnly = true)
     public SesionUsuarioResponse iniciarSesion(IniciarSesionRequest request) {
         throw new UnsupportedOperationException(
-                "El inicio de sesion se completara cuando se implemente el manejo seguro de contrasenas"); // porque utilizaste esa sintaxis de UnsupportedOperationException
-}
+                "El inicio de sesion se completara cuando se implemente el manejo seguro de contrasenas");
+    }
 }

@@ -36,19 +36,9 @@ build/
 .env
 
 
-/tools/*
-!/tools/profesor-vault-mcp/
-!/tools/profesor-vault-mcp/**
-!/tools/spring-docs-vault/
-!/tools/spring-docs-vault/**
-/tools/**/node_modules/
-.codex
-.agents
-!.agents/
-.agents/*
-!.agents/skills/
-.agents/skills/*
-!.agents/skills/backend-estilo-profesor/
-!.agents/skills/backend-estilo-profesor/**
-/Proyecto-BPMN
-/Spring-Boot-4.1.1
+/AGENTS.md
+/.agents/
+/.codex/
+/tools/
+/Proyecto-BPMN/
+/Spring-Boot-4.1.1/

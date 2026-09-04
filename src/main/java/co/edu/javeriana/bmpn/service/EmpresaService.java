@@ -26,8 +26,8 @@ public class EmpresaService {
 
     @Transactional
     public EmpresaResponse registrar(RegistrarEmpresaRequest request) {
-        String nit = request.nit().trim().toUpperCase(Locale.ROOT);
-        String emailAdministrador = normalizarEmail(request.emailAdministrador());
+        String nit = request.getNit().trim().toUpperCase(Locale.ROOT);
+        String emailAdministrador = normalizarEmail(request.getEmailAdministrador());
 
         if (empresaRepository.existsByNit(nit)) {
             throw new RecursoDuplicadoException("Ya existe una empresa con ese NIT");

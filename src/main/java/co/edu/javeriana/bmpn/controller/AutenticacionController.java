@@ -30,19 +30,20 @@ public class AutenticacionController {
     }
 
     @GetMapping
-    public SesionUsuarioResponse consultarSesion(HttpServletRequest request) {
-        return sesionHttp.obtener(request)
+    public ResponseEntity<SesionUsuarioResponse> consultarSesion(HttpServletRequest request) {
+        SesionUsuarioResponse sesion = sesionHttp.obtener(request)
                 .orElseThrow(() -> new AutenticacionRequeridaException(
                         "Debe iniciar sesion"));
+        return ResponseEntity.ok(sesion);
     }
 
     @PostMapping
-    public SesionUsuarioResponse iniciarSesion(
+    public ResponseEntity<SesionUsuarioResponse> iniciarSesion(
             @Valid @RequestBody IniciarSesionRequest formulario,
             HttpServletRequest request) {
         SesionUsuarioResponse sesion = autenticacionService.iniciarSesion(formulario);
         sesionHttp.guardar(request, sesion);
-        return sesion;
+        return ResponseEntity.ok(sesion);
     }
 
     @DeleteMapping

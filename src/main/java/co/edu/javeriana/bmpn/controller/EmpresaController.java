@@ -28,7 +28,7 @@ public class EmpresaController {
             @Valid @RequestBody RegistrarEmpresaRequest formulario) {
         EmpresaResponse empresa = empresaService.registrar(formulario);
         return ResponseEntity
-                .created(URI.create("/api/empresas/" + empresa.id()))
+                .created(URI.create("/api/empresas/" + empresa.getId()))
                 .body(empresa);
     }
 }

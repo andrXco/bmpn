@@ -35,9 +35,10 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<UsuarioResponse> listar(HttpServletRequest request) {
+    public ResponseEntity<List<UsuarioResponse>> listar(HttpServletRequest request) {
         SesionUsuarioResponse sesion = exigirSesion(request);
-        return usuarioService.listarActivos(sesion.empresaId());
+        List<UsuarioResponse> usuarios = usuarioService.listarActivos(sesion.getEmpresaId());
+        return ResponseEntity.ok(usuarios);
     }
 
     @PostMapping
@@ -46,20 +47,21 @@ public class UsuarioController {
             HttpServletRequest request) {
         SesionUsuarioResponse sesion = exigirSesion(request);
         UsuarioResponse usuario = usuarioService.registrar(
-                sesion.empresaId(), sesion.rolAcceso(), formulario);
+                sesion.getEmpresaId(), sesion.getRolAcceso(), formulario);
         return ResponseEntity
-                .created(URI.create("/api/usuarios/" + usuario.id()))
+                .created(URI.create("/api/usuarios/" + usuario.getId()))
                 .body(usuario);
     }
 
     @PatchMapping("/{usuarioId}/rol")
-    public UsuarioResponse cambiarRol(
+    public ResponseEntity<UsuarioResponse> cambiarRol(
             @PathVariable Long usuarioId,
             @Valid @RequestBody CambiarRolUsuarioRequest formulario,
             HttpServletRequest request) {
         SesionUsuarioResponse sesion = exigirSesion(request);
-        return usuarioService.cambiarRol(
-                sesion.empresaId(), sesion.rolAcceso(), usuarioId, formulario);
+        UsuarioResponse usuario = usuarioService.cambiarRol(
+                sesion.getEmpresaId(), sesion.getRolAcceso(), usuarioId, formulario);
+        return ResponseEntity.ok(usuario);
     }
 
     @DeleteMapping("/{usuarioId}")
@@ -67,7 +69,7 @@ public class UsuarioController {
             @PathVariable Long usuarioId,
             HttpServletRequest request) {
         SesionUsuarioResponse sesion = exigirSesion(request);
-        usuarioService.desactivar(sesion.empresaId(), sesion.rolAcceso(), usuarioId);
+        usuarioService.desactivar(sesion.getEmpresaId(), sesion.getRolAcceso(), usuarioId);
         return ResponseEntity.noContent().build();
     }
 
