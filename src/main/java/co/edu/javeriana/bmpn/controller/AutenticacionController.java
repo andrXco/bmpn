@@ -1,19 +1,22 @@
 package co.edu.javeriana.bmpn.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.javeriana.bmpn.dto.autenticacion.IniciarSesionRequest;
 import co.edu.javeriana.bmpn.dto.autenticacion.SesionUsuarioResponse;
+import co.edu.javeriana.bmpn.exception.AutenticacionRequeridaException;
 import co.edu.javeriana.bmpn.service.AutenticacionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-@Controller
+@RestController
+@RequestMapping("/api/sesiones")
 public class AutenticacionController {
 
     private final AutenticacionService autenticacionService;
@@ -26,37 +29,25 @@ public class AutenticacionController {
         this.sesionHttp = sesionHttp;
     }
 
-    @GetMapping("/login")
-    public String mostrarLogin(Model model) {
-        if (!model.containsAttribute("formulario")) {
-            model.addAttribute("formulario", new IniciarSesionRequest("", ""));
-        }
-        return "autenticacion/login";
+    @GetMapping
+    public SesionUsuarioResponse consultarSesion(HttpServletRequest request) {
+        return sesionHttp.obtener(request)
+                .orElseThrow(() -> new AutenticacionRequeridaException(
+                        "Debe iniciar sesion"));
     }
 
-    @PostMapping("/login")
-    public String iniciarSesion(
-            @Valid @ModelAttribute("formulario") IniciarSesionRequest formulario,
-            BindingResult resultado,
-            HttpServletRequest request,
-            Model model) {
-        if (resultado.hasErrors()) {
-            return "autenticacion/login";
-        }
-
-        try {
-            SesionUsuarioResponse sesion = autenticacionService.iniciarSesion(formulario);
-            sesionHttp.guardar(request, sesion);
-            return "redirect:/usuarios";
-        } catch (UnsupportedOperationException exception) {
-            model.addAttribute("pendienteContrasena", exception.getMessage());
-            return "autenticacion/login";
-        }
+    @PostMapping
+    public SesionUsuarioResponse iniciarSesion(
+            @Valid @RequestBody IniciarSesionRequest formulario,
+            HttpServletRequest request) {
+        SesionUsuarioResponse sesion = autenticacionService.iniciarSesion(formulario);
+        sesionHttp.guardar(request, sesion);
+        return sesion;
     }
 
-    @PostMapping("/logout")
-    public String cerrarSesion(HttpServletRequest request) {
+    @DeleteMapping
+    public ResponseEntity<Void> cerrarSesion(HttpServletRequest request) {
         sesionHttp.cerrar(request);
-        return "redirect:/login?sesionCerrada";
+        return ResponseEntity.noContent().build();
     }
 }

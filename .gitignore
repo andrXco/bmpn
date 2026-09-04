@@ -36,9 +36,12 @@ build/
 .env
 
 
-/tools/
+/tools/*
+!/tools/profesor-vault-mcp/
+!/tools/profesor-vault-mcp/**
+!/tools/spring-docs-vault/
+!/tools/spring-docs-vault/**
+/tools/**/node_modules/
 .codex
 .agents
-
-AGENTS.md
 /Proyecto-BPMN

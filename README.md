@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/andrXco/bmpn/actions/workflows/ci.yml/badge.svg)](https://github.com/andrXco/bmpn/actions/workflows/ci.yml)
 
-Base de un proyecto académico configurado con Spring Boot, Thymeleaf y PostgreSQL.
+Base de un proyecto académico configurado como API REST con Spring Boot y PostgreSQL.
 
 ## Requisitos
 
@@ -92,6 +92,26 @@ src/main/java/co/edu/javeriana/bmpn/   Código Java
 src/main/resources/application.properties
 docs/                                  Documentación y diagramas
 ```
+
+La capa de presentación del backend expone respuestas JSON bajo `/api`. La
+interfaz de usuario se desarrolla como un frontend independiente que consume
+estos endpoints.
+
+### Endpoints disponibles
+
+| Método | Ruta | Operación |
+| --- | --- | --- |
+| `POST` | `/api/empresas` | Registrar una empresa y su administrador inicial |
+| `GET` | `/api/sesiones` | Consultar la sesión actual |
+| `POST` | `/api/sesiones` | Iniciar sesión |
+| `DELETE` | `/api/sesiones` | Cerrar sesión |
+| `GET` | `/api/usuarios` | Listar usuarios activos de la empresa autenticada |
+| `POST` | `/api/usuarios` | Registrar un usuario |
+| `PATCH` | `/api/usuarios/{usuarioId}/rol` | Cambiar el rol de acceso |
+| `DELETE` | `/api/usuarios/{usuarioId}` | Desactivar un usuario |
+
+Las operaciones autenticadas utilizan la sesión HTTP del backend. Los errores
+se entregan como respuestas JSON compatibles con `ProblemDetail`.
 
 ## Esquema de base de datos
 

@@ -5,7 +5,6 @@ Producción
 - Spring Boot 4.1.1
 - Spring MVC
 - Spring Data JPA
-- Thymeleaf
 - PostgreSQL
 - Flyway (migraciones SQL versionadas)
 - Lombok
