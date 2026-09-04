@@ -44,4 +44,11 @@ build/
 /tools/**/node_modules/
 .codex
 .agents
+!.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/backend-estilo-profesor/
+!.agents/skills/backend-estilo-profesor/**
 /Proyecto-BPMN
+/Spring-Boot-4.1.1
