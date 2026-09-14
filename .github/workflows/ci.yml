@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Compilar y probar
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: bmpn
+          POSTGRES_USER: bmpn
+          POSTGRES_PASSWORD: bmpn_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bmpn -d bmpn"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/bmpn
+      DB_USERNAME: bmpn
+      DB_PASSWORD: bmpn_ci
+
+    steps:
+      - name: Descargar el codigo
+        uses: actions/checkout@v6
+
+      - name: Configurar Java 17 y cache de Maven
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Compilar y ejecutar pruebas
+        run: ./mvnw --batch-mode --no-transfer-progress clean verify
+
+      - name: Conservar reportes de pruebas
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes-de-pruebas
+          path: target/surefire-reports/
+          if-no-files-found: ignore
+          retention-days: 7
