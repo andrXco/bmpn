@@ -129,10 +129,45 @@ public class ProcesoService {
         return ProcesoResponse.desde(proceso);
     }
 
+    
+    @Transactional
+    public void eliminar(
+            Long procesoId,
+            Long empresaId,
+            Long usuarioId,
+            RolAcceso rolUsuarioAutenticado) {
+
+        exigirPermisoDeAdministrador(rolUsuarioAutenticado);
+
+        Proceso proceso = procesoRepository
+                .findByIdAndEmpresaIdAndActivoTrue(procesoId, empresaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Proceso no encontrado"));
+
+        Usuario autor = usuarioRepository
+                .findByIdAndEmpresaIdAndActivoTrue(usuarioId, empresaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+
+        proceso.desactivar();
+
+        historialProcesoRepository.save(new HistorialProceso(
+                proceso,
+                autor,
+                AccionHistorial.ELIMINACION,
+                "Proceso desactivado (eliminacion logica)"));
+    }
+
     private void exigirPermisoDeEdicion(RolAcceso rol) {
         if (rol == RolAcceso.SOLO_LECTURA) {
             throw new AccesoDenegadoException(
                     "Un usuario de solo lectura no puede modificar procesos");
+        }
+    }
+
+    
+    private void exigirPermisoDeAdministrador(RolAcceso rol) {
+        if (rol != RolAcceso.ADMINISTRADOR) {
+            throw new AccesoDenegadoException(
+                    "Solo un administrador puede eliminar procesos");
         }
     }
 }

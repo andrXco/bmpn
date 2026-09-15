@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import co.edu.javeriana.bmpn.dto.autenticacion.SesionUsuarioResponse;
 import co.edu.javeriana.bmpn.dto.proceso.CrearProcesoRequest;
@@ -18,6 +19,7 @@ import co.edu.javeriana.bmpn.exception.AutenticacionRequeridaException;
 import co.edu.javeriana.bmpn.service.ProcesoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/api/procesos")
@@ -65,6 +67,22 @@ public class ProcesoController {
                 formulario);
 
         return ResponseEntity.ok(proceso);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+
+        SesionUsuarioResponse sesion = exigirSesion(request);
+
+        procesoService.eliminar(
+                id,
+                sesion.getEmpresaId(),
+                sesion.getUsuarioId(),
+                sesion.getRolAcceso());
+
+        return ResponseEntity.noContent().build();
     }
 
     private SesionUsuarioResponse exigirSesion(HttpServletRequest request) {
