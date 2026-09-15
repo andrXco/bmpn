@@ -72,10 +72,12 @@ public class Proceso {
         this.estado = EstadoProceso.PUBLICADO;
     }
 
-    public void actualizarDatos(String nombre, String descripcion, String categoria) {
+    public void actualizarDatos(
+            String nombre, String descripcion, String categoria, EstadoProceso estado) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.categoria = categoria;
+        this.estado = estado;
     }
 
     public void desactivar() {

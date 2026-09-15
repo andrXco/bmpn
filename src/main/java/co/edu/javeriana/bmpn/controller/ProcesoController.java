@@ -3,19 +3,21 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.javeriana.bmpn.dto.autenticacion.SesionUsuarioResponse;
 import co.edu.javeriana.bmpn.dto.proceso.CrearProcesoRequest;
+import co.edu.javeriana.bmpn.dto.proceso.EditarProcesoRequest;
 import co.edu.javeriana.bmpn.dto.proceso.ProcesoResponse;
 import co.edu.javeriana.bmpn.exception.AutenticacionRequeridaException;
 import co.edu.javeriana.bmpn.service.ProcesoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("/api/procesos")
@@ -45,6 +47,24 @@ public class ProcesoController {
         return ResponseEntity
                 .created(URI.create("/api/procesos/" + proceso.id()))
                 .body(proceso);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProcesoResponse> editar(
+            @PathVariable Long id,
+            @Valid @RequestBody EditarProcesoRequest formulario,
+            HttpServletRequest request) {
+
+        SesionUsuarioResponse sesion = exigirSesion(request);
+
+        ProcesoResponse proceso = procesoService.editar(
+                id,
+                sesion.getEmpresaId(),
+                sesion.getUsuarioId(),
+                sesion.getRolAcceso(),
+                formulario);
+
+        return ResponseEntity.ok(proceso);
     }
 
     private SesionUsuarioResponse exigirSesion(HttpServletRequest request) {

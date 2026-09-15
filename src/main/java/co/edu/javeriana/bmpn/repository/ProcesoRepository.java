@@ -11,6 +11,8 @@ public interface ProcesoRepository extends JpaRepository<Proceso, Long> {
 
     boolean existsByEmpresaIdAndNombreIgnoreCase(Long empresaId, String nombre);
 
+    boolean existsByEmpresaIdAndNombreIgnoreCaseAndIdNot(Long empresaId, String nombre, Long id);
+
     Optional<Proceso> findByIdAndEmpresaIdAndActivoTrue(Long id, Long empresaId);
 
     List<Proceso> findAllByEmpresaIdAndActivoTrueOrderByNombreAsc(Long empresaId);
