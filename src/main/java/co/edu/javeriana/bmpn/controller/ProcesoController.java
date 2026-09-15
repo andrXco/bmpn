@@ -1,6 +1,7 @@
 package co.edu.javeriana.bmpn.controller;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,11 +11,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import co.edu.javeriana.bmpn.dto.autenticacion.SesionUsuarioResponse;
 import co.edu.javeriana.bmpn.dto.proceso.CrearProcesoRequest;
 import co.edu.javeriana.bmpn.dto.proceso.EditarProcesoRequest;
 import co.edu.javeriana.bmpn.dto.proceso.ProcesoResponse;
+import co.edu.javeriana.bmpn.dto.proceso.HistorialResponse;
+import co.edu.javeriana.bmpn.dto.proceso.ProcesoResumen;
+import co.edu.javeriana.bmpn.entity.EstadoProceso;
 import co.edu.javeriana.bmpn.exception.AutenticacionRequeridaException;
 import co.edu.javeriana.bmpn.service.ProcesoService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -83,6 +92,48 @@ public class ProcesoController {
                 sesion.getRolAcceso());
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<ProcesoResumen>> listar(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) EstadoProceso estado,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(defaultValue = "false") boolean incluirInactivos,
+            @PageableDefault(size = 20, sort = "nombre") Pageable pageable,
+            HttpServletRequest request) {
+
+        SesionUsuarioResponse sesion = exigirSesion(request);
+
+        return ResponseEntity.ok(procesoService.listar(
+                sesion.getEmpresaId(),
+                nombre,
+                estado,
+                categoria,
+                incluirInactivos,
+                pageable));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProcesoResponse> obtenerDetalle(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+
+        SesionUsuarioResponse sesion = exigirSesion(request);
+
+        return ResponseEntity.ok(
+                procesoService.obtenerDetalle(id, sesion.getEmpresaId()));
+    }
+
+    @GetMapping("/{id}/historial")
+    public ResponseEntity<List<HistorialResponse>> obtenerHistorial(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+
+        SesionUsuarioResponse sesion = exigirSesion(request);
+
+        return ResponseEntity.ok(
+                procesoService.obtenerHistorial(id, sesion.getEmpresaId()));
     }
 
     private SesionUsuarioResponse exigirSesion(HttpServletRequest request) {

@@ -1,11 +1,16 @@
 package co.edu.javeriana.bmpn.service;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import co.edu.javeriana.bmpn.dto.proceso.CrearProcesoRequest;
 import co.edu.javeriana.bmpn.dto.proceso.EditarProcesoRequest;
 import co.edu.javeriana.bmpn.dto.proceso.ProcesoResponse;
+import co.edu.javeriana.bmpn.dto.proceso.HistorialResponse;
+import co.edu.javeriana.bmpn.dto.proceso.ProcesoResumen;
 import co.edu.javeriana.bmpn.entity.AccionHistorial;
 import co.edu.javeriana.bmpn.entity.Empresa;
 import co.edu.javeriana.bmpn.entity.HistorialProceso;
@@ -14,6 +19,7 @@ import co.edu.javeriana.bmpn.entity.Proceso;
 import co.edu.javeriana.bmpn.entity.RolAcceso;
 import co.edu.javeriana.bmpn.entity.TipoParticipante;
 import co.edu.javeriana.bmpn.entity.Usuario;
+import co.edu.javeriana.bmpn.entity.EstadoProceso;
 import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
 import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
 import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
@@ -154,6 +160,47 @@ public class ProcesoService {
                 autor,
                 AccionHistorial.ELIMINACION,
                 "Proceso desactivado (eliminacion logica)"));
+    }
+
+    public Page<ProcesoResumen> listar(
+            Long empresaId,
+            String nombre,
+            EstadoProceso estado,
+            String categoria,
+            boolean incluirInactivos,
+            Pageable pageable) {
+
+        String nombreBuscado = (nombre == null || nombre.isBlank()) ? null : nombre.trim();
+
+        Boolean activoBuscado = incluirInactivos ? null : Boolean.TRUE;
+
+        Page<Proceso> pagina = procesoRepository.buscar(
+                empresaId, activoBuscado, nombreBuscado, estado, categoria, pageable);
+
+        return pagina.map(p -> new ProcesoResumen(
+                p.getId(),
+                p.getNombre(),
+                p.getCategoria(),
+                p.getEstado(),
+                p.isActivo(),
+                p.getFechaActualizacion()));
+    }
+
+    public ProcesoResponse obtenerDetalle(Long procesoId, Long empresaId) {
+        Proceso proceso = procesoRepository
+                .findByIdAndEmpresaId(procesoId, empresaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Proceso no encontrado"));
+        return ProcesoResponse.desde(proceso);
+    }
+
+    public List<HistorialResponse> obtenerHistorial(Long procesoId, Long empresaId) {
+        procesoRepository.findByIdAndEmpresaId(procesoId, empresaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Proceso no encontrado"));
+
+        return historialProcesoRepository.findAllByProcesoIdOrderByFechaDesc(procesoId)
+                .stream()
+                .map(HistorialResponse::desde)
+                .toList();
     }
 
     private void exigirPermisoDeEdicion(RolAcceso rol) {
