@@ -4,7 +4,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import co.edu.javeriana.bmpn.dto.proceso.ProcesoResponse;
 import co.edu.javeriana.bmpn.dto.usuario.UsuarioResponse;
+import co.edu.javeriana.bmpn.entity.Proceso;
 import co.edu.javeriana.bmpn.entity.Usuario;
 
 @Configuration
@@ -17,6 +19,10 @@ public class ModelMapperConfig {
                 .addMappings(mapper -> mapper.map(
                         usuario -> usuario.getEmpresa().getId(),
                         UsuarioResponse::setEmpresaId));
+        modelMapper.typeMap(Proceso.class, ProcesoResponse.class)
+                .addMappings(mapper -> mapper.map(
+                        proceso -> proceso.getEmpresa().getId(),
+                        ProcesoResponse::setEmpresaId));
         return modelMapper;
     }
 }
