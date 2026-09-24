@@ -137,7 +137,8 @@ public class ProcesoService {
         return historialProcesoService.listarPorProceso(procesoId);
     }
 
-    private Proceso buscarActivoDeEmpresa(Long procesoId, Long empresaId) {
+    // Publico para que los servicios de los elementos del diagrama obtengan el proceso
+    public Proceso buscarActivoDeEmpresa(Long procesoId, Long empresaId) {
         return procesoRepository.findByIdAndEmpresaIdAndActivoTrue(procesoId, empresaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Proceso no encontrado"));
     }
