@@ -119,8 +119,12 @@ La migracion inicial esta en
 `src/main/resources/db/migration/V1__crear_esquema_bpmn.sql`. Implementa el
 modelo E/R documentado: empresas, usuarios, procesos, historial, colaboracion,
 pools, lanes, elementos BPMN, arcos y mensajes. Incluye claves foraneas,
-unicidad, borrado en cascada para dependencias fisicas y validaciones entre
-tablas.
+unicidad y borrado en cascada para dependencias fisicas.
+
+La migracion `V2__quitar_triggers_de_validacion.sql` elimina los triggers de
+validacion de la V1: las reglas de negocio (por ejemplo, que un arco no cruce
+pools o que una actividad pertenezca a una lane) se validan en la capa de
+servicios.
 
 Las eliminaciones funcionales continuan siendo logicas mediante `activo`. Los
 `ON DELETE` se reservan para operaciones fisicas de mantenimiento y pruebas.
