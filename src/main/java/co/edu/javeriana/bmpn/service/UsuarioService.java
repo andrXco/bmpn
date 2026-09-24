@@ -99,6 +99,11 @@ public class UsuarioService {
         usuario.desactivar();
     }
 
+    public Usuario buscarActivo(Long usuarioId) {
+        return usuarioRepository.findByIdAndActivoTrue(usuarioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+    }
+
     private Usuario buscarUsuarioActivo(Long empresaId, Long usuarioId) {
         return usuarioRepository.findByIdAndEmpresaIdAndActivoTrue(usuarioId, empresaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
