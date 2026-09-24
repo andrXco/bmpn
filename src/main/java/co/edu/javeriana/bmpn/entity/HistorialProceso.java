@@ -12,7 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,6 +22,9 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Table(name = "historial_proceso")
+@NamedQuery(
+        name = "HistorialProceso.listarPorProceso",
+        query = "SELECT h FROM HistorialProceso h WHERE h.proceso.id = :procesoId ORDER BY h.fecha DESC")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -50,21 +53,11 @@ public class HistorialProceso {
     @Column(nullable = false, updatable = false)
     private Instant fecha;
 
-    public HistorialProceso(
-            Proceso proceso,
-            Usuario usuario,
-            AccionHistorial accion,
-            String detalle) {
+    public HistorialProceso(Proceso proceso, Usuario usuario, AccionHistorial accion, String detalle) {
         this.proceso = proceso;
         this.usuario = usuario;
         this.accion = accion;
         this.detalle = detalle;
-    }
-
-    @PrePersist
-    void asignarFecha() {
-        if (fecha == null) {
-            fecha = Instant.now();
-        }
+        this.fecha = Instant.now();
     }
 }

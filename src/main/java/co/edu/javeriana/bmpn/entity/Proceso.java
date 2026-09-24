@@ -4,7 +4,19 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,8 +61,7 @@ public class Proceso {
     @Column(nullable = false)
     private boolean activo;
 
-    @OneToMany(mappedBy = "proceso", fetch = FetchType.LAZY,
-               cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "proceso", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<Pool> pools = new HashSet<>();
 
     public Proceso(Empresa empresa, String nombre, String descripcion, String categoria) {
@@ -58,43 +69,27 @@ public class Proceso {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.categoria = categoria;
-        this.estado = EstadoProceso.BORRADOR;  
+        this.estado = EstadoProceso.BORRADOR;
         this.activo = true;
+        this.fechaCreacion = Instant.now();
+        this.fechaActualizacion = this.fechaCreacion;
     }
 
-    // Mantiene sincronizados ambos lados de la relación
     public void agregarPool(Pool pool) {
         pools.add(pool);
         pool.asignarProceso(this);
     }
 
-    public void publicar() {
-        this.estado = EstadoProceso.PUBLICADO;
-    }
-
-    public void actualizarDatos(
-            String nombre, String descripcion, String categoria, EstadoProceso estado) {
+    public void actualizarDatos(String nombre, String descripcion, String categoria, EstadoProceso estado) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.categoria = categoria;
         this.estado = estado;
+        this.fechaActualizacion = Instant.now();
     }
 
     public void desactivar() {
         this.activo = false;
-    }
-
-    @PrePersist
-    void alCrear() {
-        Instant ahora = Instant.now();
-        if (fechaCreacion == null) {
-            fechaCreacion = ahora;
-        }
-        fechaActualizacion = ahora;
-    }
-
-    @PreUpdate
-    void alActualizar() {
-        fechaActualizacion = Instant.now();
+        this.fechaActualizacion = Instant.now();
     }
 }
