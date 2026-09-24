@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,6 +17,7 @@ import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
 import co.edu.javeriana.bmpn.exception.AutenticacionRequeridaException;
 import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
 import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
+import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -57,6 +61,27 @@ public class ApiExceptionHandler {
     @ExceptionHandler(RecursoDuplicadoException.class)
     public ResponseEntity<ErrorDto> manejarDuplicado(RecursoDuplicadoException exception) {
         return crearRespuesta(HttpStatus.CONFLICT, "RECURSO_DUPLICADO",
+                exception.getMessage(), List.of());
+    }
+
+    // JSON mal escrito o un valor que no existe en un enum (por ejemplo un tipo de actividad)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorDto> manejarCuerpoIlegible(HttpMessageNotReadableException exception) {
+        return crearRespuesta(HttpStatus.BAD_REQUEST, "SOLICITUD_INVALIDA",
+                "El cuerpo de la solicitud no tiene un formato valido", List.of());
+    }
+
+    // Falta un parametro de la URL (por ejemplo usuarioId) o viene con un tipo incorrecto
+    @ExceptionHandler({MissingServletRequestParameterException.class,
+            MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ErrorDto> manejarParametroInvalido(Exception exception) {
+        return crearRespuesta(HttpStatus.BAD_REQUEST, "SOLICITUD_INVALIDA",
+                "Falta un parametro obligatorio o tiene un valor invalido", List.of());
+    }
+
+    @ExceptionHandler(SolicitudInvalidaException.class)
+    public ResponseEntity<ErrorDto> manejarSolicitudInvalida(SolicitudInvalidaException exception) {
+        return crearRespuesta(HttpStatus.BAD_REQUEST, "SOLICITUD_INVALIDA",
                 exception.getMessage(), List.of());
     }
 
