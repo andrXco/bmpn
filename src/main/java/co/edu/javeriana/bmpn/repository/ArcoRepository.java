@@ -20,4 +20,16 @@ public interface ArcoRepository extends JpaRepository<Arco, Long> {
             + "WHERE a.proceso.id = :procesoId AND a.activo = true "
             + "ORDER BY a.id")
     List<Arco> listarActivosPorProceso(@Param("procesoId") Long procesoId);
+
+    // El elemento todavia tiene algun camino de salida
+    boolean existsByOrigenIdAndActivoTrue(Long origenId);
+
+    // El elemento todavia tiene algun camino de entrada
+    boolean existsByDestinoIdAndActivoTrue(Long destinoId);
+
+    // Arcos activos que entran o salen de un elemento
+    @Query("SELECT a FROM Arco a "
+            + "WHERE a.activo = true "
+            + "AND (a.origen.id = :elementoId OR a.destino.id = :elementoId)")
+    List<Arco> listarActivosDeElemento(@Param("elementoId") Long elementoId);
 }
