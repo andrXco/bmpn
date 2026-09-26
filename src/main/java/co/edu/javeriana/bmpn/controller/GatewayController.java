@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import co.edu.javeriana.bmpn.dto.gateway.CrearGatewayRequest;
 import co.edu.javeriana.bmpn.dto.gateway.EditarGatewayRequest;
 import co.edu.javeriana.bmpn.dto.gateway.GatewayResponse;
+import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.service.GatewayService;
 import jakarta.validation.Valid;
 
@@ -57,5 +59,12 @@ public class GatewayController {
                                                   @RequestParam Long usuarioId,
                                                   @Valid @RequestBody EditarGatewayRequest request) {
         return ResponseEntity.ok(gatewayService.editar(procesoId, id, usuarioId, request));
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<AdvertenciasResponse> eliminar(@PathVariable Long procesoId,
+                                                         @PathVariable Long id,
+                                                         @RequestParam Long usuarioId) {
+        return ResponseEntity.ok(gatewayService.eliminar(procesoId, id, usuarioId));
     }
 }
