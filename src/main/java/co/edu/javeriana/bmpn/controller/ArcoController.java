@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.javeriana.bmpn.dto.arco.ArcoResponse;
 import co.edu.javeriana.bmpn.dto.arco.CrearArcoRequest;
 import co.edu.javeriana.bmpn.dto.arco.EditarArcoRequest;
+import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.service.ArcoService;
 import jakarta.validation.Valid;
 
@@ -57,5 +59,12 @@ public class ArcoController {
                                                @RequestParam Long usuarioId,
                                                @Valid @RequestBody EditarArcoRequest request) {
         return ResponseEntity.ok(arcoService.editar(procesoId, id, usuarioId, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<AdvertenciasResponse> eliminar(@PathVariable Long procesoId,
+                                                         @PathVariable Long id,
+                                                         @RequestParam Long usuarioId) {
+        return ResponseEntity.ok(arcoService.eliminar(procesoId, id, usuarioId));
     }
 }
