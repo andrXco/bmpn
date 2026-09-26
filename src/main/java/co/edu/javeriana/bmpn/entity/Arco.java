@@ -64,4 +64,12 @@ public class Arco {
         this.condicion = condicion;
         this.activo = true;
     }
+
+    public void actualizar(ElementoProceso origen, ElementoProceso destino,
+                           String etiqueta, String condicion) {
+        this.origen = origen;
+        this.destino = destino;
+        this.etiqueta = etiqueta;
+        this.condicion = condicion;
+    }
 }
