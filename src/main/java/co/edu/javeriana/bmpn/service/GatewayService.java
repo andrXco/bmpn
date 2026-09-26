@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.edu.javeriana.bmpn.dto.gateway.CrearGatewayRequest;
 import co.edu.javeriana.bmpn.dto.gateway.EditarGatewayRequest;
 import co.edu.javeriana.bmpn.dto.gateway.GatewayResponse;
+import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.entity.AccionHistorial;
 import co.edu.javeriana.bmpn.entity.Arco;
 import co.edu.javeriana.bmpn.entity.Gateway;
@@ -96,6 +97,30 @@ public class GatewayService {
         return convertirAResponse(gateway);
     }
 
+    // HU-16: la eliminacion es logica y arrastra los arcos del gateway
+    @Transactional
+    public AdvertenciasResponse eliminar(Long procesoId, Long gatewayId, Long usuarioId) {
+        Usuario usuario = usuarioService.buscarActivo(usuarioId);
+        exigirPermisoDeAdministrador(usuario.getRolAcceso());
+        Proceso proceso = procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        Gateway gateway = buscarActivo(gatewayId, procesoId);
+
+        // Se cuentan las ramas antes de desactivar los arcos
+        int ramas = arcoService.listarSalidasActivas(gatewayId).size();
+
+        gateway.desactivar();
+        List<String> advertencias = new ArrayList<>();
+        if (ramas >= 2) {
+            advertencias.add("La ramificacion del gateway '" + gateway.getNombre()
+                    + "' quedo sin punto de decision: " + ramas + " caminos se quedaron sin origen");
+        }
+        advertencias.addAll(arcoService.desactivarArcosDeElemento(gatewayId));
+
+        historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
+                "Gateway '" + gateway.getNombre() + "' eliminado");
+        return new AdvertenciasResponse(advertencias);
+    }
+
     @Transactional(readOnly = true)
     public List<GatewayResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
@@ -176,6 +201,12 @@ public class GatewayService {
     private void exigirPermisoDeEdicion(RolAcceso rol) {
         if (rol == RolAcceso.SOLO_LECTURA) {
             throw new AccesoDenegadoException("Un usuario de solo lectura no puede modificar gateways");
+        }
+    }
+
+    private void exigirPermisoDeAdministrador(RolAcceso rol) {
+        if (rol != RolAcceso.ADMINISTRADOR) {
+            throw new AccesoDenegadoException("Solo un administrador puede eliminar gateways");
         }
     }
 }
