@@ -40,12 +40,9 @@ public class UsuarioService {
         this.modelMapper = modelMapper;
     }
 
-    public List<UsuarioResponse> listarActivos(Long usuarioSolicitanteId) {
-        Usuario solicitante = buscarActivo(usuarioSolicitanteId);
-
+    public List<UsuarioResponse> listarActivos(Long empresaId) {
         return usuarioRepository
-                .findAllByEmpresaIdAndActivoTrueOrderByNombreAscApellidoAsc(
-                        solicitante.getEmpresa().getId())
+                .findAllByEmpresaIdAndActivoTrueOrderByNombreAscApellidoAsc(empresaId)
                 .stream()
                 .map(usuario -> modelMapper.map(usuario, UsuarioResponse.class))
                 .toList();
@@ -53,17 +50,17 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponse registrar(
-            Long usuarioSolicitanteId,
+            Long empresaId,
+            RolAcceso rolUsuarioAutenticado,
             RegistrarUsuarioRequest request) {
-        Usuario solicitante = buscarActivo(usuarioSolicitanteId);
-        exigirAdministrador(solicitante.getRolAcceso());
+        exigirAdministrador(rolUsuarioAutenticado);
 
         String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
         if (usuarioRepository.existsByEmailIgnoreCase(email)) {
             throw new RecursoDuplicadoException("Ya existe un usuario con ese correo");
         }
 
-        Empresa empresa = empresaRepository.findByIdAndActivoTrue(solicitante.getEmpresa().getId())
+        Empresa empresa = empresaRepository.findByIdAndActivoTrue(empresaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Empresa no encontrada"));
 
         // Igual que en EmpresaService: el texto plano solo se lee para
@@ -79,34 +76,26 @@ public class UsuarioService {
 
         return modelMapper.map(usuario, UsuarioResponse.class);
     }
+
     @Transactional
     public UsuarioResponse cambiarRol(
-            Long usuarioSolicitanteId,
-            Long usuarioObjetivoId,
+            Long empresaId,
+            RolAcceso rolUsuarioAutenticado,
+            Long usuarioId,
             CambiarRolUsuarioRequest request) {
-
-        Usuario solicitante = buscarActivo(usuarioSolicitanteId);
-        exigirAdministrador(solicitante.getRolAcceso());
-
-        Usuario usuarioObjetivo = buscarUsuarioActivo(
-                solicitante.getEmpresa().getId(),
-                usuarioObjetivoId);
-
-        usuarioObjetivo.cambiarRol(request.getRolAcceso());
-
-        return modelMapper.map(usuarioObjetivo, UsuarioResponse.class);
+        exigirAdministrador(rolUsuarioAutenticado);
+        Usuario usuario = buscarUsuarioActivo(empresaId, usuarioId);
+        usuario.cambiarRol(request.getRolAcceso());
+        return modelMapper.map(usuario, UsuarioResponse.class);
     }
 
     @Transactional
     public void desactivar(
-            Long usuarioSolicitanteId,
-            Long usuarioObjetivoId) {
-        Usuario solicitante = buscarActivo(usuarioSolicitanteId);
-        exigirAdministrador(solicitante.getRolAcceso());
-
-        Usuario usuario = buscarUsuarioActivo(
-                solicitante.getEmpresa().getId(),
-                usuarioObjetivoId);
+            Long empresaId,
+            RolAcceso rolUsuarioAutenticado,
+            Long usuarioId) {
+        exigirAdministrador(rolUsuarioAutenticado);
+        Usuario usuario = buscarUsuarioActivo(empresaId, usuarioId);
         usuario.desactivar();
     }
 
