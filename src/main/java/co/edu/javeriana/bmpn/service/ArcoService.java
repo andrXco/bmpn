@@ -156,6 +156,18 @@ public class ArcoService {
         return advertencias;
     }
 
+    // Arcos que salen de un elemento
+    @Transactional(readOnly = true)
+    public List<Arco> listarSalidasActivas(Long elementoId) {
+        return arcoRepository.findByOrigenIdAndActivoTrue(elementoId);
+    }
+
+    // Cuantos arcos llegan a un elemento
+    @Transactional(readOnly = true)
+    public long contarEntradasActivas(Long elementoId) {
+        return arcoRepository.countByDestinoIdAndActivoTrue(elementoId);
+    }
+
     @Transactional(readOnly = true)
     public List<ArcoResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
