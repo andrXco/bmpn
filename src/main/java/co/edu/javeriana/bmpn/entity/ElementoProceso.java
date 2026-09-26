@@ -75,4 +75,8 @@ public abstract class ElementoProceso {
     public void desactivar() {
         this.activo = false;
     }
+
+    public boolean esGateway() {
+        return false;
+    }
 }
