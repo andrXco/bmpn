@@ -32,4 +32,9 @@ public interface ArcoRepository extends JpaRepository<Arco, Long> {
             + "WHERE a.activo = true "
             + "AND (a.origen.id = :elementoId OR a.destino.id = :elementoId)")
     List<Arco> listarActivosDeElemento(@Param("elementoId") Long elementoId);
+
+    // Arcos que salen de un elemento, para revisar las salidas de un gateway
+    List<Arco> findByOrigenIdAndActivoTrue(Long origenId);
+
+    long countByDestinoIdAndActivoTrue(Long destinoId);
 }
