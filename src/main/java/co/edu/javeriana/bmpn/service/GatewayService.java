@@ -1,0 +1,131 @@
+package co.edu.javeriana.bmpn.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import co.edu.javeriana.bmpn.dto.gateway.CrearGatewayRequest;
+import co.edu.javeriana.bmpn.dto.gateway.GatewayResponse;
+import co.edu.javeriana.bmpn.entity.AccionHistorial;
+import co.edu.javeriana.bmpn.entity.Arco;
+import co.edu.javeriana.bmpn.entity.Gateway;
+import co.edu.javeriana.bmpn.entity.Pool;
+import co.edu.javeriana.bmpn.entity.Proceso;
+import co.edu.javeriana.bmpn.entity.RolAcceso;
+import co.edu.javeriana.bmpn.entity.TipoGateway;
+import co.edu.javeriana.bmpn.entity.Usuario;
+import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
+import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
+import co.edu.javeriana.bmpn.repository.GatewayRepository;
+
+@Service
+public class GatewayService {
+
+    private final GatewayRepository gatewayRepository;
+    private final ProcesoService procesoService;
+    private final UsuarioService usuarioService;
+    private final ElementoProcesoService elementoProcesoService;
+    private final ArcoService arcoService;
+    private final HistorialProcesoService historialProcesoService;
+    private final ModelMapper modelMapper;
+
+    public GatewayService(GatewayRepository gatewayRepository,
+                          ProcesoService procesoService,
+                          UsuarioService usuarioService,
+                          ElementoProcesoService elementoProcesoService,
+                          ArcoService arcoService,
+                          HistorialProcesoService historialProcesoService,
+                          ModelMapper modelMapper) {
+        this.gatewayRepository = gatewayRepository;
+        this.procesoService = procesoService;
+        this.usuarioService = usuarioService;
+        this.elementoProcesoService = elementoProcesoService;
+        this.arcoService = arcoService;
+        this.historialProcesoService = historialProcesoService;
+        this.modelMapper = modelMapper;
+    }
+
+    // HU-14
+    @Transactional
+    public GatewayResponse crear(Long procesoId, Long usuarioId, CrearGatewayRequest request) {
+        Usuario usuario = usuarioService.buscarActivo(usuarioId);
+        exigirPermisoDeEdicion(usuario.getRolAcceso());
+        Proceso proceso = procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+
+        Pool pool = elementoProcesoService.buscarPoolParaElemento(proceso, request.getPoolId());
+        String nombre = request.getNombre().trim();
+        Gateway gateway = new Gateway(proceso, pool, nombre, request.getTipoGateway(),
+                request.getPosicionX(), request.getPosicionY());
+        gatewayRepository.save(gateway);
+
+        historialProcesoService.registrar(proceso, usuario, AccionHistorial.CREACION,
+                "Gateway '" + nombre + "' de tipo " + gateway.getTipoGateway() + " creado");
+        return convertirAResponse(gateway);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GatewayResponse> listar(Long procesoId, Long usuarioId) {
+        Usuario usuario = usuarioService.buscarActivo(usuarioId);
+        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+
+        List<GatewayResponse> respuesta = new ArrayList<>();
+        for (Gateway gateway : gatewayRepository.listarActivosPorProceso(procesoId)) {
+            respuesta.add(convertirAResponse(gateway));
+        }
+        return respuesta;
+    }
+
+    @Transactional(readOnly = true)
+    public GatewayResponse obtener(Long procesoId, Long gatewayId, Long usuarioId) {
+        Usuario usuario = usuarioService.buscarActivo(usuarioId);
+        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        return convertirAResponse(buscarActivo(gatewayId, procesoId));
+    }
+
+    private Gateway buscarActivo(Long gatewayId, Long procesoId) {
+        return gatewayRepository.findByIdAndProcesoIdAndActivoTrue(gatewayId, procesoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Gateway no encontrado"));
+    }
+
+    //Un gateway de divergencia tiene al menos dos arcos salientes
+    private List<String> revisarCoherencia(Gateway gateway) {
+        List<String> advertencias = new ArrayList<>();
+        List<Arco> salidas = arcoService.listarSalidasActivas(gateway.getId());
+        long entradas = arcoService.contarEntradasActivas(gateway.getId());
+
+        // Si junta varios caminos en uno solo, no divide el flujo y estas reglas no aplican
+        boolean juntaElFlujo = entradas >= 2 && salidas.size() <= 1;
+        if (juntaElFlujo) {
+            return advertencias;
+        }
+
+        if (salidas.size() < 2) {
+            advertencias.add("El gateway '" + gateway.getNombre()
+                    + "' divide el flujo y necesita al menos dos arcos salientes; tiene " + salidas.size());
+        }
+        if (gateway.getTipoGateway() != TipoGateway.PARALELO) {
+            for (Arco salida : salidas) {
+                if (salida.getCondicion() == null) {
+                    advertencias.add("El arco hacia '" + salida.getDestino().getNombre()
+                            + "' sale de un gateway " + gateway.getTipoGateway() + " y no tiene condicion");
+                }
+            }
+        }
+        return advertencias;
+    }
+
+    private GatewayResponse convertirAResponse(Gateway gateway) {
+        GatewayResponse respuesta = modelMapper.map(gateway, GatewayResponse.class);
+        respuesta.setAdvertencias(revisarCoherencia(gateway));
+        return respuesta;
+    }
+
+    private void exigirPermisoDeEdicion(RolAcceso rol) {
+        if (rol == RolAcceso.SOLO_LECTURA) {
+            throw new AccesoDenegadoException("Un usuario de solo lectura no puede modificar gateways");
+        }
+    }
+}
