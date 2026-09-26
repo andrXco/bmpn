@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import co.edu.javeriana.bmpn.dto.proceso.CrearProcesoRequest;
 import co.edu.javeriana.bmpn.dto.proceso.EditarProcesoRequest;
 import co.edu.javeriana.bmpn.dto.proceso.HistorialResponse;
@@ -28,6 +29,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/procesos")
+@Tag(name = "Procesos", description = "Gestión de procesos BPMN de una empresa.")
 public class ProcesoController {
 
     private final ProcesoService procesoService;

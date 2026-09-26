@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import co.edu.javeriana.bmpn.dto.usuario.CambiarRolUsuarioRequest;
 import co.edu.javeriana.bmpn.dto.usuario.RegistrarUsuarioRequest;
 import co.edu.javeriana.bmpn.dto.usuario.UsuarioResponse;
@@ -22,6 +23,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/usuarios")
+@Tag(name = "Usuarios", description = "Administración de colaboradores de una empresa.")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;

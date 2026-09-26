@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import co.edu.javeriana.bmpn.dto.actividad.ActividadResponse;
 import co.edu.javeriana.bmpn.dto.actividad.CrearActividadRequest;
 import co.edu.javeriana.bmpn.dto.actividad.EditarActividadRequest;
@@ -22,6 +23,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/actividades")
+@Tag(name = "Actividades", description = "Actividades contenidas en un proceso BPMN.")
 public class ActividadController {
 
     private final ActividadService actividadService;

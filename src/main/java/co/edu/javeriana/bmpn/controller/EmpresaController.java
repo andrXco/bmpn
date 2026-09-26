@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import co.edu.javeriana.bmpn.dto.empresa.EmpresaResponse;
 import co.edu.javeriana.bmpn.dto.empresa.RegistrarEmpresaRequest;
 import co.edu.javeriana.bmpn.service.EmpresaService;
@@ -15,6 +16,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/empresas")
+@Tag(name = "Empresas", description = "Registro de empresas y su administrador inicial.")
 public class EmpresaController {
 
     private final EmpresaService empresaService;

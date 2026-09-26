@@ -56,6 +56,27 @@ No es necesario instalar Maven: el repositorio incluye Maven Wrapper.
 
 En macOS o Linux reemplaza `.\mvnw.cmd` por `./mvnw`.
 
+## Documentación interactiva con Swagger UI
+
+Con la aplicación iniciada, abre [Swagger UI](http://localhost:8080/swagger-ui.html).
+La página se genera a partir de los controladores, DTO y validaciones del
+backend; no reemplaza los flujos de pruebas que se mantienen en Postman.
+
+También puedes consultar la especificación OpenAPI directamente:
+
+- JSON: `http://localhost:8080/v3/api-docs`
+- YAML: `http://localhost:8080/v3/api-docs.yaml`
+
+Desde Swagger UI puedes seleccionar un endpoint, usar **Try it out**, completar
+los parámetros y el cuerpo JSON, y ejecutar una petición contra tu backend
+local. La ruta de Swagger no guarda datos por sí misma: los cambios solo ocurren
+si ejecutas un endpoint que crea, edita o desactiva información.
+
+La autenticación actual es transitoria para la fase de desarrollo. En los
+endpoints que la requieren, usa el `usuarioId` que devuelve `POST /api/sesiones`.
+Cuando el proyecto incorpore Spring Security, esta parte se reemplazará por el
+mecanismo de seguridad definitivo.
+
 ## Configuración local
 
 El proyecto incluye valores únicamente para desarrollo local. Si necesitas cambiar el contenedor, copia `.env.example` como `.env` y ajusta los valores de PostgreSQL. Docker Compose lee ese archivo automáticamente.
