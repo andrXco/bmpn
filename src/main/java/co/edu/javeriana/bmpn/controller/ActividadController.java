@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.javeriana.bmpn.dto.actividad.ActividadResponse;
 import co.edu.javeriana.bmpn.dto.actividad.CrearActividadRequest;
 import co.edu.javeriana.bmpn.dto.actividad.EditarActividadRequest;
+import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.service.ActividadService;
 import jakarta.validation.Valid;
 
@@ -61,10 +62,9 @@ public class ActividadController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long procesoId,
-                                         @PathVariable Long id,
-                                         @RequestParam Long usuarioId) {
-        actividadService.eliminar(procesoId, id, usuarioId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<AdvertenciasResponse> eliminar(@PathVariable Long procesoId,
+                                                         @PathVariable Long id,
+                                                         @RequestParam Long usuarioId) {
+        return ResponseEntity.ok(actividadService.eliminar(procesoId, id, usuarioId));
     }
 }
