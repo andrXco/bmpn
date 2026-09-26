@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.edu.javeriana.bmpn.dto.arco.ArcoResponse;
 import co.edu.javeriana.bmpn.dto.arco.CrearArcoRequest;
 import co.edu.javeriana.bmpn.dto.arco.EditarArcoRequest;
+import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.entity.AccionHistorial;
 import co.edu.javeriana.bmpn.entity.Arco;
 import co.edu.javeriana.bmpn.entity.ElementoProceso;
@@ -114,6 +115,47 @@ public class ArcoService {
         return convertirAResponse(arco);
     }
 
+    // HU-13: la eliminacion es logica y avisa si algun elemento queda desconectado
+    @Transactional
+    public AdvertenciasResponse eliminar(Long procesoId, Long arcoId, Long usuarioId) {
+        Usuario usuario = usuarioService.buscarActivo(usuarioId);
+        exigirPermisoDeAdministrador(usuario.getRolAcceso());
+        Proceso proceso = procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        Arco arco = buscarActivo(arcoId, procesoId);
+
+        arco.desactivar();
+
+        List<String> advertencias = new ArrayList<>();
+        advertirSiQuedaSinSalida(arco.getOrigen(), advertencias);
+        advertirSiQuedaSinEntrada(arco.getDestino(), advertencias);
+
+        historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
+                "Arco de '" + arco.getOrigen().getNombre() + "' a '"
+                        + arco.getDestino().getNombre() + "' eliminado");
+        return new AdvertenciasResponse(advertencias);
+    }
+
+    // Para ActividadService y GatewayService: al eliminar un elemento se eliminan sus arcos
+    @Transactional
+    public List<String> desactivarArcosDeElemento(Long elementoId) {
+        List<Arco> arcos = arcoRepository.listarActivosDeElemento(elementoId);
+        for (Arco arco : arcos) {
+            arco.desactivar();
+        }
+
+        // Se revisan los vecinos del elemento eliminado, no el elemento mismo
+        List<String> advertencias = new ArrayList<>();
+        for (Arco arco : arcos) {
+            if (!arco.getOrigen().getId().equals(elementoId)) {
+                advertirSiQuedaSinSalida(arco.getOrigen(), advertencias);
+            }
+            if (!arco.getDestino().getId().equals(elementoId)) {
+                advertirSiQuedaSinEntrada(arco.getDestino(), advertencias);
+            }
+        }
+        return advertencias;
+    }
+
     @Transactional(readOnly = true)
     public List<ArcoResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
@@ -136,6 +178,18 @@ public class ArcoService {
     private Arco buscarActivo(Long arcoId, Long procesoId) {
         return arcoRepository.findByIdAndProcesoIdAndActivoTrue(arcoId, procesoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Arco no encontrado"));
+    }
+
+    private void advertirSiQuedaSinSalida(ElementoProceso elemento, List<String> advertencias) {
+        if (!arcoRepository.existsByOrigenIdAndActivoTrue(elemento.getId())) {
+            advertencias.add("El elemento '" + elemento.getNombre() + "' quedo sin camino de salida");
+        }
+    }
+
+    private void advertirSiQuedaSinEntrada(ElementoProceso elemento, List<String> advertencias) {
+        if (!arcoRepository.existsByDestinoIdAndActivoTrue(elemento.getId())) {
+            advertencias.add("El elemento '" + elemento.getNombre() + "' quedo sin camino de entrada");
+        }
     }
 
     private void validarNoAutoarco(Long origenId, Long destinoId) {
@@ -173,6 +227,12 @@ public class ArcoService {
     private void exigirPermisoDeEdicion(RolAcceso rol) {
         if (rol == RolAcceso.SOLO_LECTURA) {
             throw new AccesoDenegadoException("Un usuario de solo lectura no puede modificar arcos");
+        }
+    }
+
+    private void exigirPermisoDeAdministrador(RolAcceso rol) {
+        if (rol != RolAcceso.ADMINISTRADOR) {
+            throw new AccesoDenegadoException("Solo un administrador puede eliminar arcos");
         }
     }
 }
