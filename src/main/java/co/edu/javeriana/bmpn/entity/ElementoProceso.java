@@ -75,4 +75,9 @@ public abstract class ElementoProceso {
     public void desactivar() {
         this.activo = false;
     }
+
+    // Solo un gateway exclusivo o inclusivo decide por que camino seguir
+    public boolean aceptaCondiciones() {
+        return false;
+    }
 }
