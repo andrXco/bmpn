@@ -34,8 +34,9 @@ public class Gateway extends ElementoProceso {
         this.tipoGateway = tipoGateway;
     }
 
+    // El paralelo toma todos los caminos a la vez, por eso sus salidas no llevan condicion
     @Override
-    public boolean esGateway() {
-        return true;
+    public boolean aceptaCondiciones() {
+        return tipoGateway != TipoGateway.PARALELO;
     }
 }

@@ -76,4 +76,9 @@ public class Arco {
     public void desactivar() {
         this.activo = false;
     }
+    
+    // Cuando su gateway de origen pasa a paralelo
+    public void quitarCondicion() {
+        this.condicion = null;
+    }
 }

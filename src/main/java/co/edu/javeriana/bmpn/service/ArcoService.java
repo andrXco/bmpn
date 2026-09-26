@@ -167,6 +167,14 @@ public class ArcoService {
     public long contarEntradasActivas(Long elementoId) {
         return arcoRepository.countByDestinoIdAndActivoTrue(elementoId);
     }
+    
+    // Al pasar un gateway a paralelo sus salidas pierden la condicion
+    @Transactional
+    public void quitarCondicionesDeSalidas(Long elementoId) {
+        for (Arco arco : arcoRepository.findByOrigenIdAndActivoTrue(elementoId)) {
+            arco.quitarCondicion();
+        }
+    }
 
     @Transactional(readOnly = true)
     public List<ArcoResponse> listar(Long procesoId, Long usuarioId) {
@@ -217,10 +225,11 @@ public class ArcoService {
         }
     }
 
-    // La condicion indica por que camino sigue el flujo, por eso solo aplica a la salida de un gateway
+    // La condicion indica por que camino sigue el flujo: solo aplica si el origen decide un camino
     private void validarCondicion(ElementoProceso origen, String condicion) {
-        if (condicion != null && !origen.esGateway()) {
-            throw new SolicitudInvalidaException("Solo un arco que sale de un gateway puede tener condicion");
+        if (condicion != null && !origen.aceptaCondiciones()) {
+            throw new SolicitudInvalidaException(
+                    "Solo un arco que sale de un gateway exclusivo o inclusivo puede tener condicion");
         }
     }
 
