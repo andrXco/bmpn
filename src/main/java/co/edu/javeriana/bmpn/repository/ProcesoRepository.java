@@ -26,7 +26,7 @@ public interface ProcesoRepository extends JpaRepository<Proceso, Long> {
     @Query("SELECT p FROM Proceso p "
             + "WHERE p.empresa.id = :empresaId "
             + "AND (:activo IS NULL OR p.activo = :activo) "
-            + "AND (:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) "
+            + "AND LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) "
             + "AND (:estado IS NULL OR p.estado = :estado) "
             + "AND (:categoria IS NULL OR p.categoria = :categoria)")
     Page<Proceso> buscar(@Param("empresaId") Long empresaId,

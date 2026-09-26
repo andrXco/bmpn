@@ -194,7 +194,7 @@ class ProcesoServiceTest {
     void listarConInactivos() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
         PageRequest pagina = PageRequest.of(0, 20);
-        when(procesoRepository.buscar(any(), isNull(), isNull(), isNull(), isNull(), eq(pagina)))
+        when(procesoRepository.buscar(any(), isNull(), eq(""), isNull(), isNull(), eq(pagina)))
                 .thenReturn(new PageImpl<>(List.of()));
 
         Page<ProcesoResumen> resultado = procesoService.listar(USUARIO_ID, "", null, null, true, pagina);
