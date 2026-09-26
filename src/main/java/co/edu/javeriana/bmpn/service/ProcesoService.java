@@ -106,7 +106,8 @@ public class ProcesoService {
                                        String categoria, boolean incluirInactivos, Pageable pageable) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
 
-        String nombreBuscado = null;
+        // Sin nombre se busca con texto vacio, asi el LIKE '%%' trae todos los procesos
+        String nombreBuscado = "";
         if (nombre != null && !nombre.isBlank()) {
             nombreBuscado = nombre.trim();
         }

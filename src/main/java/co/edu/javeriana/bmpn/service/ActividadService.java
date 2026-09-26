@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import co.edu.javeriana.bmpn.dto.actividad.ActividadResponse;
 import co.edu.javeriana.bmpn.dto.actividad.CrearActividadRequest;
 import co.edu.javeriana.bmpn.dto.actividad.EditarActividadRequest;
+import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.entity.AccionHistorial;
 import co.edu.javeriana.bmpn.entity.Actividad;
 import co.edu.javeriana.bmpn.entity.Pool;
@@ -29,17 +30,20 @@ public class ActividadService {
     private final ProcesoService procesoService;
     private final UsuarioService usuarioService;
     private final HistorialProcesoService historialProcesoService;
+    private final ArcoService arcoService;
     private final ModelMapper modelMapper;
 
     public ActividadService(ActividadRepository actividadRepository,
                             ProcesoService procesoService,
                             UsuarioService usuarioService,
                             HistorialProcesoService historialProcesoService,
+                            ArcoService arcoService,
                             ModelMapper modelMapper) {
         this.actividadRepository = actividadRepository;
         this.procesoService = procesoService;
         this.usuarioService = usuarioService;
         this.historialProcesoService = historialProcesoService;
+        this.arcoService = arcoService;
         this.modelMapper = modelMapper;
     }
 
@@ -89,18 +93,20 @@ public class ActividadService {
         return convertirAResponse(actividad);
     }
 
-    // HU-10: la eliminacion es logica, la actividad pasa a inactiva
+    // HU-10: la eliminacion es logica, la actividad pasa a inactiva junto con sus arcos
     @Transactional
-    public void eliminar(Long procesoId, Long actividadId, Long usuarioId) {
+    public AdvertenciasResponse eliminar(Long procesoId, Long actividadId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
         exigirPermisoDeAdministrador(usuario.getRolAcceso());
         Proceso proceso = procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
         Actividad actividad = buscarActiva(actividadId, procesoId);
 
         actividad.desactivar();
+        List<String> advertencias = arcoService.desactivarArcosDeElemento(actividadId);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
                 "Actividad '" + actividad.getNombre() + "' eliminada");
+        return new AdvertenciasResponse(advertencias);
     }
 
     @Transactional(readOnly = true)

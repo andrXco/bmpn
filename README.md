@@ -102,16 +102,18 @@ estos endpoints.
 | Método | Ruta | Operación |
 | --- | --- | --- |
 | `POST` | `/api/empresas` | Registrar una empresa y su administrador inicial |
-| `GET` | `/api/sesiones` | Consultar la sesión actual |
 | `POST` | `/api/sesiones` | Iniciar sesión |
-| `DELETE` | `/api/sesiones` | Cerrar sesión |
-| `GET` | `/api/usuarios` | Listar usuarios activos de la empresa autenticada |
-| `POST` | `/api/usuarios` | Registrar un usuario |
-| `PATCH` | `/api/usuarios/{usuarioId}/rol` | Cambiar el rol de acceso |
-| `DELETE` | `/api/usuarios/{usuarioId}` | Desactivar un usuario |
+| `GET` | `/api/usuarios?usuarioId={solicitante}` | Listar usuarios activos de la empresa del solicitante |
+| `POST` | `/api/usuarios?usuarioId={solicitante}` | Registrar un usuario |
+| `PATCH` | `/api/usuarios/{objetivo}/rol?usuarioId={solicitante}` | Cambiar el rol de acceso |
+| `DELETE` | `/api/usuarios/{objetivo}?usuarioId={solicitante}` | Desactivar un usuario |
 
-Las operaciones autenticadas utilizan la sesión HTTP del backend. Los errores
-se entregan como respuestas JSON compatibles con `ProblemDetail`.
+La API no conserva una sesión HTTP. En esta etapa, el cliente envía el
+identificador del usuario solicitante y la capa de servicios obtiene desde la
+base de datos su empresa y rol. Es un contrato transitorio para probar la API
+antes de integrar Spring Security; no reemplaza un mecanismo de autenticación
+de producción. Los errores se entregan como respuestas JSON compatibles con
+`ProblemDetail`.
 
 ## Esquema de base de datos
 
