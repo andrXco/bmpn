@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.javeriana.bmpn.dto.arco.ArcoResponse;
 import co.edu.javeriana.bmpn.dto.arco.CrearArcoRequest;
+import co.edu.javeriana.bmpn.dto.arco.EditarArcoRequest;
 import co.edu.javeriana.bmpn.entity.AccionHistorial;
 import co.edu.javeriana.bmpn.entity.Arco;
 import co.edu.javeriana.bmpn.entity.ElementoProceso;
@@ -46,26 +47,21 @@ public class ArcoService {
         this.modelMapper = modelMapper;
     }
 
+    // HU-11
     @Transactional
     public ArcoResponse crear(Long procesoId, Long usuarioId, CrearArcoRequest request) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
         exigirPermisoDeEdicion(usuario.getRolAcceso());
         Proceso proceso = procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
 
-        if (request.getOrigenId().equals(request.getDestinoId())) {
-            throw new SolicitudInvalidaException("Un arco no puede unir un elemento consigo mismo");
-        }
-
+        validarNoAutoarco(request.getOrigenId(), request.getDestinoId());
         ElementoProceso origen = elementoProcesoService.buscarActivoDelProceso(request.getOrigenId(), procesoId);
         ElementoProceso destino = elementoProcesoService.buscarActivoDelProceso(request.getDestinoId(), procesoId);
-
-        if (!origen.getPool().getId().equals(destino.getPool().getId())) {
-            throw new SolicitudInvalidaException(
-                    "Un arco no puede unir elementos de pools distintos");
-        }
+        validarMismoPool(origen, destino);
 
         String etiqueta = limpiarTexto(request.getEtiqueta());
         String condicion = limpiarTexto(request.getCondicion());
+        validarCondicion(origen, condicion);
 
         // La tabla no permite dos filas con el mismo origen y destino, aunque una este inactiva
         Optional<Arco> existente = arcoRepository.findByProcesoIdAndOrigenIdAndDestinoId(
@@ -84,6 +80,37 @@ public class ArcoService {
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.CREACION,
                 "Arco de '" + origen.getNombre() + "' a '" + destino.getNombre() + "' creado");
+        return convertirAResponse(arco);
+    }
+
+    // HU-12
+    @Transactional
+    public ArcoResponse editar(Long procesoId, Long arcoId, Long usuarioId, EditarArcoRequest request) {
+        Usuario usuario = usuarioService.buscarActivo(usuarioId);
+        exigirPermisoDeEdicion(usuario.getRolAcceso());
+        Proceso proceso = procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        Arco arco = buscarActivo(arcoId, procesoId);
+
+        validarNoAutoarco(request.getOrigenId(), request.getDestinoId());
+        ElementoProceso origen = elementoProcesoService.buscarActivoDelProceso(request.getOrigenId(), procesoId);
+        ElementoProceso destino = elementoProcesoService.buscarActivoDelProceso(request.getDestinoId(), procesoId);
+        validarMismoPool(origen, destino);
+
+        String etiqueta = limpiarTexto(request.getEtiqueta());
+        String condicion = limpiarTexto(request.getCondicion());
+        validarCondicion(origen, condicion);
+
+        // Otro arco (activo o eliminado) ya ocupa ese origen y destino
+        Optional<Arco> existente = arcoRepository.findByProcesoIdAndOrigenIdAndDestinoId(
+                procesoId, origen.getId(), destino.getId());
+        if (existente.isPresent() && !existente.get().getId().equals(arcoId)) {
+            throw new RecursoDuplicadoException("Ya existe un arco entre esos dos elementos");
+        }
+
+        arco.actualizar(origen, destino, etiqueta, condicion);
+
+        historialProcesoService.registrar(proceso, usuario, AccionHistorial.ACTUALIZACION,
+                "Arco de '" + origen.getNombre() + "' a '" + destino.getNombre() + "' actualizado");
         return convertirAResponse(arco);
     }
 
@@ -109,6 +136,26 @@ public class ArcoService {
     private Arco buscarActivo(Long arcoId, Long procesoId) {
         return arcoRepository.findByIdAndProcesoIdAndActivoTrue(arcoId, procesoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Arco no encontrado"));
+    }
+
+    private void validarNoAutoarco(Long origenId, Long destinoId) {
+        if (origenId.equals(destinoId)) {
+            throw new SolicitudInvalidaException("Un arco no puede unir un elemento consigo mismo");
+        }
+    }
+
+    private void validarMismoPool(ElementoProceso origen, ElementoProceso destino) {
+        if (!origen.getPool().getId().equals(destino.getPool().getId())) {
+            throw new SolicitudInvalidaException(
+                    "Un arco no puede unir elementos de pools distintos; esa comunicacion se modela como mensaje");
+        }
+    }
+
+    // La condicion indica por que camino sigue el flujo, por eso solo aplica a la salida de un gateway
+    private void validarCondicion(ElementoProceso origen, String condicion) {
+        if (condicion != null && !origen.esGateway()) {
+            throw new SolicitudInvalidaException("Solo un arco que sale de un gateway puede tener condicion");
+        }
     }
 
     // Un texto vacio o con solo espacios se guarda como null
