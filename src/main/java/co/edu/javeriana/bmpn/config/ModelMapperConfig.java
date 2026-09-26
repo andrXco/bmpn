@@ -6,10 +6,12 @@ import org.springframework.context.annotation.Configuration;
 
 import co.edu.javeriana.bmpn.dto.actividad.ActividadResponse;
 import co.edu.javeriana.bmpn.dto.arco.ArcoResponse;
+import co.edu.javeriana.bmpn.dto.gateway.GatewayResponse;
 import co.edu.javeriana.bmpn.dto.proceso.ProcesoResponse;
 import co.edu.javeriana.bmpn.dto.usuario.UsuarioResponse;
 import co.edu.javeriana.bmpn.entity.Actividad;
 import co.edu.javeriana.bmpn.entity.Arco;
+import co.edu.javeriana.bmpn.entity.Gateway;
 import co.edu.javeriana.bmpn.entity.Proceso;
 import co.edu.javeriana.bmpn.entity.Usuario;
 
@@ -42,6 +44,13 @@ public class ModelMapperConfig {
                             ArcoResponse::setOrigenId);
                     mapper.map(arco -> arco.getDestino().getId(),
                             ArcoResponse::setDestinoId);
+                });
+        modelMapper.typeMap(Gateway.class, GatewayResponse.class)
+                .addMappings(mapper -> {
+                    mapper.map(gateway -> gateway.getProceso().getId(),
+                            GatewayResponse::setProcesoId);
+                    mapper.map(gateway -> gateway.getPool().getId(),
+                            GatewayResponse::setPoolId);
                 });
         return modelMapper;
     }
