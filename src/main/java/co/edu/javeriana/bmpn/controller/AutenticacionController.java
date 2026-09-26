@@ -6,16 +6,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import co.edu.javeriana.bmpn.dto.autenticacion.IniciarSesionRequest;
 import co.edu.javeriana.bmpn.dto.autenticacion.SesionUsuarioResponse;
+import co.edu.javeriana.bmpn.openapi.AutenticacionApi;
 import co.edu.javeriana.bmpn.service.AutenticacionService;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/sesiones")
-@Tag(name = "Autenticación", description = "Inicio de sesión de usuarios.")
-public class AutenticacionController {
+public class AutenticacionController implements AutenticacionApi {
 
     private final AutenticacionService autenticacionService;
 
@@ -23,6 +22,7 @@ public class AutenticacionController {
         this.autenticacionService = autenticacionService;
     }
 
+    @Override
     @PostMapping
     public ResponseEntity<SesionUsuarioResponse> iniciarSesion(
             @Valid @RequestBody IniciarSesionRequest formulario) {
