@@ -2,12 +2,14 @@ package co.edu.javeriana.bmpn.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.javeriana.bmpn.dto.gateway.CrearGatewayRequest;
+import co.edu.javeriana.bmpn.dto.gateway.EditarGatewayRequest;
 import co.edu.javeriana.bmpn.dto.gateway.GatewayResponse;
 import co.edu.javeriana.bmpn.entity.AccionHistorial;
 import co.edu.javeriana.bmpn.entity.Arco;
@@ -66,6 +68,34 @@ public class GatewayService {
         return convertirAResponse(gateway);
     }
 
+    // HU-15
+    @Transactional
+    public GatewayResponse editar(Long procesoId, Long gatewayId, Long usuarioId,
+                                  EditarGatewayRequest request) {
+        Usuario usuario = usuarioService.buscarActivo(usuarioId);
+        exigirPermisoDeEdicion(usuario.getRolAcceso());
+        Proceso proceso = procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        Gateway gateway = buscarActivo(gatewayId, procesoId);
+
+        TipoGateway tipoAnterior = gateway.getTipoGateway();
+        String nombre = request.getNombre().trim();
+        gateway.renombrar(nombre);
+        gateway.cambiarTipo(request.getTipoGateway());
+        gateway.mover(request.getPosicionX(), request.getPosicionY());
+
+        // Al pasar a paralelo se siguen todos los caminos, asi que las condiciones sobran
+        if (gateway.getTipoGateway() == TipoGateway.PARALELO && tipoAnterior != TipoGateway.PARALELO) {
+            arcoService.quitarCondicionesDeSalidas(gatewayId);
+        }
+
+        String detalle = "Gateway '" + nombre + "' actualizado";
+        if (tipoAnterior != gateway.getTipoGateway()) {
+            detalle = "Gateway '" + nombre + "' cambio de " + tipoAnterior + " a " + gateway.getTipoGateway();
+        }
+        historialProcesoService.registrar(proceso, usuario, AccionHistorial.ACTUALIZACION, detalle);
+        return convertirAResponse(gateway);
+    }
+
     @Transactional(readOnly = true)
     public List<GatewayResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
@@ -90,7 +120,7 @@ public class GatewayService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Gateway no encontrado"));
     }
 
-    //Un gateway de divergencia tiene al menos dos arcos salientes
+    // Reglas de HU-14 y HU-15: se revisan como advertencias porque en borrador el diagrama puede estar incompleto
     private List<String> revisarCoherencia(Gateway gateway) {
         List<String> advertencias = new ArrayList<>();
         List<Arco> salidas = arcoService.listarSalidasActivas(gateway.getId());
@@ -114,7 +144,27 @@ public class GatewayService {
                 }
             }
         }
+        if (gateway.getTipoGateway() == TipoGateway.EXCLUSIVO) {
+            advertirCondicionesRepetidas(gateway, salidas, advertencias);
+        }
         return advertencias;
+    }
+
+    // En un exclusivo solo se toma un camino: dos salidas con la misma condicion no se distinguen
+    private void advertirCondicionesRepetidas(Gateway gateway, List<Arco> salidas, List<String> advertencias) {
+        List<String> condicionesVistas = new ArrayList<>();
+        for (Arco salida : salidas) {
+            if (salida.getCondicion() != null) {
+                String condicion = salida.getCondicion().trim().toLowerCase(Locale.ROOT);
+                if (condicionesVistas.contains(condicion)) {
+                    advertencias.add("En el gateway exclusivo '" + gateway.getNombre()
+                            + "' hay salidas con la misma condicion '" + salida.getCondicion()
+                            + "'; no son mutuamente excluyentes");
+                } else {
+                    condicionesVistas.add(condicion);
+                }
+            }
+        }
     }
 
     private GatewayResponse convertirAResponse(Gateway gateway) {
