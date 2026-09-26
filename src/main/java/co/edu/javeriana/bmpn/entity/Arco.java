@@ -72,4 +72,8 @@ public class Arco {
         this.etiqueta = etiqueta;
         this.condicion = condicion;
     }
+
+    public void desactivar() {
+        this.activo = false;
+    }
 }
