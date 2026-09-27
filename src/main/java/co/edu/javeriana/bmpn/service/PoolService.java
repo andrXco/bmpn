@@ -19,7 +19,6 @@ import co.edu.javeriana.bmpn.entity.Empresa;
 import co.edu.javeriana.bmpn.entity.PermisoPool;
 import co.edu.javeriana.bmpn.entity.Pool;
 import co.edu.javeriana.bmpn.entity.PoolRolDisponible;
-import co.edu.javeriana.bmpn.entity.PoolRolDisponibleId;
 import co.edu.javeriana.bmpn.entity.Proceso;
 import co.edu.javeriana.bmpn.entity.RolAcceso;
 import co.edu.javeriana.bmpn.entity.RolProceso;
@@ -29,18 +28,15 @@ import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
 import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
 import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
-import co.edu.javeriana.bmpn.repository.EmpresaRepository;
-import co.edu.javeriana.bmpn.repository.PermisoPoolRepository;
 import co.edu.javeriana.bmpn.repository.PoolRepository;
-import co.edu.javeriana.bmpn.repository.PoolRolDisponibleRepository;
 
 @Service
 public class PoolService {
 
     private final PoolRepository poolRepository;
-    private final PoolRolDisponibleRepository poolRolDisponibleRepository;
-    private final PermisoPoolRepository permisoPoolRepository;
-    private final EmpresaRepository empresaRepository;
+    private final PoolRolDisponibleService poolRolDisponibleService;
+    private final PermisoPoolService permisoPoolService;
+    private final EmpresaService empresaService;
     private final UsuarioService usuarioService;
     private final ProcesoService procesoService;
     private final ProcesoCompartidoService procesoCompartidoService;
@@ -49,9 +45,9 @@ public class PoolService {
     private final ModelMapper modelMapper;
 
     public PoolService(PoolRepository poolRepository,
-                       PoolRolDisponibleRepository poolRolDisponibleRepository,
-                       PermisoPoolRepository permisoPoolRepository,
-                       EmpresaRepository empresaRepository,
+                       PoolRolDisponibleService poolRolDisponibleService,
+                       PermisoPoolService permisoPoolService,
+                       EmpresaService empresaService,
                        UsuarioService usuarioService,
                        ProcesoService procesoService,
                        ProcesoCompartidoService procesoCompartidoService,
@@ -59,9 +55,9 @@ public class PoolService {
                        HistorialProcesoService historialProcesoService,
                        ModelMapper modelMapper) {
         this.poolRepository = poolRepository;
-        this.poolRolDisponibleRepository = poolRolDisponibleRepository;
-        this.permisoPoolRepository = permisoPoolRepository;
-        this.empresaRepository = empresaRepository;
+        this.poolRolDisponibleService = poolRolDisponibleService;
+        this.permisoPoolService = permisoPoolService;
+        this.empresaService = empresaService;
         this.usuarioService = usuarioService;
         this.procesoService = procesoService;
         this.procesoCompartidoService = procesoCompartidoService;
@@ -172,17 +168,7 @@ public class PoolService {
         RolProceso rol = rolProcesoService.buscarActivo(
                 request.getRolProcesoId(), pool.getEmpresaParticipante().getId());
 
-        PoolRolDisponibleId id = new PoolRolDisponibleId(poolId, rol.getId());
-        PoolRolDisponible disponible = poolRolDisponibleRepository.findById(id).orElse(null);
-        if (disponible != null) {
-            if (disponible.isActivo()) {
-                throw new RecursoDuplicadoException("Ese rol ya esta habilitado para el pool");
-            }
-            disponible.activar();
-        } else {
-            disponible = new PoolRolDisponible(pool, rol);
-            poolRolDisponibleRepository.save(disponible);
-        }
+        PoolRolDisponible disponible = poolRolDisponibleService.habilitar(pool, rol);
         return convertirAResponse(disponible);
     }
 
@@ -193,10 +179,7 @@ public class PoolService {
         procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
         buscarActivo(poolId, procesoId);
 
-        PoolRolDisponible disponible = poolRolDisponibleRepository
-                .findById(new PoolRolDisponibleId(poolId, rolProcesoId))
-                .orElseThrow(() -> new RecursoNoEncontradoException("El rol no esta habilitado para el pool"));
-        disponible.desactivar();
+        poolRolDisponibleService.deshabilitar(poolId, rolProcesoId);
     }
 
     @Transactional(readOnly = true)
@@ -206,7 +189,7 @@ public class PoolService {
         buscarActivo(poolId, procesoId);
 
         List<RolPoolResponse> respuesta = new ArrayList<>();
-        for (PoolRolDisponible disponible : poolRolDisponibleRepository.listarActivosPorPool(poolId)) {
+        for (PoolRolDisponible disponible : poolRolDisponibleService.listarActivos(poolId)) {
             respuesta.add(convertirAResponse(disponible));
         }
         return respuesta;
@@ -221,21 +204,8 @@ public class PoolService {
         procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
         Pool pool = buscarActivo(poolId, procesoId);
 
-        if (request.getRolAcceso() == RolAcceso.SOLO_LECTURA
-                && (request.isPuedeCrear() || request.isPuedeEditar() || request.isPuedeEliminar())) {
-            throw new SolicitudInvalidaException(
-                    "Un rol de solo lectura no puede tener permisos de creacion, edicion o eliminacion");
-        }
-
-        PermisoPool permiso = permisoPoolRepository.buscarPorPoolYRol(poolId, request.getRolAcceso())
-                .orElse(null);
-        if (permiso == null) {
-            permiso = new PermisoPool(pool, request.getRolAcceso(),
-                    request.isPuedeCrear(), request.isPuedeEditar(), request.isPuedeEliminar());
-            permisoPoolRepository.save(permiso);
-        } else {
-            permiso.actualizar(request.isPuedeCrear(), request.isPuedeEditar(), request.isPuedeEliminar());
-        }
+        PermisoPool permiso = permisoPoolService.definir(pool, request.getRolAcceso(),
+                request.isPuedeCrear(), request.isPuedeEditar(), request.isPuedeEliminar());
         return convertirAResponse(permiso);
     }
 
@@ -246,7 +216,7 @@ public class PoolService {
         buscarActivo(poolId, procesoId);
 
         List<PermisoPoolResponse> respuesta = new ArrayList<>();
-        for (PermisoPool permiso : permisoPoolRepository.listarPorPool(poolId)) {
+        for (PermisoPool permiso : permisoPoolService.listar(poolId)) {
             respuesta.add(convertirAResponse(permiso));
         }
         return respuesta;
@@ -266,8 +236,7 @@ public class PoolService {
             throw new SolicitudInvalidaException(
                     "Un pool de tipo CLIENTE o PROVEEDOR requiere la empresa participante");
         }
-        Empresa empresa = empresaRepository.findByIdAndActivoTrue(empresaParticipanteId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Empresa participante no encontrada"));
+        Empresa empresa = empresaService.buscarActiva(empresaParticipanteId);
 
         if (empresa.getId().equals(proceso.getEmpresa().getId())) {
             throw new SolicitudInvalidaException(

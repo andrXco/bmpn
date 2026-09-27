@@ -19,7 +19,6 @@ import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
 import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
 import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
-import co.edu.javeriana.bmpn.repository.EmpresaRepository;
 import co.edu.javeriana.bmpn.repository.ProcesoCompartidoRepository;
 
 //23 da a otra empresa la capacidad para participar como pool en un proceso ajeno. 
@@ -28,20 +27,20 @@ import co.edu.javeriana.bmpn.repository.ProcesoCompartidoRepository;
 public class ProcesoCompartidoService {
 
     private final ProcesoCompartidoRepository procesoCompartidoRepository;
-    private final EmpresaRepository empresaRepository;
+    private final EmpresaService empresaService;
     private final UsuarioService usuarioService;
     private final ProcesoService procesoService;
     private final HistorialProcesoService historialProcesoService;
     private final ModelMapper modelMapper;
 
     public ProcesoCompartidoService(ProcesoCompartidoRepository procesoCompartidoRepository,
-                                    EmpresaRepository empresaRepository,
+                                    EmpresaService empresaService,
                                     UsuarioService usuarioService,
                                     ProcesoService procesoService,
                                     HistorialProcesoService historialProcesoService,
                                     ModelMapper modelMapper) {
         this.procesoCompartidoRepository = procesoCompartidoRepository;
-        this.empresaRepository = empresaRepository;
+        this.empresaService = empresaService;
         this.usuarioService = usuarioService;
         this.procesoService = procesoService;
         this.historialProcesoService = historialProcesoService;
@@ -54,8 +53,7 @@ public class ProcesoCompartidoService {
         exigirPermisoDeAdministrador(usuario.getRolAcceso());
         Proceso proceso = procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
 
-        Empresa empresaInvitada = empresaRepository.findByIdAndActivoTrue(request.getEmpresaInvitadaId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Empresa invitada no encontrada"));
+        Empresa empresaInvitada = empresaService.buscarActiva(request.getEmpresaInvitadaId());
 
         if (empresaInvitada.getId().equals(usuario.getEmpresa().getId())) {
             throw new SolicitudInvalidaException("Una empresa no puede invitarse a su propio proceso");
