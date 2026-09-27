@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,20 +31,27 @@ public class MensajeController {
 
     //25 - 26
     @PostMapping
-    public ResponseEntity<MensajeResponse> enviar(@PathVariable Long procesoId,
-                                                  @RequestParam Long usuarioId,
-                                                  @Valid @RequestBody CrearMensajeRequest request) {
-        MensajeResponse mensaje = mensajeService.enviar(procesoId, usuarioId, request);
+    public ResponseEntity<MensajeResponse> crear(@PathVariable Long procesoId,
+                                                 @RequestParam Long usuarioId,
+                                                 @Valid @RequestBody CrearMensajeRequest request) {
+        MensajeResponse mensaje = mensajeService.crear(procesoId, usuarioId, request);
         URI ubicacion = URI.create("/api/procesos/" + procesoId + "/mensajes/" + mensaje.getId());
         return ResponseEntity.created(ubicacion).body(mensaje);
     }
 
-    //27
-    @PostMapping("/{mensajeId}/recibir")
-    public ResponseEntity<MensajeResponse> recibir(@PathVariable Long procesoId,
-                                                    @PathVariable Long mensajeId,
-                                                    @RequestParam Long usuarioId) {
-        return ResponseEntity.ok(mensajeService.recibir(procesoId, mensajeId, usuarioId));
+    @GetMapping("/{mensajeId}")
+    public ResponseEntity<MensajeResponse> obtener(@PathVariable Long procesoId,
+                                                   @PathVariable Long mensajeId,
+                                                   @RequestParam Long usuarioId) {
+        return ResponseEntity.ok(mensajeService.obtener(procesoId, mensajeId, usuarioId));
+    }
+
+    @DeleteMapping("/{mensajeId}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long procesoId,
+                                         @PathVariable Long mensajeId,
+                                         @RequestParam Long usuarioId) {
+        mensajeService.eliminar(procesoId, mensajeId, usuarioId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
