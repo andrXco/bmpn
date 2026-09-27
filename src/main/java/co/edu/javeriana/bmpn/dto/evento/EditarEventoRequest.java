@@ -1,13 +1,13 @@
-package co.edu.javeriana.bmpn.dto.actividad;
+package co.edu.javeriana.bmpn.dto.evento;
 
 import java.math.BigDecimal;
 
-import co.edu.javeriana.bmpn.entity.TipoActividad;
+import co.edu.javeriana.bmpn.entity.DisparadorEvento;
+import co.edu.javeriana.bmpn.entity.TipoEvento;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,15 +15,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class EditarActividadRequest {
+public class EditarEventoRequest {
 
-    @NotBlank(message = "El nombre de la actividad es obligatorio")
+    @NotBlank(message = "El nombre del evento es obligatorio")
     @Size(max = 150, message = "El nombre no puede superar 150 caracteres")
     private String nombre;
 
-    @NotNull(message = "El tipo de actividad es obligatorio")
-    private TipoActividad tipoActividad;
+    @NotNull(message = "El tipo de evento es obligatorio")
+    private TipoEvento tipoEvento;
+
+    @NotNull(message = "El disparador es obligatorio")
+    private DisparadorEvento disparador;
+
+    private boolean origenExterno;
 
     @NotNull(message = "La posicion X es obligatoria")
     @Digits(integer = 10, fraction = 2, message = "La posicion X admite hasta 10 enteros y 2 decimales")
@@ -33,6 +37,5 @@ public class EditarActividadRequest {
     @Digits(integer = 10, fraction = 2, message = "La posicion Y admite hasta 10 enteros y 2 decimales")
     private BigDecimal posicionY;
 
-    @NotNull(message = "La lane es obligatoria")
     private Long laneId;
 }

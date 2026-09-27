@@ -6,12 +6,16 @@ import org.springframework.context.annotation.Configuration;
 
 import co.edu.javeriana.bmpn.dto.actividad.ActividadResponse;
 import co.edu.javeriana.bmpn.dto.arco.ArcoResponse;
+import co.edu.javeriana.bmpn.dto.evento.EventoResponse;
 import co.edu.javeriana.bmpn.dto.gateway.GatewayResponse;
+import co.edu.javeriana.bmpn.dto.mensaje.MensajeResponse;
 import co.edu.javeriana.bmpn.dto.proceso.ProcesoResponse;
 import co.edu.javeriana.bmpn.dto.usuario.UsuarioResponse;
 import co.edu.javeriana.bmpn.entity.Actividad;
 import co.edu.javeriana.bmpn.entity.Arco;
+import co.edu.javeriana.bmpn.entity.Evento;
 import co.edu.javeriana.bmpn.entity.Gateway;
+import co.edu.javeriana.bmpn.entity.Mensaje;
 import co.edu.javeriana.bmpn.entity.Proceso;
 import co.edu.javeriana.bmpn.entity.Usuario;
 
@@ -35,6 +39,8 @@ public class ModelMapperConfig {
                             ActividadResponse::setProcesoId);
                     mapper.map(actividad -> actividad.getPool().getId(),
                             ActividadResponse::setPoolId);
+                    mapper.map(actividad -> actividad.getLane().getId(),
+                            ActividadResponse::setLaneId);
                 });
         modelMapper.typeMap(Arco.class, ArcoResponse.class)
                 .addMappings(mapper -> {
@@ -51,6 +57,28 @@ public class ModelMapperConfig {
                             GatewayResponse::setProcesoId);
                     mapper.map(gateway -> gateway.getPool().getId(),
                             GatewayResponse::setPoolId);
+                });
+        modelMapper.typeMap(Evento.class, EventoResponse.class)
+                .addMappings(mapper -> {
+                    mapper.map(evento -> evento.getProceso().getId(),
+                            EventoResponse::setProcesoId);
+                    mapper.map(evento -> evento.getPool().getId(),
+                            EventoResponse::setPoolId);
+                });
+        // Se dicen explicitos porque el mensaje tiene varios caminos hacia un pool y un proceso
+        modelMapper.typeMap(Mensaje.class, MensajeResponse.class)
+                .addMappings(mapper -> {
+                    mapper.map(mensaje -> mensaje.getProceso().getId(),
+                            MensajeResponse::setProcesoId);
+                    mapper.map(mensaje -> mensaje.getPoolOrigen().getId(),
+                            MensajeResponse::setPoolOrigenId);
+                    mapper.map(mensaje -> mensaje.getPoolDestino().getId(),
+                            MensajeResponse::setPoolDestinoId);
+                    mapper.map(mensaje -> mensaje.getEventoEnvio().getId(),
+                            MensajeResponse::setEventoEnvioId);
+                    mapper.skip(MensajeResponse::setEventoRecepcionId);
+                    mapper.skip(MensajeResponse::setCanalDestino);
+                    mapper.skip(MensajeResponse::setCampos);
                 });
         return modelMapper;
     }
