@@ -32,4 +32,7 @@ public class EditarActividadRequest {
     @NotNull(message = "La posicion Y es obligatoria")
     @Digits(integer = 10, fraction = 2, message = "La posicion Y admite hasta 10 enteros y 2 decimales")
     private BigDecimal posicionY;
+
+    @NotNull(message = "La lane es obligatoria")
+    private Long laneId;
 }

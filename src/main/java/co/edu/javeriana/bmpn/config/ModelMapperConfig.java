@@ -35,6 +35,8 @@ public class ModelMapperConfig {
                             ActividadResponse::setProcesoId);
                     mapper.map(actividad -> actividad.getPool().getId(),
                             ActividadResponse::setPoolId);
+                    mapper.map(actividad -> actividad.getLane().getId(),
+                            ActividadResponse::setLaneId);
                 });
         modelMapper.typeMap(Arco.class, ArcoResponse.class)
                 .addMappings(mapper -> {

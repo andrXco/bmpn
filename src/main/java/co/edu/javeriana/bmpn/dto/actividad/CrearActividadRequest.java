@@ -33,6 +33,9 @@ public class CrearActividadRequest {
     @Digits(integer = 10, fraction = 2, message = "La posicion Y admite hasta 10 enteros y 2 decimales")
     private BigDecimal posicionY;
 
+    @NotNull(message = "La lane es obligatoria")
+    private Long laneId;
+
     // Opcional: si no se envia, la actividad queda en el pool de la empresa propietaria
     private Long poolId;
 }
