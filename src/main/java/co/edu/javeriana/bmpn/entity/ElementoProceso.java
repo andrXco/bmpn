@@ -41,6 +41,11 @@ public abstract class ElementoProceso {
     @JoinColumn(name = "pool_id", nullable = false)
     private Pool pool;
 
+    // La lane define el rol responsable; es obligatoria en las actividades
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lane_id")
+    private Lane lane;
+
     @Column(nullable = false, length = 150)
     private String nombre;
 
@@ -61,6 +66,10 @@ public abstract class ElementoProceso {
         this.posicionX = posicionX;
         this.posicionY = posicionY;
         this.activo = true;
+    }
+
+    public void asignarLane(Lane lane) {
+        this.lane = lane;
     }
 
     public void renombrar(String nombre) {
