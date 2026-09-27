@@ -118,7 +118,7 @@ public class EventoService {
         Evento evento = buscarActivo(eventoId, procesoId);
 
         evento.desactivar();
-        List<String> advertencias = arcoService.desactivarArcosDeElemento(eventoId);
+        List<String> advertencias = new ArrayList<>(arcoService.desactivarArcosDeElemento(eventoId));
         // Un mensaje no puede quedar saliendo o llegando a un evento eliminado
         for (Mensaje mensaje : evento.getMensajesEnviados()) {
             desactivarMensaje(mensaje, advertencias);
