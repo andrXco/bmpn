@@ -2,7 +2,6 @@ package co.edu.javeriana.bmpn.dto.pool;
 
 import co.edu.javeriana.bmpn.entity.RolAcceso;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class PermisoPoolRequest {
 
     @NotNull(message = "El rol de acceso es obligatorio")

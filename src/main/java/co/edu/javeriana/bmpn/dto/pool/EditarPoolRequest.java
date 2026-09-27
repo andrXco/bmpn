@@ -2,7 +2,6 @@ package co.edu.javeriana.bmpn.dto.pool;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class EditarPoolRequest {
 
     @NotBlank(message = "El nombre del pool es obligatorio")
