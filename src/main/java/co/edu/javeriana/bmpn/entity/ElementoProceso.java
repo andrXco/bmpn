@@ -89,4 +89,13 @@ public abstract class ElementoProceso {
     public boolean aceptaCondiciones() {
         return false;
     }
+
+    // Los eventos de inicio y de fin cambian estas dos reglas
+    public boolean aceptaArcosEntrantes() {
+        return true;
+    }
+
+    public boolean aceptaArcosSalientes() {
+        return true;
+    }
 }
