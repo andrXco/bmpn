@@ -56,6 +56,9 @@ class ActividadServiceTest {
     @Mock
     private HistorialProcesoService historialProcesoService;
 
+    @Mock
+    private ArcoService arcoService;
+
     private ActividadService actividadService;
 
     private Empresa empresa;
@@ -65,7 +68,8 @@ class ActividadServiceTest {
     @BeforeEach
     void prepararDatos() {
         actividadService = new ActividadService(actividadRepository, procesoService,
-                usuarioService, historialProcesoService, new ModelMapperConfig().modelMapper());
+                usuarioService, historialProcesoService, arcoService,
+                new ModelMapperConfig().modelMapper());
 
         empresa = new Empresa("900123456", "Empresa Demo", "contacto@demo.co");
         proceso = new Proceso(empresa, "Solicitud de vacaciones", "Proceso de ejemplo", "RRHH");
@@ -185,6 +189,7 @@ class ActividadServiceTest {
 
         assertThat(actividad.isActivo()).isFalse();
         verify(actividadRepository, never()).delete(any());
+        verify(arcoService).desactivarArcosDeElemento(ACTIVIDAD_ID);
         verify(historialProcesoService).registrar(eq(proceso), eq(administrador),
                 eq(AccionHistorial.ELIMINACION), anyString());
     }

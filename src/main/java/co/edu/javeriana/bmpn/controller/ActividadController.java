@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import co.edu.javeriana.bmpn.dto.actividad.ActividadResponse;
 import co.edu.javeriana.bmpn.dto.actividad.CrearActividadRequest;
 import co.edu.javeriana.bmpn.dto.actividad.EditarActividadRequest;
+import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.service.ActividadService;
 import jakarta.validation.Valid;
 
@@ -120,5 +121,6 @@ public class ActividadController {
                                          @RequestParam Long usuarioId) {
         actividadService.eliminar(procesoId, id, usuarioId);
         return ResponseEntity.noContent().build();
+
     }
 }
