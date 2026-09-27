@@ -1,5 +1,8 @@
 package co.edu.javeriana.bmpn.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -43,6 +47,9 @@ public class RolProceso {
     @Column(nullable = false)
     private boolean activo;
 
+    @OneToMany(mappedBy = "rolProceso", fetch = FetchType.LAZY)
+    private List<Lane> lanes = new ArrayList<>();
+
     public RolProceso(Empresa empresa, String nombre, String descripcion) {
         this.empresa = empresa;
         this.nombre = nombre;
@@ -57,5 +64,17 @@ public class RolProceso {
 
     public void desactivar() {
         this.activo = false;
+    }
+
+    // Nombres de los procesos que tienen una lane activa con este rol
+    public List<String> procesosDondeSeUsa() {
+        List<String> procesos = new ArrayList<>();
+        for (Lane lane : lanes) {
+            String proceso = lane.getPool().getProceso().getNombre();
+            if (lane.isActivo() && !procesos.contains(proceso)) {
+                procesos.add(proceso);
+            }
+        }
+        return procesos;
     }
 }
