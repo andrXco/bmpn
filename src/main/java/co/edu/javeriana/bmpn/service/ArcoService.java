@@ -59,6 +59,7 @@ public class ArcoService {
         ElementoProceso origen = elementoProcesoService.buscarActivoDelProceso(request.getOrigenId(), procesoId);
         ElementoProceso destino = elementoProcesoService.buscarActivoDelProceso(request.getDestinoId(), procesoId);
         validarMismoPool(origen, destino);
+        validarInicioYFin(origen, destino);
 
         String etiqueta = limpiarTexto(request.getEtiqueta());
         String condicion = limpiarTexto(request.getCondicion());
@@ -96,6 +97,7 @@ public class ArcoService {
         ElementoProceso origen = elementoProcesoService.buscarActivoDelProceso(request.getOrigenId(), procesoId);
         ElementoProceso destino = elementoProcesoService.buscarActivoDelProceso(request.getDestinoId(), procesoId);
         validarMismoPool(origen, destino);
+        validarInicioYFin(origen, destino);
 
         String etiqueta = limpiarTexto(request.getEtiqueta());
         String condicion = limpiarTexto(request.getCondicion());
@@ -222,6 +224,16 @@ public class ArcoService {
         if (!origen.getPool().getId().equals(destino.getPool().getId())) {
             throw new SolicitudInvalidaException(
                     "Un arco no puede unir elementos de pools distintos; esa comunicacion se modela como mensaje");
+        }
+    }
+
+    // HU-27: un evento de inicio no recibe arcos y un evento de fin no tiene salidas
+    private void validarInicioYFin(ElementoProceso origen, ElementoProceso destino) {
+        if (!origen.aceptaArcosSalientes()) {
+            throw new SolicitudInvalidaException("Un evento de fin no puede tener arcos de salida");
+        }
+        if (!destino.aceptaArcosEntrantes()) {
+            throw new SolicitudInvalidaException("Un evento de inicio no puede tener arcos de entrada");
         }
     }
 
