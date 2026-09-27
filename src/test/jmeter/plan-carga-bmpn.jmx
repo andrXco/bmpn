@@ -85,13 +85,139 @@
             <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
           </JSONPostProcessor>
           <hashTree/>
-          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Compartir ids con los usuarios">
-            <stringProp name="scriptLanguage">groovy</stringProp>
-            <stringProp name="script">props.put("usuarioId", vars.get("usuarioId"))
-props.put("procesoId", vars.get("procesoId"))</stringProp>
-          </JSR223PostProcessor>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extraer poolId">
+            <stringProp name="JSONPostProcessor.referenceNames">poolId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.poolPropietarioId</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
           <hashTree/>
         </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Crear rol">
+          <stringProp name="HTTPSampler.path">/api/roles-proceso?usuarioId=${usuarioId}</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"nombre":"Empleado","descripcion":"Quien solicita"}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extraer rolId">
+            <stringProp name="JSONPostProcessor.referenceNames">rolId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Crear lane">
+          <stringProp name="HTTPSampler.path">/api/procesos/${procesoId}/pools/${poolId}/lanes?usuarioId=${usuarioId}</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"rolProcesoId":${rolId}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extraer laneId">
+            <stringProp name="JSONPostProcessor.referenceNames">laneId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Crear actividad inicial">
+          <stringProp name="HTTPSampler.path">/api/procesos/${procesoId}/actividades?usuarioId=${usuarioId}</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"nombre":"Radicar solicitud","tipoActividad":"USUARIO","posicionX":100,"posicionY":50,"laneId":${laneId}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extraer actividadId">
+            <stringProp name="JSONPostProcessor.referenceNames">actividadId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Crear gateway">
+          <stringProp name="HTTPSampler.path">/api/procesos/${procesoId}/gateways?usuarioId=${usuarioId}</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"nombre":"Aprobada?","tipoGateway":"EXCLUSIVO","posicionX":300,"posicionY":50}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extraer gatewayId">
+            <stringProp name="JSONPostProcessor.referenceNames">gatewayId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Crear arco">
+          <stringProp name="HTTPSampler.path">/api/procesos/${procesoId}/arcos?usuarioId=${usuarioId}</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"origenId":${actividadId},"destinoId":${gatewayId}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Crear evento de envio">
+          <stringProp name="HTTPSampler.path">/api/procesos/${procesoId}/eventos?usuarioId=${usuarioId}</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"nombre":"Notificar resultado","tipoEvento":"INTERMEDIO","disparador":"MENSAJE_ENVIO","posicionX":500,"posicionY":50}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Compartir ids con los usuarios">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="script">props.put("usuarioId", vars.get("usuarioId"))
+props.put("procesoId", vars.get("procesoId"))
+props.put("poolId", vars.get("poolId"))
+props.put("laneId", vars.get("laneId"))</stringProp>
+        </JSR223PostProcessor>
+        <hashTree/>
       </hashTree>
 
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Usuarios concurrentes">
@@ -123,6 +249,31 @@ props.put("procesoId", vars.get("procesoId"))</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
         </HTTPSamplerProxy>
         <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET listar arcos">
+          <stringProp name="HTTPSampler.path">/api/procesos/${__P(procesoId)}/arcos?usuarioId=${__P(usuarioId)}</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET listar gateways">
+          <stringProp name="HTTPSampler.path">/api/procesos/${__P(procesoId)}/gateways?usuarioId=${__P(usuarioId)}</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET listar eventos">
+          <stringProp name="HTTPSampler.path">/api/procesos/${__P(procesoId)}/eventos?usuarioId=${__P(usuarioId)}</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET listar lanes">
+          <stringProp name="HTTPSampler.path">/api/procesos/${__P(procesoId)}/pools/${__P(poolId)}/lanes?usuarioId=${__P(usuarioId)}</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET listar roles">
+          <stringProp name="HTTPSampler.path">/api/roles-proceso?usuarioId=${__P(usuarioId)}</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST crear actividad">
           <stringProp name="HTTPSampler.path">/api/procesos/${__P(procesoId)}/actividades?usuarioId=${__P(usuarioId)}</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -131,7 +282,7 @@ props.put("procesoId", vars.get("procesoId"))</stringProp>
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{"nombre":"Actividad ${__threadNum}-${__counter(FALSE,)}-${__time()}","tipoActividad":"USUARIO","posicionX":100,"posicionY":50}</stringProp>
+                <stringProp name="Argument.value">{"nombre":"Actividad ${__threadNum}-${__counter(FALSE,)}-${__time()}","tipoActividad":"USUARIO","posicionX":100,"posicionY":50,"laneId":${__P(laneId)}}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
