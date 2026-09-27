@@ -1,9 +1,10 @@
 package co.edu.javeriana.bmpn.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
 import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
 import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
+import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.RolProcesoRepository;
 
 @Service
@@ -38,7 +40,7 @@ public class RolProcesoService {
     @Transactional
     public RolProcesoResponse crear(Long usuarioId, CrearRolProcesoRequest request) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        exigirPermisoDeEdicion(usuario.getRolAcceso());
+        exigirPermisoDeAdministrador(usuario.getRolAcceso());
 
         Empresa empresa = usuario.getEmpresa();
         String nombre = request.getNombre().trim();
@@ -78,24 +80,33 @@ public class RolProcesoService {
         exigirPermisoDeAdministrador(usuario.getRolAcceso());
 
         RolProceso rol = buscarActivo(rolProcesoId, usuario.getEmpresa().getId());
+
+        List<String> procesos = rol.procesosDondeSeUsa();
+        if (!procesos.isEmpty()) {
+            throw new SolicitudInvalidaException("El rol no se puede eliminar porque se usa en los procesos: "
+                    + String.join(", ", procesos) + "; primero reasigne sus lanes");
+        }
         rol.desactivar();
     }
 
     //20
     @Transactional(readOnly = true)
-    public List<RolProcesoResponse> listar(Long usuarioId, boolean incluirInactivos) {
+    public Page<RolProcesoResponse> listar(Long usuarioId, String nombre, boolean incluirInactivos,
+                                           Pageable pageable) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        Long empresaId = usuario.getEmpresa().getId();
 
-        List<RolProceso> roles = incluirInactivos
-                ? rolProcesoRepository.findAllByEmpresaIdOrderByNombreAsc(empresaId)
-                : rolProcesoRepository.findAllByEmpresaIdAndActivoTrueOrderByNombreAsc(empresaId);
-
-        List<RolProcesoResponse> respuesta = new ArrayList<>();
-        for (RolProceso rol : roles) {
-            respuesta.add(convertirAResponse(rol));
+        String nombreBuscado = "";
+        if (nombre != null && !nombre.isBlank()) {
+            nombreBuscado = nombre.trim();
         }
-        return respuesta;
+        Boolean activoBuscado = Boolean.TRUE;
+        if (incluirInactivos) {
+            activoBuscado = null;
+        }
+
+        Page<RolProceso> pagina = rolProcesoRepository.buscar(usuario.getEmpresa().getId(),
+                activoBuscado, nombreBuscado, pageable);
+        return pagina.map(rol -> convertirAResponse(rol));
     }
 
     @Transactional(readOnly = true)
@@ -110,7 +121,10 @@ public class RolProcesoService {
     }
 
     private RolProcesoResponse convertirAResponse(RolProceso rol) {
-        return modelMapper.map(rol, RolProcesoResponse.class);
+        RolProcesoResponse respuesta = modelMapper.map(rol, RolProcesoResponse.class);
+        respuesta.setProcesosEnUso(rol.procesosDondeSeUsa());
+        respuesta.setPuedeEliminarse(respuesta.getProcesosEnUso().isEmpty());
+        return respuesta;
     }
 
     private void exigirPermisoDeEdicion(RolAcceso rol) {
@@ -121,7 +135,7 @@ public class RolProcesoService {
 
     private void exigirPermisoDeAdministrador(RolAcceso rol) {
         if (rol != RolAcceso.ADMINISTRADOR) {
-            throw new AccesoDenegadoException("Solo un administrador puede eliminar roles de proceso");
+            throw new AccesoDenegadoException("Solo un administrador puede crear o eliminar roles de proceso");
         }
     }
 }
