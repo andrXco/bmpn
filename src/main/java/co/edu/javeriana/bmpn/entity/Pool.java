@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 
 import static lombok.AccessLevel.PROTECTED;
 
-
 @Entity
 @Table(name = "pool")
 @Getter
@@ -62,15 +61,26 @@ public class Pool {
             String nombre,
             TipoParticipante tipoParticipante,
             int orden) {
+        this(empresaParticipante, nombre, tipoParticipante, orden, null, false);
+    }
+
+    public Pool(
+            Empresa empresaParticipante,
+            String nombre,
+            TipoParticipante tipoParticipante,
+            int orden,
+            String canalExterno,
+            boolean cajaNegra) {
         this.empresaParticipante = empresaParticipante;
         this.nombre = nombre;
         this.tipoParticipante = tipoParticipante;
         this.orden = orden;
-        this.cajaNegra = false;
+        this.canalExterno = canalExterno;
+        this.cajaNegra = cajaNegra;
         this.activo = true;
     }
 
-    void asignarProceso(Proceso proceso) {
+    public void asignarProceso(Proceso proceso) {
         this.proceso = proceso;
     }
 
@@ -80,6 +90,11 @@ public class Pool {
 
     public void renombrar(String nombre) {
         this.nombre = nombre;
+    }
+
+    public void actualizarConfiguracion(String canalExterno, boolean cajaNegra) {
+        this.canalExterno = canalExterno;
+        this.cajaNegra = cajaNegra;
     }
 
     public void desactivar() {

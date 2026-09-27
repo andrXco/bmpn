@@ -15,14 +15,14 @@ public interface ProcesoRepository extends JpaRepository<Proceso, Long> {
 
     boolean existsByEmpresaIdAndNombreIgnoreCase(Long empresaId, String nombre);
 
-    // Al editar se excluye el propio proceso para que no choque con su mismo nombre
+    //Al editar se excluye el propio proceso para que no choque con su mismo nombre
     boolean existsByEmpresaIdAndNombreIgnoreCaseAndIdNot(Long empresaId, String nombre, Long id);
 
     Optional<Proceso> findByIdAndEmpresaIdAndActivoTrue(Long id, Long empresaId);
 
     Optional<Proceso> findByIdAndEmpresaId(Long id, Long empresaId);
 
-    // Si un filtro llega nulo, su condicion es verdadera y no se aplica
+    //Si un filtro llega nulo, su condicion es verdadera y no se aplica
     @Query("SELECT p FROM Proceso p "
             + "WHERE p.empresa.id = :empresaId "
             + "AND (:activo IS NULL OR p.activo = :activo) "

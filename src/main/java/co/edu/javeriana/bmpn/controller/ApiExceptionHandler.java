@@ -8,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import co.edu.javeriana.bmpn.dto.error.ErrorDto;
 import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
@@ -64,9 +64,10 @@ public class ApiExceptionHandler {
                 exception.getMessage(), List.of());
     }
 
-    // JSON mal escrito o un valor que no existe en un enum (por ejemplo un tipo de actividad)
+    // JSON mal escrito o un valor q ue no existe en un enum (por ejemplo un tipo de actividad)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorDto> manejarCuerpoIlegible(HttpMessageNotReadableException exception) {
+        exception.printStackTrace();
         return crearRespuesta(HttpStatus.BAD_REQUEST, "SOLICITUD_INVALIDA",
                 "El cuerpo de la solicitud no tiene un formato valido", List.of());
     }
@@ -75,8 +76,8 @@ public class ApiExceptionHandler {
     @ExceptionHandler({MissingServletRequestParameterException.class,
             MethodArgumentTypeMismatchException.class})
     public ResponseEntity<ErrorDto> manejarParametroInvalido(Exception exception) {
-        return crearRespuesta(HttpStatus.BAD_REQUEST, "SOLICITUD_INVALIDA",
-                "Falta un parametro obligatorio o tiene un valor invalido", List.of());
+        List<String> detalles = List.of(exception.getMessage());
+        return crearRespuesta(HttpStatus.BAD_REQUEST, "SOLICITUD_INVALIDA",  "Falta un parametro obligatorio o tiene un valor invalido", detalles);
     }
 
     @ExceptionHandler(SolicitudInvalidaException.class)
@@ -91,7 +92,6 @@ public class ApiExceptionHandler {
         return crearRespuesta(HttpStatus.NOT_IMPLEMENTED, "OPERACION_PENDIENTE",
                 exception.getMessage(), List.of());
     }
-
     private ResponseEntity<ErrorDto> crearRespuesta(
             HttpStatus estado,
             String codigo,
