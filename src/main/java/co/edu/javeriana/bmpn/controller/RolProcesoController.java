@@ -1,8 +1,10 @@
 package co.edu.javeriana.bmpn.controller;
 
 import java.net.URI;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,10 +59,14 @@ public class RolProcesoController {
 
     //20
     @GetMapping
-    public ResponseEntity<List<RolProcesoResponse>> listar(
+    public ResponseEntity<Page<RolProcesoResponse>> listar(
             @RequestParam Long usuarioId,
-            @RequestParam(defaultValue = "false") boolean incluirInactivos) {
-        return ResponseEntity.ok(rolProcesoService.listar(usuarioId, incluirInactivos));
+            @RequestParam(required = false) String nombre,
+            @RequestParam(defaultValue = "false") boolean incluirInactivos,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageRequest paginacion = PageRequest.of(page, size, Sort.by("nombre"));
+        return ResponseEntity.ok(rolProcesoService.listar(usuarioId, nombre, incluirInactivos, paginacion));
     }
 
     @GetMapping("/{id}")
