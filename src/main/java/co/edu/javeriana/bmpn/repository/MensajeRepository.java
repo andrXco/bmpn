@@ -16,6 +16,10 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
     @Query("SELECT m FROM Mensaje m WHERE m.proceso.id = :procesoId AND m.activo = true ORDER BY m.id")
     List<Mensaje> listarActivosPorProceso(@Param("procesoId") Long procesoId);
 
+    // HU-28: otro mensaje del proceso con el mismo nombre y la misma clave es ambiguo
+    boolean existsByProcesoIdAndNombreIgnoreCaseAndClaveCorrelacionIgnoreCaseAndActivoTrueAndIdNot(
+            Long procesoId, String nombre, String claveCorrelacion, Long id);
+
     //28 mensajes que comparten clave de correlacion dentro del mismo proceso
     @Query("SELECT m FROM Mensaje m WHERE m.proceso.id = :procesoId "
             + "AND m.claveCorrelacion = :clave AND m.activo = true ORDER BY m.id")

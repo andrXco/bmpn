@@ -92,11 +92,4 @@ public class Proceso {
         this.activo = false;
         this.fechaActualizacion = Instant.now();
     }
-
-    public void activar() {
-        if (this.estado == EstadoProceso.BORRADOR) {
-            this.estado = EstadoProceso.PUBLICADO;
-            this.fechaActualizacion = Instant.now();
-        }
-}
 }
