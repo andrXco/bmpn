@@ -101,6 +101,10 @@ public class LaneService {
         Pool pool = poolService.buscarActivo(poolId, procesoId);
         Lane lane = buscarActiva(laneId, poolId);
 
+        if (lane.tieneElementosActivos()) {
+            throw new SolicitudInvalidaException(
+                    "No se puede eliminar una lane que contiene actividades; primero reasignelas a otra lane");
+        }
         lane.desactivar();
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
@@ -120,7 +124,8 @@ public class LaneService {
         return respuesta;
     }
 
-    private Lane buscarActiva(Long laneId, Long poolId) {
+    // Para ActividadService: la lane debe estar en el mismo pool que la actividad
+    public Lane buscarActiva(Long laneId, Long poolId) {
         return laneRepository.findByIdAndPoolIdAndActivoTrue(laneId, poolId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Lane no encontrada en el pool"));
     }
