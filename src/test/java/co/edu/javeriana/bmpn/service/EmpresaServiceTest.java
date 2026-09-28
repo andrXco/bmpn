@@ -72,7 +72,8 @@ class EmpresaServiceTest {
     void registrarNitRepetido() {
         when(empresaRepository.existsByNit("900-ABC")).thenReturn(true);
 
-        assertThatThrownBy(() -> empresaService.registrar(solicitud()))
+        RegistrarEmpresaRequest solicitud = solicitud();
+        assertThatThrownBy(() -> empresaService.registrar(solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
         verify(empresaRepository, never()).save(any());
         verify(usuarioRepository, never()).save(any());
@@ -82,7 +83,8 @@ class EmpresaServiceTest {
     void registrarCorreoAdministradorRepetido() {
         when(usuarioRepository.existsByEmailIgnoreCase("admin@demo.co")).thenReturn(true);
 
-        assertThatThrownBy(() -> empresaService.registrar(solicitud()))
+        RegistrarEmpresaRequest solicitud = solicitud();
+        assertThatThrownBy(() -> empresaService.registrar(solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
         verify(empresaRepository, never()).save(any());
     }

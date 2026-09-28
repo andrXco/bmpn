@@ -131,8 +131,9 @@ class GatewayServiceTest {
     void crearSinPermiso() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
 
-        assertThatThrownBy(() -> gatewayService.crear(PROCESO_ID, USUARIO_ID,
-                new CrearGatewayRequest("Aprobada?", TipoGateway.EXCLUSIVO, BigDecimal.ONE, BigDecimal.ONE, null)))
+        CrearGatewayRequest solicitud =
+                new CrearGatewayRequest("Aprobada?", TipoGateway.EXCLUSIVO, BigDecimal.ONE, BigDecimal.ONE, null);
+        assertThatThrownBy(() -> gatewayService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(AccesoDenegadoException.class);
         verify(gatewayRepository, never()).save(any());
     }
@@ -218,8 +219,9 @@ class GatewayServiceTest {
         when(gatewayRepository.findByIdAndProcesoIdAndActivoTrue(GATEWAY_ID, PROCESO_ID))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> gatewayService.editar(PROCESO_ID, GATEWAY_ID, USUARIO_ID,
-                new EditarGatewayRequest("Decision", TipoGateway.EXCLUSIVO, BigDecimal.ONE, BigDecimal.ONE)))
+        EditarGatewayRequest solicitud =
+                new EditarGatewayRequest("Decision", TipoGateway.EXCLUSIVO, BigDecimal.ONE, BigDecimal.ONE);
+        assertThatThrownBy(() -> gatewayService.editar(PROCESO_ID, GATEWAY_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoNoEncontradoException.class);
     }
 

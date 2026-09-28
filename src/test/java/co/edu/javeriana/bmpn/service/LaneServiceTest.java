@@ -115,7 +115,8 @@ class LaneServiceTest {
         when(rolProcesoService.buscarActivo(eq(ROL_ID), any())).thenReturn(rol);
         when(laneRepository.existsByPoolIdAndRolProcesoId(POOL_ID, ROL_ID)).thenReturn(true);
 
-        assertThatThrownBy(() -> laneService.crear(PROCESO_ID, POOL_ID, USUARIO_ID, new CrearLaneRequest(ROL_ID)))
+        CrearLaneRequest solicitud = new CrearLaneRequest(ROL_ID);
+        assertThatThrownBy(() -> laneService.crear(PROCESO_ID, POOL_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
         verify(laneRepository, never()).save(any());
     }
@@ -127,7 +128,8 @@ class LaneServiceTest {
         when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
         when(poolService.buscarActivo(POOL_ID, PROCESO_ID)).thenReturn(externo);
 
-        assertThatThrownBy(() -> laneService.crear(PROCESO_ID, POOL_ID, USUARIO_ID, new CrearLaneRequest(ROL_ID)))
+        CrearLaneRequest solicitud = new CrearLaneRequest(ROL_ID);
+        assertThatThrownBy(() -> laneService.crear(PROCESO_ID, POOL_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
     }
 

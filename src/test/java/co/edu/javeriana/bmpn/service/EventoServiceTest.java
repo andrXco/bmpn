@@ -126,8 +126,8 @@ class EventoServiceTest {
         usuarioConRol(RolAcceso.EDITOR);
         when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
 
-        assertThatThrownBy(() -> eventoService.crear(PROCESO_ID, USUARIO_ID,
-                solicitud(TipoEvento.INICIO, DisparadorEvento.MENSAJE_ENVIO)))
+        CrearEventoRequest solicitud = solicitud(TipoEvento.INICIO, DisparadorEvento.MENSAJE_ENVIO);
+        assertThatThrownBy(() -> eventoService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
         verify(eventoRepository, never()).save(any());
     }
@@ -137,8 +137,8 @@ class EventoServiceTest {
         usuarioConRol(RolAcceso.EDITOR);
         when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
 
-        assertThatThrownBy(() -> eventoService.crear(PROCESO_ID, USUARIO_ID,
-                solicitud(TipoEvento.FIN, DisparadorEvento.MENSAJE_RECEPCION)))
+        CrearEventoRequest solicitud = solicitud(TipoEvento.FIN, DisparadorEvento.MENSAJE_RECEPCION);
+        assertThatThrownBy(() -> eventoService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
     }
 

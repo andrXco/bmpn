@@ -143,7 +143,8 @@ class MensajeServiceTest {
         usuarioYProceso();
         when(eventoService.buscarActivo(THROW_ID, PROCESO_ID)).thenReturn(recepcion);
 
-        assertThatThrownBy(() -> mensajeService.crear(PROCESO_ID, USUARIO_ID, solicitud(CATCH_ID, null)))
+        CrearMensajeRequest solicitud = solicitud(CATCH_ID, null);
+        assertThatThrownBy(() -> mensajeService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
         verify(mensajeRepository, never()).save(any());
     }
@@ -154,7 +155,8 @@ class MensajeServiceTest {
         when(eventoService.buscarActivo(THROW_ID, PROCESO_ID)).thenReturn(envio);
         when(poolService.buscarActivo(10L, PROCESO_ID)).thenReturn(poolEmpresa);
 
-        assertThatThrownBy(() -> mensajeService.crear(PROCESO_ID, USUARIO_ID, solicitud(null, 10L)))
+        CrearMensajeRequest solicitud = solicitud(null, 10L);
+        assertThatThrownBy(() -> mensajeService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
     }
 
@@ -216,7 +218,8 @@ class MensajeServiceTest {
         usuarioYProceso();
         when(eventoService.buscarActivo(THROW_ID, PROCESO_ID)).thenReturn(envio);
 
-        assertThatThrownBy(() -> mensajeService.crear(PROCESO_ID, USUARIO_ID, solicitud(null, null)))
+        CrearMensajeRequest solicitud = solicitud(null, null);
+        assertThatThrownBy(() -> mensajeService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
         verify(poolService, never()).buscarActivo(anyLong(), anyLong());
     }

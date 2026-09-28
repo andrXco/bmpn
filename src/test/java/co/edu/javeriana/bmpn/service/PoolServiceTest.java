@@ -141,8 +141,8 @@ class PoolServiceTest {
         when(empresaService.buscarActiva(CLIENTE_ID)).thenReturn(cliente);
         when(procesoCompartidoService.estaCompartidoCon(PROCESO_ID, CLIENTE_ID)).thenReturn(false);
 
-        assertThatThrownBy(() -> poolService.crear(PROCESO_ID, USUARIO_ID,
-                solicitud("Cliente", TipoParticipante.CLIENTE, CLIENTE_ID)))
+        CrearPoolRequest solicitud = solicitud("Cliente", TipoParticipante.CLIENTE, CLIENTE_ID);
+        assertThatThrownBy(() -> poolService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
         verify(poolRepository, never()).save(any());
     }
@@ -151,8 +151,8 @@ class PoolServiceTest {
     void noSeCreaOtroPoolPropietario() {
         usuarioYProceso(RolAcceso.EDITOR);
 
-        assertThatThrownBy(() -> poolService.crear(PROCESO_ID, USUARIO_ID,
-                solicitud("Otra empresa", TipoParticipante.EMPRESA_PROPIETARIA, null)))
+        CrearPoolRequest solicitud = solicitud("Otra empresa", TipoParticipante.EMPRESA_PROPIETARIA, null);
+        assertThatThrownBy(() -> poolService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
     }
 
@@ -161,8 +161,8 @@ class PoolServiceTest {
         usuarioYProceso(RolAcceso.EDITOR);
         when(poolRepository.existsByProcesoIdAndNombreIgnoreCaseAndActivoTrue(PROCESO_ID, "Banco")).thenReturn(true);
 
-        assertThatThrownBy(() -> poolService.crear(PROCESO_ID, USUARIO_ID,
-                solicitud("Banco", TipoParticipante.SISTEMA_EXTERNO, null)))
+        CrearPoolRequest solicitud = solicitud("Banco", TipoParticipante.SISTEMA_EXTERNO, null);
+        assertThatThrownBy(() -> poolService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
     }
 

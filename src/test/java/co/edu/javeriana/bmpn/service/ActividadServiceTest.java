@@ -133,8 +133,8 @@ class ActividadServiceTest {
         when(laneService.buscarActiva(eq(LANE_ID), any()))
                 .thenThrow(new RecursoNoEncontradoException("Lane no encontrada en el pool"));
 
-        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID,
-                solicitudCrear("Radicar solicitud", null)))
+        CrearActividadRequest solicitud = solicitudCrear("Radicar solicitud", null);
+        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoNoEncontradoException.class);
         verify(actividadRepository, never()).save(any());
     }
@@ -143,8 +143,8 @@ class ActividadServiceTest {
     void crearSinPermiso() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
 
-        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID,
-                solicitudCrear("Radicar solicitud", null)))
+        CrearActividadRequest solicitud = solicitudCrear("Radicar solicitud", null);
+        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(AccesoDenegadoException.class);
         verify(actividadRepository, never()).save(any());
     }
@@ -156,8 +156,8 @@ class ActividadServiceTest {
         when(actividadRepository.existsByProcesoIdAndNombreIgnoreCaseAndActivoTrue(
                 PROCESO_ID, "Radicar solicitud")).thenReturn(true);
 
-        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID,
-                solicitudCrear("Radicar solicitud", null)))
+        CrearActividadRequest solicitud = solicitudCrear("Radicar solicitud", null);
+        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
         verify(actividadRepository, never()).save(any());
     }
@@ -167,8 +167,8 @@ class ActividadServiceTest {
         usuarioConRol(RolAcceso.ADMINISTRADOR);
         when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
 
-        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID,
-                solicitudCrear("Radicar solicitud", 99L)))
+        CrearActividadRequest solicitud = solicitudCrear("Radicar solicitud", 99L);
+        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoNoEncontradoException.class);
         verify(actividadRepository, never()).save(any());
     }
