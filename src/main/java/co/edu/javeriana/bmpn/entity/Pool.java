@@ -1,5 +1,8 @@
 package co.edu.javeriana.bmpn.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -56,6 +60,18 @@ public class Pool {
     @Column(nullable = false)
     private boolean activo;
 
+    @OneToMany(mappedBy = "pool", fetch = FetchType.LAZY)
+    private List<Lane> lanes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "pool", fetch = FetchType.LAZY)
+    private List<ElementoProceso> elementos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "poolOrigen", fetch = FetchType.LAZY)
+    private List<Mensaje> mensajesEnviados = new ArrayList<>();
+
+    @OneToMany(mappedBy = "poolDestino", fetch = FetchType.LAZY)
+    private List<Mensaje> mensajesRecibidos = new ArrayList<>();
+
     public Pool(
             Empresa empresaParticipante,
             String nombre,
@@ -97,7 +113,20 @@ public class Pool {
         this.cajaNegra = cajaNegra;
     }
 
+    // La eliminacion es logica: lo que esta dentro del pool se desactiva con el
     public void desactivar() {
         this.activo = false;
+        for (Lane lane : lanes) {
+            lane.desactivar();
+        }
+        for (ElementoProceso elemento : elementos) {
+            elemento.desactivar();
+        }
+        for (Mensaje mensaje : mensajesEnviados) {
+            mensaje.desactivar();
+        }
+        for (Mensaje mensaje : mensajesRecibidos) {
+            mensaje.desactivar();
+        }
     }
 }
