@@ -58,8 +58,8 @@ class AutenticacionServiceTest {
     void iniciarSesionCorreoInexistente() {
         when(usuarioRepository.findByEmailIgnoreCaseAndActivoTrue("otro@demo.co")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> autenticacionService.iniciarSesion(
-                new IniciarSesionRequest("otro@demo.co", "clave12345")))
+        IniciarSesionRequest solicitud = new IniciarSesionRequest("otro@demo.co", "clave12345");
+        assertThatThrownBy(() -> autenticacionService.iniciarSesion(solicitud))
                 .isInstanceOf(AutenticacionRequeridaException.class)
                 .hasMessage("Correo o contrasena invalidos");
     }
@@ -70,8 +70,8 @@ class AutenticacionServiceTest {
         when(passwordEncoder.matches("equivocada", "hash-cifrado")).thenReturn(false);
 
         // Mismo mensaje que con un correo inexistente: no revela si el correo esta registrado
-        assertThatThrownBy(() -> autenticacionService.iniciarSesion(
-                new IniciarSesionRequest("ana@demo.co", "equivocada")))
+        IniciarSesionRequest solicitud = new IniciarSesionRequest("ana@demo.co", "equivocada");
+        assertThatThrownBy(() -> autenticacionService.iniciarSesion(solicitud))
                 .isInstanceOf(AutenticacionRequeridaException.class)
                 .hasMessage("Correo o contrasena invalidos");
     }

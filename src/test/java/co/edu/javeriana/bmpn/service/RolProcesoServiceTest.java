@@ -90,8 +90,8 @@ class RolProcesoServiceTest {
     void crearSinSerAdministrador() {
         usuarioConRol(RolAcceso.EDITOR);
 
-        assertThatThrownBy(() -> rolProcesoService.crear(USUARIO_ID,
-                new CrearRolProcesoRequest("Analista", null)))
+        CrearRolProcesoRequest solicitud = new CrearRolProcesoRequest("Analista", null);
+        assertThatThrownBy(() -> rolProcesoService.crear(USUARIO_ID, solicitud))
                 .isInstanceOf(AccesoDenegadoException.class);
         verify(rolProcesoRepository, never()).save(any());
     }
@@ -101,8 +101,8 @@ class RolProcesoServiceTest {
         usuarioConRol(RolAcceso.ADMINISTRADOR);
         when(rolProcesoRepository.existsByEmpresaIdAndNombreIgnoreCase(any(), eq("Analista"))).thenReturn(true);
 
-        assertThatThrownBy(() -> rolProcesoService.crear(USUARIO_ID,
-                new CrearRolProcesoRequest("Analista", null)))
+        CrearRolProcesoRequest solicitud = new CrearRolProcesoRequest("Analista", null);
+        assertThatThrownBy(() -> rolProcesoService.crear(USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
     }
 

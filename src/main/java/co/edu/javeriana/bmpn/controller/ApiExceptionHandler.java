@@ -22,6 +22,8 @@ import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+    private static final String SOLICITUD_INVALIDA = "SOLICITUD_INVALIDA";
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDto> manejarValidacion(
             MethodArgumentNotValidException exception) {
@@ -32,7 +34,7 @@ public class ApiExceptionHandler {
                 .toList();
         return crearRespuesta(
                 HttpStatus.BAD_REQUEST,
-                "SOLICITUD_INVALIDA",
+                SOLICITUD_INVALIDA,
                 "Uno o mas campos no cumplen las reglas de validacion",
                 detalles);
     }
@@ -67,7 +69,7 @@ public class ApiExceptionHandler {
     // JSON mal escrito o un valor que no existe en un enum (por ejemplo un tipo de actividad)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorDto> manejarCuerpoIlegible(HttpMessageNotReadableException exception) {
-        return crearRespuesta(HttpStatus.BAD_REQUEST, "SOLICITUD_INVALIDA",
+        return crearRespuesta(HttpStatus.BAD_REQUEST, SOLICITUD_INVALIDA,
                 "El cuerpo de la solicitud no tiene un formato valido", List.of());
     }
 
@@ -75,13 +77,13 @@ public class ApiExceptionHandler {
     @ExceptionHandler({MissingServletRequestParameterException.class,
             MethodArgumentTypeMismatchException.class})
     public ResponseEntity<ErrorDto> manejarParametroInvalido(Exception exception) {
-        return crearRespuesta(HttpStatus.BAD_REQUEST, "SOLICITUD_INVALIDA",
+        return crearRespuesta(HttpStatus.BAD_REQUEST, SOLICITUD_INVALIDA,
                 "Falta un parametro obligatorio o tiene un valor invalido", List.of());
     }
 
     @ExceptionHandler(SolicitudInvalidaException.class)
     public ResponseEntity<ErrorDto> manejarSolicitudInvalida(SolicitudInvalidaException exception) {
-        return crearRespuesta(HttpStatus.BAD_REQUEST, "SOLICITUD_INVALIDA",
+        return crearRespuesta(HttpStatus.BAD_REQUEST, SOLICITUD_INVALIDA,
                 exception.getMessage(), List.of());
     }
 

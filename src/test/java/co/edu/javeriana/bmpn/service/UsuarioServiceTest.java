@@ -114,8 +114,9 @@ class UsuarioServiceTest {
     void registrarSinPermiso() {
         solicitanteConRol(RolAcceso.EDITOR);
 
-        assertThatThrownBy(() -> usuarioService.registrar(SOLICITANTE_ID,
-                new RegistrarUsuarioRequest("nuevo@demo.co", "Luis", "Rojas", "clave12345", RolAcceso.EDITOR)))
+        RegistrarUsuarioRequest solicitud =
+                new RegistrarUsuarioRequest("nuevo@demo.co", "Luis", "Rojas", "clave12345", RolAcceso.EDITOR);
+        assertThatThrownBy(() -> usuarioService.registrar(SOLICITANTE_ID, solicitud))
                 .isInstanceOf(AccesoDenegadoException.class);
         verify(usuarioRepository, never()).save(any());
     }
@@ -125,8 +126,9 @@ class UsuarioServiceTest {
         solicitanteConRol(RolAcceso.ADMINISTRADOR);
         when(usuarioRepository.existsByEmailIgnoreCase("nuevo@demo.co")).thenReturn(true);
 
-        assertThatThrownBy(() -> usuarioService.registrar(SOLICITANTE_ID,
-                new RegistrarUsuarioRequest("nuevo@demo.co", "Luis", "Rojas", "clave12345", RolAcceso.EDITOR)))
+        RegistrarUsuarioRequest solicitud =
+                new RegistrarUsuarioRequest("nuevo@demo.co", "Luis", "Rojas", "clave12345", RolAcceso.EDITOR);
+        assertThatThrownBy(() -> usuarioService.registrar(SOLICITANTE_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
         verify(usuarioRepository, never()).save(any());
     }
@@ -149,8 +151,8 @@ class UsuarioServiceTest {
         when(usuarioRepository.findByIdAndEmpresaIdAndActivoTrue(eq(OBJETIVO_ID), any()))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> usuarioService.cambiarRol(SOLICITANTE_ID, OBJETIVO_ID,
-                new CambiarRolUsuarioRequest(RolAcceso.EDITOR)))
+        CambiarRolUsuarioRequest solicitud = new CambiarRolUsuarioRequest(RolAcceso.EDITOR);
+        assertThatThrownBy(() -> usuarioService.cambiarRol(SOLICITANTE_ID, OBJETIVO_ID, solicitud))
                 .isInstanceOf(RecursoNoEncontradoException.class);
     }
 

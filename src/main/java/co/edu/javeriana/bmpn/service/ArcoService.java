@@ -81,7 +81,7 @@ public class ArcoService {
         }
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.CREACION,
-                "Arco de '" + origen.getNombre() + "' a '" + destino.getNombre() + "' creado");
+                describir(origen, destino) + " creado");
         return convertirAResponse(arco);
     }
 
@@ -113,7 +113,7 @@ public class ArcoService {
         arco.actualizar(origen, destino, etiqueta, condicion);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ACTUALIZACION,
-                "Arco de '" + origen.getNombre() + "' a '" + destino.getNombre() + "' actualizado");
+                describir(origen, destino) + " actualizado");
         return convertirAResponse(arco);
     }
 
@@ -132,8 +132,7 @@ public class ArcoService {
         advertirSiQuedaSinEntrada(arco.getDestino(), advertencias);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
-                "Arco de '" + arco.getOrigen().getNombre() + "' a '"
-                        + arco.getDestino().getNombre() + "' eliminado");
+                describir(arco.getOrigen(), arco.getDestino()) + " eliminado");
         return new AdvertenciasResponse(advertencias);
     }
 
@@ -251,6 +250,11 @@ public class ArcoService {
             return null;
         }
         return texto.trim();
+    }
+
+    // Arco como se muestra en el historial, por ejemplo: Arco de 'Radicar' a 'Revisar'
+    private String describir(ElementoProceso origen, ElementoProceso destino) {
+        return "Arco de '" + origen.getNombre() + "' a '" + destino.getNombre() + "'";
     }
 
     private ArcoResponse convertirAResponse(Arco arco) {

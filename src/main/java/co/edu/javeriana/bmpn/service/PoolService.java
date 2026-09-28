@@ -93,7 +93,7 @@ public class PoolService {
         poolRepository.save(pool);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.CREACION,
-                "Pool '" + nombre + "' agregado al proceso");
+                describir(nombre) + " agregado al proceso");
         return convertirAResponse(pool);
     }
 
@@ -114,7 +114,7 @@ public class PoolService {
         pool.actualizarConfiguracion(request.getCanalExterno(), request.isCajaNegra());
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ACTUALIZACION,
-                "Pool '" + nombre + "' actualizado");
+                describir(nombre) + " actualizado");
         return convertirAResponse(pool);
     }
 
@@ -131,7 +131,7 @@ public class PoolService {
         pool.desactivar();
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
-                "Pool '" + pool.getNombre() + "' eliminado");
+                describir(pool.getNombre()) + " eliminado");
     }
 
     @Transactional(readOnly = true)
@@ -266,6 +266,11 @@ public class PoolService {
         PermisoPoolResponse respuesta = modelMapper.map(permiso, PermisoPoolResponse.class);
         respuesta.setPoolId(permiso.getPool().getId());
         return respuesta;
+    }
+
+    // Nombre del elemento como se muestra en el historial
+    private String describir(String nombre) {
+        return "Pool '" + nombre + "'";
     }
 
     private void exigirPermisoDeEdicion(RolAcceso rol) {

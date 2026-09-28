@@ -139,8 +139,8 @@ class ArcoServiceTest {
     void crearSinPermiso() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
 
-        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID,
-                new CrearArcoRequest(1L, 2L, null, null)))
+        CrearArcoRequest solicitud = new CrearArcoRequest(1L, 2L, null, null);
+        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(AccesoDenegadoException.class);
         verify(arcoRepository, never()).save(any());
     }
@@ -150,8 +150,8 @@ class ArcoServiceTest {
         usuarioConRol(RolAcceso.EDITOR);
         procesoEncontrado();
 
-        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID,
-                new CrearArcoRequest(1L, 1L, null, null)))
+        CrearArcoRequest solicitud = new CrearArcoRequest(1L, 1L, null, null);
+        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
     }
 
@@ -161,8 +161,8 @@ class ArcoServiceTest {
         procesoEncontrado();
         elementosEncontrados(radicar, actividadCliente);
 
-        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID,
-                new CrearArcoRequest(1L, 4L, null, null)))
+        CrearArcoRequest solicitud = new CrearArcoRequest(1L, 4L, null, null);
+        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
         verify(arcoRepository, never()).save(any());
     }
@@ -175,8 +175,8 @@ class ArcoServiceTest {
         when(arcoRepository.findByProcesoIdAndOrigenIdAndDestinoId(PROCESO_ID, 1L, 2L))
                 .thenReturn(Optional.of(new Arco(proceso, radicar, revisar, null, null)));
 
-        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID,
-                new CrearArcoRequest(1L, 2L, null, null)))
+        CrearArcoRequest solicitud = new CrearArcoRequest(1L, 2L, null, null);
+        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
     }
 
@@ -204,8 +204,8 @@ class ArcoServiceTest {
         procesoEncontrado();
         elementosEncontrados(radicar, revisar);
 
-        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID,
-                new CrearArcoRequest(1L, 2L, null, "Si")))
+        CrearArcoRequest solicitud = new CrearArcoRequest(1L, 2L, null, "Si");
+        assertThatThrownBy(() -> arcoService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
     }
 
@@ -243,8 +243,8 @@ class ArcoServiceTest {
         procesoEncontrado();
         when(arcoRepository.findByIdAndProcesoIdAndActivoTrue(ARCO_ID, PROCESO_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> arcoService.editar(PROCESO_ID, ARCO_ID, USUARIO_ID,
-                new EditarArcoRequest(1L, 2L, null, null)))
+        EditarArcoRequest solicitud = new EditarArcoRequest(1L, 2L, null, null);
+        assertThatThrownBy(() -> arcoService.editar(PROCESO_ID, ARCO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoNoEncontradoException.class);
     }
 

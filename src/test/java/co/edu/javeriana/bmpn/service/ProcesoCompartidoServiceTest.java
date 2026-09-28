@@ -97,8 +97,8 @@ class ProcesoCompartidoServiceTest {
         administradorYProceso();
         when(empresaService.buscarActiva(1L)).thenReturn(empresa);
 
-        assertThatThrownBy(() -> procesoCompartidoService.compartir(PROCESO_ID, USUARIO_ID,
-                new CompartirProcesoRequest(1L)))
+        CompartirProcesoRequest solicitud = new CompartirProcesoRequest(1L);
+        assertThatThrownBy(() -> procesoCompartidoService.compartir(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(SolicitudInvalidaException.class);
         verify(procesoCompartidoRepository, never()).save(any());
     }
@@ -110,8 +110,8 @@ class ProcesoCompartidoServiceTest {
         when(procesoCompartidoRepository.findByProcesoIdAndEmpresaInvitadaId(PROCESO_ID, CLIENTE_ID))
                 .thenReturn(Optional.of(new ProcesoCompartido(proceso, cliente, administrador)));
 
-        assertThatThrownBy(() -> procesoCompartidoService.compartir(PROCESO_ID, USUARIO_ID,
-                new CompartirProcesoRequest(CLIENTE_ID)))
+        CompartirProcesoRequest solicitud = new CompartirProcesoRequest(CLIENTE_ID);
+        assertThatThrownBy(() -> procesoCompartidoService.compartir(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
     }
 
@@ -120,8 +120,8 @@ class ProcesoCompartidoServiceTest {
         Usuario editor = new Usuario(empresa, "luis@demo.co", "Luis", "Rojas", "hash", RolAcceso.EDITOR);
         when(usuarioService.buscarActivo(USUARIO_ID)).thenReturn(editor);
 
-        assertThatThrownBy(() -> procesoCompartidoService.compartir(PROCESO_ID, USUARIO_ID,
-                new CompartirProcesoRequest(CLIENTE_ID)))
+        CompartirProcesoRequest solicitud = new CompartirProcesoRequest(CLIENTE_ID);
+        assertThatThrownBy(() -> procesoCompartidoService.compartir(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(AccesoDenegadoException.class);
     }
 
