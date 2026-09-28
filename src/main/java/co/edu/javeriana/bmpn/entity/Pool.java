@@ -113,7 +113,7 @@ public class Pool {
         this.cajaNegra = cajaNegra;
     }
 
-    // La eliminacion es logica: lo que esta dentro del pool se desactiva con el
+    // La eliminacion es logica: lo que esta dentro del pool se desactiva con lo que tiene adentro
     public void desactivar() {
         this.activo = false;
         for (Lane lane : lanes) {
