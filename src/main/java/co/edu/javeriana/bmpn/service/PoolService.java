@@ -131,7 +131,7 @@ public class PoolService {
         if (pool.esPropietario()) {
             throw new SolicitudInvalidaException("El pool de la empresa propietaria no se puede eliminar");
         }
-        // El pool desactiva sus lanes, elementos y mensajes; los arcos se desactivan aparte
+        // El pool desactiva sus lanes, elementos y mensajes, los arcos se desactivan aparte
         pool.desactivar();
         arcoService.desactivarArcosDePool(poolId);
 
