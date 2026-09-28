@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
@@ -25,6 +26,9 @@ import static lombok.AccessLevel.PROTECTED;
 // HU-25 a HU-28: comunicacion entre pools, de un evento que envia a uno que recibe
 @Entity
 @Table(name = "mensaje")
+@NamedQuery(
+        name = "Mensaje.listarActivosPorProceso",
+        query = "SELECT m FROM Mensaje m WHERE m.proceso.id = :procesoId AND m.activo = true ORDER BY m.id")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
