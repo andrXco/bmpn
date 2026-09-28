@@ -1,182 +1,798 @@
 {
   "info": {
-    "_postman_id": "902e346e-b9fb-4694-9f1a-cfc85dbcc99c",
-    "name": "BMPN",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "46914456",
-    "_collection_link": "https://go.postman.co/collection/46914456-902e346e-b9fb-4694-9f1a-cfc85dbcc99c?source=collection_link"
+    "name": "BPMN API - pruebas locales",
+    "description": "Colección de pruebas de la API BPMN. Ejecuta los folders en orden para encadenar los identificadores creados.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "usuarioId",
+      "value": ""
+    },
+    {
+      "key": "usuarioObjetivoId",
+      "value": ""
+    },
+    {
+      "key": "procesoId",
+      "value": ""
+    },
+    {
+      "key": "actividadId",
+      "value": ""
+    },
+    {
+      "key": "gatewayId",
+      "value": ""
+    },
+    {
+      "key": "arcoId",
+      "value": ""
+    }
+  ],
   "item": [
     {
-      "name": "01 - Registrar empresa",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"nit\": \"901234567-8\",\r\n  \"nombreEmpresa\": \"Empresa Postman\",\r\n  \"correoContacto\": \"contacto@empresapostman.co\",\r\n  \"nombreAdministrador\": \"Ana\",\r\n  \"apellidoAdministrador\": \"Prueba\",\r\n  \"emailAdministrador\": \"ana@empresapostman.co\",\r\n  \"password\": \"ClaveSegura123\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "01 - Empresas y autenticación",
+      "item": [
+        {
+          "name": "01. Registrar empresa",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const sufijo = Date.now();",
+                  "pm.collectionVariables.set('nitEmpresa', '90' + sufijo);",
+                  "pm.collectionVariables.set('correoEmpresa', 'contacto.' + sufijo + '@bmpn.local');",
+                  "pm.collectionVariables.set('emailAdministrador', 'admin.' + sufijo + '@bmpn.local');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empresa creada: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('Incluye administrador inicial', () => pm.expect(body.administradorInicial.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('usuarioId', body.administradorInicial.id);"
+                ]
+              }
             }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nit\": \"{{nitEmpresa}}\",\n  \"nombreEmpresa\": \"Empresa Postman\",\n  \"correoContacto\": \"{{correoEmpresa}}\",\n  \"nombreAdministrador\": \"Ana\",\n  \"apellidoAdministrador\": \"Prueba\",\n  \"emailAdministrador\": \"{{emailAdministrador}}\",\n  \"password\": \"ClaveSegura123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/empresas"
           }
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/empresas",
-          "host": [
-            "{{baseUrl}}"
+        {
+          "name": "02. Iniciar sesión",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Inicio de sesión correcto: 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Incluye usuarioId', () => pm.expect(body.usuarioId).to.be.a('number'));",
+                  "pm.collectionVariables.set('usuarioId', body.usuarioId);"
+                ]
+              }
+            }
           ],
-          "path": [
-            "api",
-            "empresas"
-          ]
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailAdministrador}}\",\n  \"password\": \"ClaveSegura123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/sesiones"
+          }
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "02 - iniciar Sesion",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"ana@empresapostman.co\",\r\n  \"password\": \"ClaveSegura123\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "02 - Usuarios",
+      "item": [
+        {
+          "name": "03. Listar usuarios activos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Usuarios consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
             }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/usuarios?usuarioId={{usuarioId}}"
           }
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/sesiones",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "sesiones"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "03 - Listar Usuarios",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/usuarios?usuarioId={{usuarioId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "usuarios"
-          ],
-          "query": [
+        {
+          "name": "04. Registrar colaborador",
+          "event": [
             {
-              "key": "usuarioId",
-              "value": "{{usuarioId}}"
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('emailColaborador', 'editor.' + Date.now() + '@bmpn.local');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Colaborador creado: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('usuarioObjetivoId', body.id);"
+                ]
+              }
             }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "04 - Registrar colaborador",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"editor.prueba@bmpn.local\",\r\n  \"nombre\": \"Editor\",\r\n  \"apellido\": \"Prueba\",\r\n  \"password\": \"ClaveSegura123\",\r\n  \"rolAcceso\": \"EDITOR\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailColaborador}}\",\n  \"nombre\": \"Editor\",\n  \"apellido\": \"Prueba\",\n  \"password\": \"ClaveSegura123\",\n  \"rolAcceso\": \"EDITOR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/usuarios?usuarioId={{usuarioId}}"
           }
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/usuarios?usuarioId={{usuarioId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "usuarios"
-          ],
-          "query": [
+        {
+          "name": "05. Cambiar rol de colaborador",
+          "event": [
             {
-              "key": "usuarioId",
-              "value": "{{usuarioId}}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol actualizado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
             }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "05 - Cambiar rol de colaborador",
-      "request": {
-        "method": "PATCH",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"rolAcceso\": \"SOLO_LECTURA\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rolAcceso\": \"SOLO_LECTURA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioObjetivoId}}/rol?usuarioId={{usuarioId}}"
           }
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/usuarios/{{usuarioObjetivoId}}/rol?usuarioId={{usuarioId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "usuarios",
-            "{{usuarioObjetivoId}}",
-            "rol"
-          ],
-          "query": [
+        {
+          "name": "06. Desactivar colaborador",
+          "event": [
             {
-              "key": "usuarioId",
-              "value": "{{usuarioId}}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Colaborador desactivado: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
             }
-          ]
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioObjetivoId}}?usuarioId={{usuarioId}}"
+          }
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "06 - Desactivar colaborador",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/usuarios/{{usuarioObjetivoId}}?usuarioId={{usuarioId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "usuarios",
-            "{{usuarioObjetivoId}}"
-          ],
-          "query": [
+      "name": "03 - Procesos",
+      "item": [
+        {
+          "name": "07. Crear proceso",
+          "event": [
             {
-              "key": "usuarioId",
-              "value": "{{usuarioId}}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Proceso creado: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('procesoId', body.id);"
+                ]
+              }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Proceso Postman\",\n  \"descripcion\": \"Proceso creado desde pruebas manuales\",\n  \"categoria\": \"Ventas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "08. Listar procesos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Procesos consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "09. Consultar proceso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Proceso consultado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "10. Editar proceso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Proceso actualizado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Proceso Postman editado\",\n  \"descripcion\": \"Descripción actualizada desde Postman\",\n  \"categoria\": \"Ventas\",\n  \"estado\": \"PUBLICADO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "11. Ver historial",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Historial consultado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/historial?usuarioId={{usuarioId}}"
+          }
         }
-      },
-      "response": []
+      ]
+    },
+    {
+      "name": "04 - Actividades",
+      "item": [
+        {
+          "name": "12. Crear actividad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Actividad creada: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('actividadId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Actividad Postman\",\n  \"tipoActividad\": \"TAREA\",\n  \"posicionX\": 100,\n  \"posicionY\": 50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/actividades?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "13. Listar actividades",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Actividades consultadas: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/actividades?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "14. Consultar actividad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Actividad consultada: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/actividades/{{actividadId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "15. Editar actividad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Actividad actualizada: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Actividad Postman editada\",\n  \"tipoActividad\": \"USUARIO\",\n  \"posicionX\": 120,\n  \"posicionY\": 60\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/actividades/{{actividadId}}?usuarioId={{usuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Gateways",
+      "item": [
+        {
+          "name": "16. Crear gateway",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Gateway creado: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('gatewayId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"¿Aprobado?\",\n  \"tipoGateway\": \"EXCLUSIVO\",\n  \"posicionX\": 250,\n  \"posicionY\": 50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/gateways?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "17. Listar gateways",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Gateways consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/gateways?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "18. Consultar gateway",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Gateway consultado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/gateways/{{gatewayId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "19. Editar gateway",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Gateway actualizado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"¿Solicitud aprobada?\",\n  \"tipoGateway\": \"EXCLUSIVO\",\n  \"posicionX\": 270,\n  \"posicionY\": 60\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/gateways/{{gatewayId}}?usuarioId={{usuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Arcos",
+      "item": [
+        {
+          "name": "20. Crear arco",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Arco creado: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('arcoId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origenId\": \"{{actividadId}}\",\n  \"destinoId\": \"{{gatewayId}}\",\n  \"etiqueta\": \"Enviar a aprobación\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/arcos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "21. Listar arcos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Arcos consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/arcos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "22. Consultar arco",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Arco consultado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/arcos/{{arcoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "23. Editar arco",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Arco actualizado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origenId\": \"{{actividadId}}\",\n  \"destinoId\": \"{{gatewayId}}\",\n  \"etiqueta\": \"Enviar para decisión\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/arcos/{{arcoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "24. Eliminar arco",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Arco eliminado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/arcos/{{arcoId}}?usuarioId={{usuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Limpieza del flujo",
+      "description": "Ejecuta estas solicitudes después de Arcos y Gateways.",
+      "item": [
+        {
+          "name": "25. Eliminar actividad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Actividad eliminada: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/actividades/{{actividadId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "26. Eliminar gateway",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Gateway eliminado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/gateways/{{gatewayId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "27. Eliminar proceso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Proceso eliminado: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}?usuarioId={{usuarioId}}"
+          }
+        }
+      ]
     }
   ]
 }

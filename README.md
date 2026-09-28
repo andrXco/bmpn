@@ -120,14 +120,14 @@ estos endpoints.
 
 ### Endpoints disponibles
 
-| Método | Ruta | Operación |
-| --- | --- | --- |
-| `POST` | `/api/empresas` | Registrar una empresa y su administrador inicial |
-| `POST` | `/api/sesiones` | Iniciar sesión |
-| `GET` | `/api/usuarios?usuarioId={solicitante}` | Listar usuarios activos de la empresa del solicitante |
-| `POST` | `/api/usuarios?usuarioId={solicitante}` | Registrar un usuario |
-| `PATCH` | `/api/usuarios/{objetivo}/rol?usuarioId={solicitante}` | Cambiar el rol de acceso |
-| `DELETE` | `/api/usuarios/{objetivo}?usuarioId={solicitante}` | Desactivar un usuario |
+La API expone operaciones para empresas, autenticación, usuarios, procesos,
+actividades, gateways y arcos. La lista actualizada de rutas, cuerpos JSON,
+respuestas y códigos HTTP se consulta en Swagger UI.
+
+Para probar el flujo completo con Postman, importa los archivos de
+[`postman/`](postman/README.md). La colección está organizada por módulos,
+encadena los identificadores creados y cubre todos los endpoints actualmente
+implementados.
 
 La API no conserva una sesión HTTP. En esta etapa, el cliente envía el
 identificador del usuario solicitante y la capa de servicios obtiene desde la
