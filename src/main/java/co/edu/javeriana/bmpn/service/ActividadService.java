@@ -71,7 +71,7 @@ public class ActividadService {
         actividadRepository.save(actividad);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.CREACION,
-                "Actividad '" + nombre + "' creada");
+                describir(nombre) + " creada");
         return convertirAResponse(actividad);
     }
 
@@ -99,7 +99,7 @@ public class ActividadService {
         actividad.asignarLane(lane);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ACTUALIZACION,
-                "Actividad '" + nombre + "' actualizada");
+                describir(nombre) + " actualizada");
         return convertirAResponse(actividad);
     }
 
@@ -115,7 +115,7 @@ public class ActividadService {
         List<String> advertencias = arcoService.desactivarArcosDeElemento(actividadId);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
-                "Actividad '" + actividad.getNombre() + "' eliminada");
+                describir(actividad.getNombre()) + " eliminada");
         return new AdvertenciasResponse(advertencias);
     }
 
@@ -166,6 +166,11 @@ public class ActividadService {
 
     private ActividadResponse convertirAResponse(Actividad actividad) {
         return modelMapper.map(actividad, ActividadResponse.class);
+    }
+
+    // Nombre del elemento como se muestra en el historial
+    private String describir(String nombre) {
+        return "Actividad '" + nombre + "'";
     }
 
     private void exigirPermisoDeEdicion(RolAcceso rol) {

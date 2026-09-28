@@ -65,7 +65,7 @@ public class GatewayService {
         gatewayRepository.save(gateway);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.CREACION,
-                "Gateway '" + nombre + "' de tipo " + gateway.getTipoGateway() + " creado");
+                describir(nombre) + " de tipo " + gateway.getTipoGateway() + " creado");
         return convertirAResponse(gateway);
     }
 
@@ -89,9 +89,9 @@ public class GatewayService {
             arcoService.quitarCondicionesDeSalidas(gatewayId);
         }
 
-        String detalle = "Gateway '" + nombre + "' actualizado";
+        String detalle = describir(nombre) + " actualizado";
         if (tipoAnterior != gateway.getTipoGateway()) {
-            detalle = "Gateway '" + nombre + "' cambio de " + tipoAnterior + " a " + gateway.getTipoGateway();
+            detalle = describir(nombre) + " cambio de " + tipoAnterior + " a " + gateway.getTipoGateway();
         }
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ACTUALIZACION, detalle);
         return convertirAResponse(gateway);
@@ -117,7 +117,7 @@ public class GatewayService {
         advertencias.addAll(arcoService.desactivarArcosDeElemento(gatewayId));
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
-                "Gateway '" + gateway.getNombre() + "' eliminado");
+                describir(gateway.getNombre()) + " eliminado");
         return new AdvertenciasResponse(advertencias);
     }
 
@@ -196,6 +196,11 @@ public class GatewayService {
         GatewayResponse respuesta = modelMapper.map(gateway, GatewayResponse.class);
         respuesta.setAdvertencias(revisarCoherencia(gateway));
         return respuesta;
+    }
+
+    // Nombre del elemento como se muestra en el historial
+    private String describir(String nombre) {
+        return "Gateway '" + nombre + "'";
     }
 
     private void exigirPermisoDeEdicion(RolAcceso rol) {

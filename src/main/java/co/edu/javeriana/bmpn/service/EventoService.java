@@ -76,7 +76,7 @@ public class EventoService {
         eventoRepository.save(evento);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.CREACION,
-                "Evento '" + nombre + "' de tipo " + evento.getTipoEvento() + " creado");
+                describir(nombre) + " de tipo " + evento.getTipoEvento() + " creado");
         return convertirAResponse(evento);
     }
 
@@ -105,7 +105,7 @@ public class EventoService {
         }
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ACTUALIZACION,
-                "Evento '" + nombre + "' actualizado");
+                describir(nombre) + " actualizado");
         return convertirAResponse(evento);
     }
 
@@ -128,7 +128,7 @@ public class EventoService {
         }
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
-                "Evento '" + evento.getNombre() + "' eliminado");
+                describir(evento.getNombre()) + " eliminado");
         return new AdvertenciasResponse(advertencias);
     }
 
@@ -196,6 +196,11 @@ public class EventoService {
         }
         respuesta.setAdvertencias(revisarMensajes(evento));
         return respuesta;
+    }
+
+    // Nombre del elemento como se muestra en el historial
+    private String describir(String nombre) {
+        return "Evento '" + nombre + "'";
     }
 
     private void exigirPermisoDeEdicion(RolAcceso rol) {
