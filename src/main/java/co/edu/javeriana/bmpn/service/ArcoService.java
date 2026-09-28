@@ -157,6 +157,14 @@ public class ArcoService {
         return advertencias;
     }
 
+    // Al eliminar un pool se eliminan los arcos de sus elementos
+    @Transactional
+    public void desactivarArcosDePool(Long poolId) {
+        for (Arco arco : arcoRepository.listarActivosDePool(poolId)) {
+            arco.desactivar();
+        }
+    }
+
     // Arcos que salen de un elemento
     @Transactional(readOnly = true)
     public List<Arco> listarSalidasActivas(Long elementoId) {

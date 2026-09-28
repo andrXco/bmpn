@@ -293,4 +293,14 @@ class ArcoServiceTest {
 
         assertThat(salida.getCondicion()).isNull();
     }
+
+    @Test
+    void desactivarArcosDePool() {
+        Arco arco = new Arco(proceso, radicar, revisar, null, null);
+        when(arcoRepository.listarActivosDePool(10L)).thenReturn(List.of(arco));
+
+        arcoService.desactivarArcosDePool(10L);
+
+        assertThat(arco.isActivo()).isFalse();
+    }
 }
