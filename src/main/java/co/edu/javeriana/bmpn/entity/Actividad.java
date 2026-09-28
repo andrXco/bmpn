@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -15,6 +16,9 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Table(name = "actividad")
+@NamedQuery(
+        name = "Actividad.listarActivasPorProceso",
+        query = "SELECT a FROM Actividad a WHERE a.proceso.id = :procesoId AND a.activo = true ORDER BY a.nombre")
 @PrimaryKeyJoinColumn(name = "elemento_id")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
