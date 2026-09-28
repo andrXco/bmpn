@@ -2,53 +2,51 @@
 
 [![CI](https://github.com/andrXco/bmpn/actions/workflows/ci.yml/badge.svg)](https://github.com/andrXco/bmpn/actions/workflows/ci.yml)
 
-Base de un proyecto académico configurado como API REST con Spring Boot y PostgreSQL.
+Editor y visor multiempresa de procesos BPMN. API REST con Spring Boot y PostgreSQL.
 
 ## Requisitos
 
-- Java 17 o superior (el proyecto compila para Java 17).
 - Docker Desktop con Docker Compose.
-- Git.
+- Java 17 y Git, solo si vas a desarrollar o correr las pruebas.
 
 No es necesario instalar Maven: el repositorio incluye Maven Wrapper.
 
-## Inicio rápido
+## Levantar el servicio con Docker
 
-1. Clona el repositorio y entra en la carpeta del proyecto.
-2. Inicia PostgreSQL y espera a que este saludable:
+```powershell
+docker compose up -d --build --wait
+```
+
+Compila la aplicacion dentro de una imagen, inicia PostgreSQL y luego la API en
+`http://localhost:8080/api`. Flyway crea el esquema al arrancar.
+
+Con la base vacia se cargan datos de ejemplo: la empresa BitWeb Demo con el
+proceso "Solicitud de vacaciones" y los usuarios `admin@bitweb.co` (id 1),
+`editor@bitweb.co` y `lector@bitweb.co`, ademas de la empresa Cliente Demo. La
+clave de todos es `BitWeb2026` y puede cambiarse con `DATOS_INICIALES_CLAVE`.
+Para no cargarlos, usa `DATOS_INICIALES=false`.
+
+Prueba rapida:
+
+```powershell
+curl "http://localhost:8080/api/procesos?usuarioId=1"
+```
+
+## Desarrollo local
+
+1. Inicia solo PostgreSQL:
 
    ```powershell
-   docker compose up -d --wait
+   docker compose up -d --wait postgres
    ```
 
-3. Verifica que el contenedor esté saludable:
-
-   ```powershell
-   docker compose ps
-   ```
-
-4. Inicia una vez la aplicacion para que Flyway cree el esquema versionado:
-
-   ```powershell
-   .\mvnw.cmd spring-boot:run
-   ```
-
-   Cuando termine el arranque, detenla con `Ctrl+C`.
-
-5. Ejecuta la prueba de humo de PostgreSQL. Inserta un proceso BPMN minimo en
-   una transaccion y hace `ROLLBACK`, asi que no deja datos:
-
-   ```powershell
-   .\scripts\database\database-smoke-test.ps1
-   ```
-
-6. Ejecuta las pruebas de Java:
+2. Ejecuta las pruebas:
 
    ```powershell
    .\mvnw.cmd clean test
    ```
 
-7. Inicia la aplicacion para trabajar normalmente:
+3. Inicia la aplicacion:
 
    ```powershell
    .\mvnw.cmd spring-boot:run
@@ -56,30 +54,35 @@ No es necesario instalar Maven: el repositorio incluye Maven Wrapper.
 
 En macOS o Linux reemplaza `.\mvnw.cmd` por `./mvnw`.
 
+La prueba de humo de PostgreSQL (`.\scripts\database\database-smoke-test.ps1`)
+inserta un proceso minimo en una transaccion y hace `ROLLBACK`, asi que no deja datos.
+
 ## Configuración local
 
-El proyecto incluye valores únicamente para desarrollo local. Si necesitas cambiar el contenedor, copia `.env.example` como `.env` y ajusta los valores de PostgreSQL. Docker Compose lee ese archivo automáticamente.
-
-Spring Boot utiliza los mismos valores locales de forma predeterminada. Para conectarlo a una configuración diferente, define estas variables en el sistema antes de iniciar la aplicación:
+Los valores del repositorio son solo para desarrollo local. Docker Compose lee
+un archivo `.env` si existe (excluido de Git). Variables disponibles:
 
 | Variable | Valor local predeterminado |
 | --- | --- |
+| `POSTGRES_PORT` | `5432` |
+| `APP_PORT` | `8080` |
 | `DB_URL` | `jdbc:postgresql://localhost:5432/bmpn` |
 | `DB_USERNAME` | `bmpn` |
 | `DB_PASSWORD` | `bmpn_local` |
+| `DATOS_INICIALES` | `true` |
 
-El archivo `.env` está excluido de Git. Nunca guardes credenciales de producción en el repositorio.
+Nunca guardes credenciales de produccion en el repositorio.
 
 ## Comandos útiles
 
 ```powershell
-# Detener PostgreSQL conservando los datos
+# Detener los contenedores conservando los datos
 docker compose down
 
-# Ver registros de PostgreSQL
-docker compose logs -f postgres
+# Ver registros de la API
+docker compose logs -f app
 
-# Borrar también el volumen y todos los datos locales
+# Borrar tambien el volumen y todos los datos locales
 docker compose down -v
 ```
 
