@@ -74,6 +74,9 @@ class PoolServiceTest {
     @Mock
     private HistorialProcesoService historialProcesoService;
 
+    @Mock
+    private ArcoService arcoService;
+
     private PoolService poolService;
 
     private Empresa empresa;
@@ -84,7 +87,7 @@ class PoolServiceTest {
     void prepararDatos() {
         poolService = new PoolService(poolRepository, poolRolDisponibleService, permisoPoolService,
                 empresaService, usuarioService, procesoService, procesoCompartidoService, rolProcesoService,
-                historialProcesoService, new ModelMapperConfig().modelMapper());
+                historialProcesoService, arcoService, new ModelMapperConfig().modelMapper());
 
         empresa = new Empresa("900123456", "Empresa Demo", "contacto@demo.co");
         cliente = new Empresa("800111222", "Cliente SA", "contacto@cliente.co");

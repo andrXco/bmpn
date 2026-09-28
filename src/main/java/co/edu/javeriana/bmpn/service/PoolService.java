@@ -42,6 +42,7 @@ public class PoolService {
     private final ProcesoCompartidoService procesoCompartidoService;
     private final RolProcesoService rolProcesoService;
     private final HistorialProcesoService historialProcesoService;
+    private final ArcoService arcoService;
     private final ModelMapper modelMapper;
 
     public PoolService(PoolRepository poolRepository,
@@ -53,6 +54,7 @@ public class PoolService {
                        ProcesoCompartidoService procesoCompartidoService,
                        RolProcesoService rolProcesoService,
                        HistorialProcesoService historialProcesoService,
+                       ArcoService arcoService,
                        ModelMapper modelMapper) {
         this.poolRepository = poolRepository;
         this.poolRolDisponibleService = poolRolDisponibleService;
@@ -63,6 +65,7 @@ public class PoolService {
         this.procesoCompartidoService = procesoCompartidoService;
         this.rolProcesoService = rolProcesoService;
         this.historialProcesoService = historialProcesoService;
+        this.arcoService = arcoService;
         this.modelMapper = modelMapper;
     }
 
@@ -128,10 +131,12 @@ public class PoolService {
         if (pool.esPropietario()) {
             throw new SolicitudInvalidaException("El pool de la empresa propietaria no se puede eliminar");
         }
+        // El pool desactiva sus lanes, elementos y mensajes; los arcos se desactivan aparte
         pool.desactivar();
+        arcoService.desactivarArcosDePool(poolId);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
-                describir(pool.getNombre()) + " eliminado");
+                describir(pool.getNombre()) + " eliminado con todo su contenido");
     }
 
     @Transactional(readOnly = true)
