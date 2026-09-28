@@ -38,6 +38,9 @@ public class CrearActividadRequest {
     @Schema(description = "Coordenada vertical en el diagrama.", example = "80.00")
     private BigDecimal posicionY;
 
+    @NotNull(message = "La lane es obligatoria")
+    private Long laneId;
+
     // Opcional: si no se envia, la actividad queda en el pool de la empresa propietaria
     @Schema(description = "Identificador del pool BPMN; es opcional.", example = "1")
     private Long poolId;

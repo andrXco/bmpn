@@ -37,4 +37,7 @@ public class EditarActividadRequest {
     @Digits(integer = 10, fraction = 2, message = "La posicion Y admite hasta 10 enteros y 2 decimales")
     @Schema(description = "Coordenada vertical en el diagrama.", example = "80.00")
     private BigDecimal posicionY;
+
+    @NotNull(message = "La lane es obligatoria")
+    private Long laneId;
 }

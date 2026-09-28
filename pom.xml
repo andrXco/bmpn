@@ -30,6 +30,9 @@
 		<java.version>17</java.version>
 		<lombok.version>1.18.46</lombok.version>
 		<springdoc.version>3.1.1</springdoc.version>
+		<sonar.host.url>https://sonar.desarrolloweb.click/</sonar.host.url>
+		<sonar.projectKey>bitweb-bmpn</sonar.projectKey>
+		<sonar.projectName>BitWeb BMPN</sonar.projectName>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -137,7 +140,11 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>5.8.0.7211</version>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>

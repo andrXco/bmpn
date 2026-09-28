@@ -14,6 +14,7 @@ import co.edu.javeriana.bmpn.entity.Empresa;
 import co.edu.javeriana.bmpn.entity.RolAcceso;
 import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
+import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.repository.EmpresaRepository;
 import co.edu.javeriana.bmpn.repository.UsuarioRepository;
 
@@ -76,6 +77,12 @@ public class EmpresaService {
                 empresa.getFechaCreacion(),
                 empresa.isActivo(),
                 administradorResponse);
+    }
+
+    // Para otros servicios que necesitan una empresa, sin usar su repositorio
+    public Empresa buscarActiva(Long empresaId) {
+        return empresaRepository.findByIdAndActivoTrue(empresaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Empresa no encontrada"));
     }
 
     private String normalizarEmail(String email) {

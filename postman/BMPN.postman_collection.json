@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "BPMN API - pruebas locales",
-    "description": "Colección de pruebas de la API BPMN. Ejecuta los folders en orden para encadenar los identificadores creados.",
+    "description": "Colección ejecutable de la API BPMN. Cubre los 59 endpoints expuestos actualmente y usa una solicitud preparatoria adicional para crear una empresa invitada.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -22,6 +22,26 @@
       "value": ""
     },
     {
+      "key": "poolPropietarioId",
+      "value": ""
+    },
+    {
+      "key": "poolExternoId",
+      "value": ""
+    },
+    {
+      "key": "poolInvitadoId",
+      "value": ""
+    },
+    {
+      "key": "rolProcesoId",
+      "value": ""
+    },
+    {
+      "key": "laneId",
+      "value": ""
+    },
+    {
       "key": "actividadId",
       "value": ""
     },
@@ -32,14 +52,30 @@
     {
       "key": "arcoId",
       "value": ""
+    },
+    {
+      "key": "eventoId",
+      "value": ""
+    },
+    {
+      "key": "mensajeId",
+      "value": ""
+    },
+    {
+      "key": "empresaInvitadaId",
+      "value": ""
+    },
+    {
+      "key": "compartidoId",
+      "value": ""
     }
   ],
   "item": [
     {
-      "name": "01 - Empresas y autenticación",
+      "name": "01 - Empresa y autenticación",
       "item": [
         {
-          "name": "01. Registrar empresa",
+          "name": "01. Registrar empresa propietaria",
           "event": [
             {
               "listen": "prerequest",
@@ -58,7 +94,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Empresa creada: 201\", () => pm.response.to.have.status(201));",
+                  "pm.test('Empresa creada: 201', () => pm.response.to.have.status(201));",
                   "const body = pm.response.json();",
                   "pm.test('Incluye administrador inicial', () => pm.expect(body.administradorInicial.id).to.be.a('number'));",
                   "pm.collectionVariables.set('usuarioId', body.administradorInicial.id);"
@@ -96,8 +132,8 @@
                 "exec": [
                   "pm.test(\"Inicio de sesión correcto: 200\", () => pm.response.to.have.status(200));",
                   "const body = pm.response.json();",
-                  "pm.test('Incluye usuarioId', () => pm.expect(body.usuarioId).to.be.a('number'));",
-                  "pm.collectionVariables.set('usuarioId', body.usuarioId);"
+                  "pm.test(\"La respuesta incluye usuarioId\", () => pm.expect(body.usuarioId).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"usuarioId\", body.usuarioId);"
                 ]
               }
             }
@@ -165,8 +201,8 @@
                 "exec": [
                   "pm.test(\"Colaborador creado: 201\", () => pm.response.to.have.status(201));",
                   "const body = pm.response.json();",
-                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
-                  "pm.collectionVariables.set('usuarioObjetivoId', body.id);"
+                  "pm.test(\"La respuesta incluye usuarioObjetivoId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"usuarioObjetivoId\", body.id);"
                 ]
               }
             }
@@ -258,8 +294,20 @@
                 "exec": [
                   "pm.test(\"Proceso creado: 201\", () => pm.response.to.have.status(201));",
                   "const body = pm.response.json();",
-                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
-                  "pm.collectionVariables.set('procesoId', body.id);"
+                  "pm.test(\"La respuesta incluye procesoId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"procesoId\", body.id);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pool propietario incluido: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"La respuesta incluye poolPropietarioId\", () => pm.expect(body.poolPropietarioId).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"poolPropietarioId\", body.poolPropietarioId);"
                 ]
               }
             }
@@ -274,7 +322,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Proceso Postman\",\n  \"descripcion\": \"Proceso creado desde pruebas manuales\",\n  \"categoria\": \"Ventas\"\n}",
+              "raw": "{\n  \"nombre\": \"Proceso Postman\",\n  \"descripcion\": \"Proceso creado desde pruebas automáticas\",\n  \"categoria\": \"Ventas\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -377,20 +425,20 @@
       ]
     },
     {
-      "name": "04 - Actividades",
+      "name": "04 - Roles de proceso",
       "item": [
         {
-          "name": "12. Crear actividad",
+          "name": "12. Crear rol de proceso",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Actividad creada: 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Rol creado: 201\", () => pm.response.to.have.status(201));",
                   "const body = pm.response.json();",
-                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
-                  "pm.collectionVariables.set('actividadId', body.id);"
+                  "pm.test(\"La respuesta incluye rolProcesoId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"rolProcesoId\", body.id);"
                 ]
               }
             }
@@ -405,7 +453,447 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Actividad Postman\",\n  \"tipoActividad\": \"TAREA\",\n  \"posicionX\": 100,\n  \"posicionY\": 50\n}",
+              "raw": "{\n  \"nombre\": \"Analista Postman\",\n  \"descripcion\": \"Responsable de revisar solicitudes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/roles-proceso?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "13. Listar roles de proceso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Roles consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/roles-proceso?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "14. Consultar rol de proceso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol consultado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/roles-proceso/{{rolProcesoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "15. Editar rol de proceso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol actualizado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Analista BPMN\",\n  \"descripcion\": \"Responsable de analizar y revisar solicitudes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/roles-proceso/{{rolProcesoId}}?usuarioId={{usuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Pools",
+      "item": [
+        {
+          "name": "16. Consultar pool propietario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pool propietario consultado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "17. Asociar rol disponible al pool",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol asociado: 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rolProcesoId\": \"{{rolProcesoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}/roles-disponibles?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "18. Listar roles disponibles del pool",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Roles disponibles consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}/roles-disponibles?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "19. Definir permiso del pool",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Permiso definido: 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rolAcceso\": \"EDITOR\",\n  \"puedeCrear\": true,\n  \"puedeEditar\": true,\n  \"puedeEliminar\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}/permisos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "20. Listar permisos del pool",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Permisos consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}/permisos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "21. Crear pool de sistema externo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pool externo creado: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"La respuesta incluye poolExternoId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"poolExternoId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sistema externo Postman\",\n  \"tipoParticipante\": \"SISTEMA_EXTERNO\",\n  \"canalExterno\": \"servicio web\",\n  \"cajaNegra\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "22. Editar pool de sistema externo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pool externo actualizado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sistema externo Postman editado\",\n  \"canalExterno\": \"API REST\",\n  \"cajaNegra\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolExternoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "23. Listar pools",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pools consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "24. Consultar pool externo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pool externo consultado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolExternoId}}?usuarioId={{usuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Lanes",
+      "item": [
+        {
+          "name": "25. Crear lane",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lane creada: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"La respuesta incluye laneId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"laneId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rolProcesoId\": \"{{rolProcesoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}/lanes?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "26. Listar lanes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lanes consultadas: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}/lanes?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "27. Editar lane",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lane actualizada: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rolProcesoId\": \"{{rolProcesoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}/lanes/{{laneId}}?usuarioId={{usuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Actividades y gateways",
+      "item": [
+        {
+          "name": "28. Crear actividad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Actividad creada: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"La respuesta incluye actividadId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"actividadId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Actividad Postman\",\n  \"tipoActividad\": \"TAREA\",\n  \"posicionX\": 100,\n  \"posicionY\": 50,\n  \"laneId\": \"{{laneId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -416,7 +904,7 @@
           }
         },
         {
-          "name": "13. Listar actividades",
+          "name": "29. Listar actividades",
           "event": [
             {
               "listen": "test",
@@ -435,7 +923,7 @@
           }
         },
         {
-          "name": "14. Consultar actividad",
+          "name": "30. Consultar actividad",
           "event": [
             {
               "listen": "test",
@@ -454,7 +942,7 @@
           }
         },
         {
-          "name": "15. Editar actividad",
+          "name": "31. Editar actividad",
           "event": [
             {
               "listen": "test",
@@ -476,7 +964,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Actividad Postman editada\",\n  \"tipoActividad\": \"USUARIO\",\n  \"posicionX\": 120,\n  \"posicionY\": 60\n}",
+              "raw": "{\n  \"nombre\": \"Actividad Postman editada\",\n  \"tipoActividad\": \"USUARIO\",\n  \"posicionX\": 120,\n  \"posicionY\": 60,\n  \"laneId\": \"{{laneId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -485,14 +973,9 @@
             },
             "url": "{{baseUrl}}/api/procesos/{{procesoId}}/actividades/{{actividadId}}?usuarioId={{usuarioId}}"
           }
-        }
-      ]
-    },
-    {
-      "name": "05 - Gateways",
-      "item": [
+        },
         {
-          "name": "16. Crear gateway",
+          "name": "32. Crear gateway",
           "event": [
             {
               "listen": "test",
@@ -501,8 +984,8 @@
                 "exec": [
                   "pm.test(\"Gateway creado: 201\", () => pm.response.to.have.status(201));",
                   "const body = pm.response.json();",
-                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
-                  "pm.collectionVariables.set('gatewayId', body.id);"
+                  "pm.test(\"La respuesta incluye gatewayId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"gatewayId\", body.id);"
                 ]
               }
             }
@@ -528,7 +1011,7 @@
           }
         },
         {
-          "name": "17. Listar gateways",
+          "name": "33. Listar gateways",
           "event": [
             {
               "listen": "test",
@@ -547,7 +1030,7 @@
           }
         },
         {
-          "name": "18. Consultar gateway",
+          "name": "34. Consultar gateway",
           "event": [
             {
               "listen": "test",
@@ -566,7 +1049,7 @@
           }
         },
         {
-          "name": "19. Editar gateway",
+          "name": "35. Editar gateway",
           "event": [
             {
               "listen": "test",
@@ -601,10 +1084,10 @@
       ]
     },
     {
-      "name": "06 - Arcos",
+      "name": "08 - Arcos",
       "item": [
         {
-          "name": "20. Crear arco",
+          "name": "36. Crear arco",
           "event": [
             {
               "listen": "test",
@@ -613,8 +1096,8 @@
                 "exec": [
                   "pm.test(\"Arco creado: 201\", () => pm.response.to.have.status(201));",
                   "const body = pm.response.json();",
-                  "pm.test('La respuesta incluye id', () => pm.expect(body.id).to.be.a('number'));",
-                  "pm.collectionVariables.set('arcoId', body.id);"
+                  "pm.test(\"La respuesta incluye arcoId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"arcoId\", body.id);"
                 ]
               }
             }
@@ -640,7 +1123,7 @@
           }
         },
         {
-          "name": "21. Listar arcos",
+          "name": "37. Listar arcos",
           "event": [
             {
               "listen": "test",
@@ -659,7 +1142,7 @@
           }
         },
         {
-          "name": "22. Consultar arco",
+          "name": "38. Consultar arco",
           "event": [
             {
               "listen": "test",
@@ -678,7 +1161,7 @@
           }
         },
         {
-          "name": "23. Editar arco",
+          "name": "39. Editar arco",
           "event": [
             {
               "listen": "test",
@@ -711,7 +1194,7 @@
           }
         },
         {
-          "name": "24. Eliminar arco",
+          "name": "40. Eliminar arco",
           "event": [
             {
               "listen": "test",
@@ -732,11 +1215,399 @@
       ]
     },
     {
-      "name": "07 - Limpieza del flujo",
-      "description": "Ejecuta estas solicitudes después de Arcos y Gateways.",
+      "name": "09 - Eventos y mensajes",
       "item": [
         {
-          "name": "25. Eliminar actividad",
+          "name": "41. Crear evento de envío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Evento creado: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"La respuesta incluye eventoId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"eventoId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Notificar sistema externo\",\n  \"tipoEvento\": \"INTERMEDIO\",\n  \"disparador\": \"MENSAJE_ENVIO\",\n  \"origenExterno\": false,\n  \"posicionX\": 340,\n  \"posicionY\": 60,\n  \"poolId\": \"{{poolPropietarioId}}\",\n  \"laneId\": \"{{laneId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/eventos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "42. Listar eventos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Eventos consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/eventos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "43. Consultar evento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Evento consultado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/eventos/{{eventoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "44. Editar evento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Evento actualizado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Notificar sistema externo\",\n  \"tipoEvento\": \"INTERMEDIO\",\n  \"disparador\": \"MENSAJE_ENVIO\",\n  \"origenExterno\": false,\n  \"posicionX\": 360,\n  \"posicionY\": 60,\n  \"laneId\": \"{{laneId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/eventos/{{eventoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "45. Crear mensaje al sistema externo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mensaje creado: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"La respuesta incluye mensajeId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"mensajeId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventoEnvioId\": \"{{eventoId}}\",\n  \"poolDestinoId\": \"{{poolExternoId}}\",\n  \"nombre\": \"Notificar sistema externo\",\n  \"claveCorrelacion\": \"solicitud-postman\",\n  \"politicaSinCorrespondencia\": \"DESCARTAR\",\n  \"politicaFallo\": \"CONTINUAR\",\n  \"campos\": [\n    {\n      \"nombre\": \"solicitudId\",\n      \"tipoDato\": \"Long\",\n      \"descripcion\": \"Identificador de la solicitud\",\n      \"obligatorio\": true\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/mensajes?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "46. Listar mensajes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mensajes consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/mensajes?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "47. Consultar mensaje",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mensaje consultado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/mensajes/{{mensajeId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "48. Buscar mensajes por correlación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mensajes por correlación consultados: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/mensajes/correlacion/solicitud-postman?usuarioId={{usuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Colaboración entre empresas",
+      "description": "Incluye una preparación adicional para generar una segunda empresa válida; no es un endpoint nuevo.",
+      "item": [
+        {
+          "name": "Preparación. Registrar empresa invitada",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const sufijo = Date.now() + 1;",
+                  "pm.collectionVariables.set('nitEmpresaInvitada', '91' + sufijo);",
+                  "pm.collectionVariables.set('correoEmpresaInvitada', 'contacto.invitado.' + sufijo + '@bmpn.local');",
+                  "pm.collectionVariables.set('emailAdministradorInvitado', 'admin.invitado.' + sufijo + '@bmpn.local');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empresa invitada creada: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"La respuesta incluye empresaInvitadaId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"empresaInvitadaId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nit\": \"{{nitEmpresaInvitada}}\",\n  \"nombreEmpresa\": \"Empresa Invitada Postman\",\n  \"correoContacto\": \"{{correoEmpresaInvitada}}\",\n  \"nombreAdministrador\": \"Luis\",\n  \"apellidoAdministrador\": \"Invitado\",\n  \"emailAdministrador\": \"{{emailAdministradorInvitado}}\",\n  \"password\": \"ClaveSegura123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/empresas"
+          }
+        },
+        {
+          "name": "49. Compartir proceso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Proceso compartido: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"La respuesta incluye compartidoId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"compartidoId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresaInvitadaId\": \"{{empresaInvitadaId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/compartidos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "50. Listar empresas colaboradoras",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Colaboraciones consultadas: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/compartidos?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "51. Crear pool de empresa invitada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pool de empresa invitada creado: 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"La respuesta incluye poolInvitadoId\", () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.collectionVariables.set(\"poolInvitadoId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cliente Postman\",\n  \"tipoParticipante\": \"CLIENTE\",\n  \"empresaParticipanteId\": \"{{empresaInvitadaId}}\",\n  \"cajaNegra\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools?usuarioId={{usuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Limpieza del flujo",
+      "description": "La limpieza se ejecuta al final porque varios recursos tienen dependencias entre sí.",
+      "item": [
+        {
+          "name": "52. Eliminar mensaje",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mensaje eliminado: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/mensajes/{{mensajeId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "53. Eliminar evento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Evento eliminado: 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/eventos/{{eventoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "54. Eliminar actividad",
           "event": [
             {
               "listen": "test",
@@ -755,7 +1626,7 @@
           }
         },
         {
-          "name": "26. Eliminar gateway",
+          "name": "55. Eliminar gateway",
           "event": [
             {
               "listen": "test",
@@ -774,7 +1645,121 @@
           }
         },
         {
-          "name": "27. Eliminar proceso",
+          "name": "56. Eliminar lane",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lane eliminada: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}/lanes/{{laneId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "57. Eliminar pool externo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pool externo eliminado: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolExternoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "58. Eliminar pool de empresa invitada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pool de empresa invitada eliminado: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolInvitadoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "59. Revocar proceso compartido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Colaboración revocada: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/compartidos/{{compartidoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "60. Desvincular rol disponible",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol desvinculado: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/procesos/{{procesoId}}/pools/{{poolPropietarioId}}/roles-disponibles/{{rolProcesoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "61. Eliminar rol de proceso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol eliminado: 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/roles-proceso/{{rolProcesoId}}?usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "62. Eliminar proceso",
           "event": [
             {
               "listen": "test",

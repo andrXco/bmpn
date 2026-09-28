@@ -1,4 +1,4 @@
-name: CI
+name: CI y cobertura
 
 on:
   push:
@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build-and-test:
-    name: Compilar y probar
+    name: Compilar, probar y medir cobertura
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -58,4 +58,16 @@ jobs:
           name: reportes-de-pruebas
           path: target/surefire-reports/
           if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Conservar reporte de cobertura JaCoCo
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-de-cobertura-jacoco
+          path: |
+            target/site/jacoco/jacoco.xml
+            target/site/jacoco/index.html
+            target/site/jacoco/jacoco-resources/
+          if-no-files-found: warn
           retention-days: 7

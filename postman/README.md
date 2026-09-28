@@ -6,8 +6,9 @@
 - `BPMN.local.postman_environment.json`: environment local con `baseUrl` igual a `http://localhost:8080`.
 
 No incluye contraseñas reales, identificadores persistentes ni credenciales de
-producción. Los identificadores de usuario, proceso, actividad, gateway y arco
-se crean y guardan durante la ejecución de la colección.
+producción. Los identificadores de usuario, proceso, pool, rol, lane,
+actividad, gateway, arco, evento y mensaje se crean y guardan durante la
+ejecución de la colección.
 
 ## Ejecución
 
@@ -18,15 +19,22 @@ se crean y guardan durante la ejecución de la colección.
 5. Ejecuta los folders en el orden numerado, o usa Collection Runner desde el
    primer request hasta el último.
 
-La solicitud inicial usa valores únicos para NIT y correos, por lo que el flujo
-puede repetirse sin recibir un conflicto por datos de una ejecución anterior.
-Cada ejecución conserva la empresa de prueba, porque la API aún no expone una
-operación para eliminar empresas; úsala contra la base local de desarrollo.
+La colección tiene 63 solicitudes: cubre las 59 operaciones HTTP expuestas por
+la API y añade solicitudes de preparación o repetición necesarias para probar
+una colaboración entre dos empresas. Las solicitudes iniciales usan valores
+únicos para NIT y correos, por lo que el flujo puede repetirse sin recibir un
+conflicto por datos de una ejecución anterior. Cada ejecución conserva las dos
+empresas de prueba, porque la API aún no expone una operación para eliminarlas;
+úsala contra la base local de desarrollo.
 
 ## Alcance de las pruebas
 
 La colección verifica los códigos HTTP esperados y encadena los IDs necesarios
-para el flujo feliz: empresa, sesión, proceso, actividad, gateway, arco y
-limpieza del proceso. Los casos de validación y error se prueban manualmente
-desde Swagger UI o duplicando una solicitud y cambiando intencionalmente un
-campo requerido.
+para el flujo feliz: empresa, sesión, roles de proceso, pools, lanes,
+actividades, gateways, arcos, eventos, mensajes y colaboración entre empresas.
+El último folder realiza la limpieza en el orden exigido por las dependencias.
+
+Los casos de validación y error se prueban manualmente desde Swagger UI o
+duplicando una solicitud y cambiando intencionalmente un campo requerido. Por
+ejemplo, intenta crear una actividad sin `laneId` y verifica que la API
+responda con el error de validación esperado.

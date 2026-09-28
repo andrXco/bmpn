@@ -16,6 +16,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -26,9 +27,11 @@ import co.edu.javeriana.bmpn.dto.actividad.EditarActividadRequest;
 import co.edu.javeriana.bmpn.entity.AccionHistorial;
 import co.edu.javeriana.bmpn.entity.Actividad;
 import co.edu.javeriana.bmpn.entity.Empresa;
+import co.edu.javeriana.bmpn.entity.Lane;
 import co.edu.javeriana.bmpn.entity.Pool;
 import co.edu.javeriana.bmpn.entity.Proceso;
 import co.edu.javeriana.bmpn.entity.RolAcceso;
+import co.edu.javeriana.bmpn.entity.RolProceso;
 import co.edu.javeriana.bmpn.entity.TipoActividad;
 import co.edu.javeriana.bmpn.entity.TipoParticipante;
 import co.edu.javeriana.bmpn.entity.Usuario;
@@ -43,6 +46,7 @@ class ActividadServiceTest {
     private static final Long PROCESO_ID = 1L;
     private static final Long ACTIVIDAD_ID = 10L;
     private static final Long USUARIO_ID = 5L;
+    private static final Long LANE_ID = 20L;
 
     @Mock
     private ActividadRepository actividadRepository;
@@ -59,22 +63,29 @@ class ActividadServiceTest {
     @Mock
     private ArcoService arcoService;
 
+    @Mock
+    private LaneService laneService;
+
     private ActividadService actividadService;
 
     private Empresa empresa;
     private Proceso proceso;
     private Pool poolEmpresa;
+    private Lane laneEmpleado;
+    private Lane laneJefe;
 
     @BeforeEach
     void prepararDatos() {
         actividadService = new ActividadService(actividadRepository, procesoService,
-                usuarioService, historialProcesoService, arcoService,
+                usuarioService, historialProcesoService, arcoService, laneService,
                 new ModelMapperConfig().modelMapper());
 
         empresa = new Empresa("900123456", "Empresa Demo", "contacto@demo.co");
         proceso = new Proceso(empresa, "Solicitud de vacaciones", "Proceso de ejemplo", "RRHH");
         poolEmpresa = new Pool(empresa, "Empresa Demo", TipoParticipante.EMPRESA_PROPIETARIA, 0);
         proceso.agregarPool(poolEmpresa);
+        laneEmpleado = new Lane(poolEmpresa, new RolProceso(empresa, "Empleado", null), 0);
+        laneJefe = new Lane(poolEmpresa, new RolProceso(empresa, "Jefe inmediato", null), 1);
     }
 
     private Usuario usuarioConRol(RolAcceso rol) {
@@ -85,18 +96,21 @@ class ActividadServiceTest {
 
     private CrearActividadRequest solicitudCrear(String nombre, Long poolId) {
         return new CrearActividadRequest(nombre, TipoActividad.USUARIO,
-                new BigDecimal("100.00"), new BigDecimal("50.00"), poolId);
+                new BigDecimal("100.00"), new BigDecimal("50.00"), LANE_ID, poolId);
     }
 
     private Actividad actividadExistente() {
-        return new Actividad(proceso, poolEmpresa, "Radicar solicitud", TipoActividad.USUARIO,
+        Actividad actividad = new Actividad(proceso, poolEmpresa, "Radicar solicitud", TipoActividad.USUARIO,
                 new BigDecimal("100.00"), new BigDecimal("50.00"));
+        actividad.asignarLane(laneEmpleado);
+        return actividad;
     }
 
     @Test
     void crearActividadValida() {
         Usuario editor = usuarioConRol(RolAcceso.EDITOR);
         when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
+        when(laneService.buscarActiva(eq(LANE_ID), any())).thenReturn(laneEmpleado);
 
         ActividadResponse respuesta = actividadService.crear(PROCESO_ID, USUARIO_ID,
                 solicitudCrear("  Radicar solicitud  ", null));
@@ -105,17 +119,32 @@ class ActividadServiceTest {
         assertThat(respuesta.getTipoActividad()).isEqualTo(TipoActividad.USUARIO);
         assertThat(respuesta.getPosicionX()).isEqualTo(new BigDecimal("100.00"));
         assertThat(respuesta.isActivo()).isTrue();
-        verify(actividadRepository).save(any(Actividad.class));
+        ArgumentCaptor<Actividad> guardada = ArgumentCaptor.forClass(Actividad.class);
+        verify(actividadRepository).save(guardada.capture());
+        assertThat(guardada.getValue().getLane()).isEqualTo(laneEmpleado);
         verify(historialProcesoService).registrar(eq(proceso), eq(editor),
                 eq(AccionHistorial.CREACION), anyString());
+    }
+
+    @Test
+    void crearConLaneDeOtroPool() {
+        usuarioConRol(RolAcceso.EDITOR);
+        when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
+        when(laneService.buscarActiva(eq(LANE_ID), any()))
+                .thenThrow(new RecursoNoEncontradoException("Lane no encontrada en el pool"));
+
+        CrearActividadRequest solicitud = solicitudCrear("Radicar solicitud", null);
+        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID, solicitud))
+                .isInstanceOf(RecursoNoEncontradoException.class);
+        verify(actividadRepository, never()).save(any());
     }
 
     @Test
     void crearSinPermiso() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
 
-        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID,
-                solicitudCrear("Radicar solicitud", null)))
+        CrearActividadRequest solicitud = solicitudCrear("Radicar solicitud", null);
+        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(AccesoDenegadoException.class);
         verify(actividadRepository, never()).save(any());
     }
@@ -127,8 +156,8 @@ class ActividadServiceTest {
         when(actividadRepository.existsByProcesoIdAndNombreIgnoreCaseAndActivoTrue(
                 PROCESO_ID, "Radicar solicitud")).thenReturn(true);
 
-        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID,
-                solicitudCrear("Radicar solicitud", null)))
+        CrearActividadRequest solicitud = solicitudCrear("Radicar solicitud", null);
+        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
         verify(actividadRepository, never()).save(any());
     }
@@ -138,8 +167,8 @@ class ActividadServiceTest {
         usuarioConRol(RolAcceso.ADMINISTRADOR);
         when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
 
-        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID,
-                solicitudCrear("Radicar solicitud", 99L)))
+        CrearActividadRequest solicitud = solicitudCrear("Radicar solicitud", 99L);
+        assertThatThrownBy(() -> actividadService.crear(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoNoEncontradoException.class);
         verify(actividadRepository, never()).save(any());
     }
@@ -151,14 +180,16 @@ class ActividadServiceTest {
         when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
         when(actividadRepository.findByIdAndProcesoIdAndActivoTrue(ACTIVIDAD_ID, PROCESO_ID))
                 .thenReturn(Optional.of(actividad));
+        when(laneService.buscarActiva(eq(LANE_ID), any())).thenReturn(laneJefe);
 
         EditarActividadRequest cambios = new EditarActividadRequest("Revisar solicitud",
-                TipoActividad.MANUAL, new BigDecimal("300.00"), new BigDecimal("80.00"));
+                TipoActividad.MANUAL, new BigDecimal("300.00"), new BigDecimal("80.00"), LANE_ID);
         ActividadResponse respuesta = actividadService.editar(PROCESO_ID, ACTIVIDAD_ID, USUARIO_ID, cambios);
 
         assertThat(respuesta.getNombre()).isEqualTo("Revisar solicitud");
         assertThat(respuesta.getTipoActividad()).isEqualTo(TipoActividad.MANUAL);
         assertThat(respuesta.getPosicionX()).isEqualTo(new BigDecimal("300.00"));
+        assertThat(actividad.getLane()).isEqualTo(laneJefe);
         verify(historialProcesoService).registrar(eq(proceso), eq(editor),
                 eq(AccionHistorial.ACTUALIZACION), anyString());
     }
@@ -171,7 +202,7 @@ class ActividadServiceTest {
                 .thenReturn(Optional.empty());
 
         EditarActividadRequest cambios = new EditarActividadRequest("Revisar solicitud",
-                TipoActividad.MANUAL, BigDecimal.ONE, BigDecimal.ONE);
+                TipoActividad.MANUAL, BigDecimal.ONE, BigDecimal.ONE, LANE_ID);
 
         assertThatThrownBy(() -> actividadService.editar(PROCESO_ID, ACTIVIDAD_ID, USUARIO_ID, cambios))
                 .isInstanceOf(RecursoNoEncontradoException.class);

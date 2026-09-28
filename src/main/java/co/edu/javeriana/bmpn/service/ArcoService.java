@@ -59,6 +59,7 @@ public class ArcoService {
         ElementoProceso origen = elementoProcesoService.buscarActivoDelProceso(request.getOrigenId(), procesoId);
         ElementoProceso destino = elementoProcesoService.buscarActivoDelProceso(request.getDestinoId(), procesoId);
         validarMismoPool(origen, destino);
+        validarInicioYFin(origen, destino);
 
         String etiqueta = limpiarTexto(request.getEtiqueta());
         String condicion = limpiarTexto(request.getCondicion());
@@ -80,7 +81,7 @@ public class ArcoService {
         }
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.CREACION,
-                "Arco de '" + origen.getNombre() + "' a '" + destino.getNombre() + "' creado");
+                describir(origen, destino) + " creado");
         return convertirAResponse(arco);
     }
 
@@ -96,6 +97,7 @@ public class ArcoService {
         ElementoProceso origen = elementoProcesoService.buscarActivoDelProceso(request.getOrigenId(), procesoId);
         ElementoProceso destino = elementoProcesoService.buscarActivoDelProceso(request.getDestinoId(), procesoId);
         validarMismoPool(origen, destino);
+        validarInicioYFin(origen, destino);
 
         String etiqueta = limpiarTexto(request.getEtiqueta());
         String condicion = limpiarTexto(request.getCondicion());
@@ -111,7 +113,7 @@ public class ArcoService {
         arco.actualizar(origen, destino, etiqueta, condicion);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ACTUALIZACION,
-                "Arco de '" + origen.getNombre() + "' a '" + destino.getNombre() + "' actualizado");
+                describir(origen, destino) + " actualizado");
         return convertirAResponse(arco);
     }
 
@@ -130,8 +132,7 @@ public class ArcoService {
         advertirSiQuedaSinEntrada(arco.getDestino(), advertencias);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
-                "Arco de '" + arco.getOrigen().getNombre() + "' a '"
-                        + arco.getDestino().getNombre() + "' eliminado");
+                describir(arco.getOrigen(), arco.getDestino()) + " eliminado");
         return new AdvertenciasResponse(advertencias);
     }
 
@@ -225,6 +226,16 @@ public class ArcoService {
         }
     }
 
+    // HU-27: un evento de inicio no recibe arcos y un evento de fin no tiene salidas
+    private void validarInicioYFin(ElementoProceso origen, ElementoProceso destino) {
+        if (!origen.aceptaArcosSalientes()) {
+            throw new SolicitudInvalidaException("Un evento de fin no puede tener arcos de salida");
+        }
+        if (!destino.aceptaArcosEntrantes()) {
+            throw new SolicitudInvalidaException("Un evento de inicio no puede tener arcos de entrada");
+        }
+    }
+
     // La condicion indica por que camino sigue el flujo: solo aplica si el origen decide un camino
     private void validarCondicion(ElementoProceso origen, String condicion) {
         if (condicion != null && !origen.aceptaCondiciones()) {
@@ -239,6 +250,11 @@ public class ArcoService {
             return null;
         }
         return texto.trim();
+    }
+
+    // Arco como se muestra en el historial, por ejemplo: Arco de 'Radicar' a 'Revisar'
+    private String describir(ElementoProceso origen, ElementoProceso destino) {
+        return "Arco de '" + origen.getNombre() + "' a '" + destino.getNombre() + "'";
     }
 
     private ArcoResponse convertirAResponse(Arco arco) {

@@ -41,6 +41,11 @@ public abstract class ElementoProceso {
     @JoinColumn(name = "pool_id", nullable = false)
     private Pool pool;
 
+    // La lane define el rol responsable; es obligatoria en las actividades
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lane_id")
+    private Lane lane;
+
     @Column(nullable = false, length = 150)
     private String nombre;
 
@@ -63,6 +68,10 @@ public abstract class ElementoProceso {
         this.activo = true;
     }
 
+    public void asignarLane(Lane lane) {
+        this.lane = lane;
+    }
+
     public void renombrar(String nombre) {
         this.nombre = nombre;
     }
@@ -79,5 +88,14 @@ public abstract class ElementoProceso {
     // Solo un gateway exclusivo o inclusivo decide por que camino seguir
     public boolean aceptaCondiciones() {
         return false;
+    }
+
+    // Los eventos de inicio y de fin cambian estas dos reglas
+    public boolean aceptaArcosEntrantes() {
+        return true;
+    }
+
+    public boolean aceptaArcosSalientes() {
+        return true;
     }
 }

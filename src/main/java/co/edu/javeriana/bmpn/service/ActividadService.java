@@ -13,6 +13,7 @@ import co.edu.javeriana.bmpn.dto.actividad.EditarActividadRequest;
 import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.entity.AccionHistorial;
 import co.edu.javeriana.bmpn.entity.Actividad;
+import co.edu.javeriana.bmpn.entity.Lane;
 import co.edu.javeriana.bmpn.entity.Pool;
 import co.edu.javeriana.bmpn.entity.Proceso;
 import co.edu.javeriana.bmpn.entity.RolAcceso;
@@ -31,6 +32,7 @@ public class ActividadService {
     private final UsuarioService usuarioService;
     private final HistorialProcesoService historialProcesoService;
     private final ArcoService arcoService;
+    private final LaneService laneService;
     private final ModelMapper modelMapper;
 
     public ActividadService(ActividadRepository actividadRepository,
@@ -38,12 +40,14 @@ public class ActividadService {
                             UsuarioService usuarioService,
                             HistorialProcesoService historialProcesoService,
                             ArcoService arcoService,
+                            LaneService laneService,
                             ModelMapper modelMapper) {
         this.actividadRepository = actividadRepository;
         this.procesoService = procesoService;
         this.usuarioService = usuarioService;
         this.historialProcesoService = historialProcesoService;
         this.arcoService = arcoService;
+        this.laneService = laneService;
         this.modelMapper = modelMapper;
     }
 
@@ -60,12 +64,14 @@ public class ActividadService {
         }
 
         Pool pool = buscarPoolDelProceso(proceso, request.getPoolId());
+        Lane lane = laneService.buscarActiva(request.getLaneId(), pool.getId());
         Actividad actividad = new Actividad(proceso, pool, nombre, request.getTipoActividad(),
                 request.getPosicionX(), request.getPosicionY());
+        actividad.asignarLane(lane);
         actividadRepository.save(actividad);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.CREACION,
-                "Actividad '" + nombre + "' creada");
+                describir(nombre) + " creada");
         return convertirAResponse(actividad);
     }
 
@@ -84,12 +90,16 @@ public class ActividadService {
             throw new RecursoDuplicadoException("Ya existe una actividad con ese nombre en el proceso");
         }
 
+        // Cambiar de lane cambia el rol responsable de la actividad
+        Lane lane = laneService.buscarActiva(request.getLaneId(), actividad.getPool().getId());
+
         actividad.renombrar(nombre);
         actividad.cambiarTipo(request.getTipoActividad());
         actividad.mover(request.getPosicionX(), request.getPosicionY());
+        actividad.asignarLane(lane);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ACTUALIZACION,
-                "Actividad '" + nombre + "' actualizada");
+                describir(nombre) + " actualizada");
         return convertirAResponse(actividad);
     }
 
@@ -105,7 +115,7 @@ public class ActividadService {
         List<String> advertencias = arcoService.desactivarArcosDeElemento(actividadId);
 
         historialProcesoService.registrar(proceso, usuario, AccionHistorial.ELIMINACION,
-                "Actividad '" + actividad.getNombre() + "' eliminada");
+                describir(actividad.getNombre()) + " eliminada");
         return new AdvertenciasResponse(advertencias);
     }
 
@@ -156,6 +166,11 @@ public class ActividadService {
 
     private ActividadResponse convertirAResponse(Actividad actividad) {
         return modelMapper.map(actividad, ActividadResponse.class);
+    }
+
+    // Nombre del elemento como se muestra en el historial
+    private String describir(String nombre) {
+        return "Actividad '" + nombre + "'";
     }
 
     private void exigirPermisoDeEdicion(RolAcceso rol) {

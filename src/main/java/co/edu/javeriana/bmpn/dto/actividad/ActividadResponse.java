@@ -15,6 +15,7 @@ public class ActividadResponse {
     private Long id;
     private Long procesoId;
     private Long poolId;
+    private Long laneId;
     private String nombre;
     private TipoActividad tipoActividad;
     private BigDecimal posicionX;

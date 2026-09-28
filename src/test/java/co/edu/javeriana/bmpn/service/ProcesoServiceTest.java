@@ -94,8 +94,9 @@ class ProcesoServiceTest {
     void crearSinPermiso() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
 
-        assertThatThrownBy(() -> procesoService.crear(USUARIO_ID,
-                new CrearProcesoRequest("Solicitud de vacaciones", "Proceso de ejemplo", "RRHH")))
+        CrearProcesoRequest solicitud =
+                new CrearProcesoRequest("Solicitud de vacaciones", "Proceso de ejemplo", "RRHH");
+        assertThatThrownBy(() -> procesoService.crear(USUARIO_ID, solicitud))
                 .isInstanceOf(AccesoDenegadoException.class);
         verify(procesoRepository, never()).save(any());
     }
@@ -106,8 +107,9 @@ class ProcesoServiceTest {
         when(procesoRepository.existsByEmpresaIdAndNombreIgnoreCase(any(), eq("Solicitud de vacaciones")))
                 .thenReturn(true);
 
-        assertThatThrownBy(() -> procesoService.crear(USUARIO_ID,
-                new CrearProcesoRequest("Solicitud de vacaciones", "Proceso de ejemplo", "RRHH")))
+        CrearProcesoRequest solicitud =
+                new CrearProcesoRequest("Solicitud de vacaciones", "Proceso de ejemplo", "RRHH");
+        assertThatThrownBy(() -> procesoService.crear(USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
         verify(procesoRepository, never()).save(any());
     }
@@ -138,8 +140,9 @@ class ProcesoServiceTest {
         when(procesoRepository.existsByEmpresaIdAndNombreIgnoreCaseAndIdNot(any(), eq("Compras"), eq(PROCESO_ID)))
                 .thenReturn(true);
 
-        assertThatThrownBy(() -> procesoService.editar(PROCESO_ID, USUARIO_ID,
-                new EditarProcesoRequest("Compras", "x", "y", EstadoProceso.BORRADOR)))
+        EditarProcesoRequest solicitud =
+                new EditarProcesoRequest("Compras", "x", "y", EstadoProceso.BORRADOR);
+        assertThatThrownBy(() -> procesoService.editar(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
     }
 
@@ -149,8 +152,9 @@ class ProcesoServiceTest {
         when(procesoRepository.findByIdAndEmpresaIdAndActivoTrue(eq(PROCESO_ID), any()))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> procesoService.editar(PROCESO_ID, USUARIO_ID,
-                new EditarProcesoRequest("Compras", "x", "y", EstadoProceso.BORRADOR)))
+        EditarProcesoRequest solicitud =
+                new EditarProcesoRequest("Compras", "x", "y", EstadoProceso.BORRADOR);
+        assertThatThrownBy(() -> procesoService.editar(PROCESO_ID, USUARIO_ID, solicitud))
                 .isInstanceOf(RecursoNoEncontradoException.class);
     }
 
