@@ -20,10 +20,14 @@ import co.edu.javeriana.bmpn.dto.rolproceso.CrearRolProcesoRequest;
 import co.edu.javeriana.bmpn.dto.rolproceso.EditarRolProcesoRequest;
 import co.edu.javeriana.bmpn.dto.rolproceso.RolProcesoResponse;
 import co.edu.javeriana.bmpn.service.RolProcesoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 //Catalogo de roles de la empresa
 //17 a 20
+@Tag(name = "Roles de proceso", description = "Catálogo de responsabilidades funcionales de una empresa.")
 @RestController
 @RequestMapping("/api/roles-proceso")
 public class RolProcesoController {
@@ -35,6 +39,8 @@ public class RolProcesoController {
     }
 
     //17
+    @Operation(summary = "Crear rol de proceso", description = "Crea un rol funcional disponible para los procesos de la empresa.")
+    @ApiResponse(responseCode = "201", description = "Rol creado correctamente.")
     @PostMapping
     public ResponseEntity<RolProcesoResponse> crear(@RequestParam Long usuarioId,
                                                      @Valid @RequestBody CrearRolProcesoRequest request) {
@@ -43,6 +49,8 @@ public class RolProcesoController {
     }
 
     //18
+    @Operation(summary = "Editar rol de proceso", description = "Actualiza un rol funcional de la empresa.")
+    @ApiResponse(responseCode = "200", description = "Rol actualizado correctamente.")
     @PutMapping("/{id}")
     public ResponseEntity<RolProcesoResponse> editar(@PathVariable Long id,
                                                       @RequestParam Long usuarioId,
@@ -51,6 +59,8 @@ public class RolProcesoController {
     }
 
     //19
+    @Operation(summary = "Eliminar rol de proceso", description = "Realiza el borrado lógico de un rol funcional.")
+    @ApiResponse(responseCode = "204", description = "Rol eliminado correctamente.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id, @RequestParam Long usuarioId) {
         rolProcesoService.eliminar(id, usuarioId);
@@ -58,6 +68,8 @@ public class RolProcesoController {
     }
 
     //20
+    @Operation(summary = "Listar roles de proceso", description = "Lista roles funcionales con filtros y paginación opcionales.")
+    @ApiResponse(responseCode = "200", description = "Roles consultados correctamente.")
     @GetMapping
     public ResponseEntity<Page<RolProcesoResponse>> listar(
             @RequestParam Long usuarioId,
@@ -69,6 +81,8 @@ public class RolProcesoController {
         return ResponseEntity.ok(rolProcesoService.listar(usuarioId, nombre, incluirInactivos, paginacion));
     }
 
+    @Operation(summary = "Consultar rol de proceso", description = "Devuelve un rol funcional de la empresa.")
+    @ApiResponse(responseCode = "200", description = "Rol consultado correctamente.")
     @GetMapping("/{id}")
     public ResponseEntity<RolProcesoResponse> obtener(@PathVariable Long id, @RequestParam Long usuarioId) {
         return ResponseEntity.ok(rolProcesoService.obtener(id, usuarioId));

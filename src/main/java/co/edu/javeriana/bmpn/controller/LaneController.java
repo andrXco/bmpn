@@ -18,10 +18,14 @@ import co.edu.javeriana.bmpn.dto.lane.CrearLaneRequest;
 import co.edu.javeriana.bmpn.dto.lane.EditarLaneRequest;
 import co.edu.javeriana.bmpn.dto.lane.LaneResponse;
 import co.edu.javeriana.bmpn.service.LaneService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 // Lanes de un pool
 //22
+@Tag(name = "Lanes", description = "Divisiones internas de un pool BPMN.")
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/pools/{poolId}/lanes")
 public class LaneController {
@@ -32,6 +36,8 @@ public class LaneController {
         this.laneService = laneService;
     }
 
+    @Operation(summary = "Crear lane", description = "Crea una lane dentro de un pool del proceso.")
+    @ApiResponse(responseCode = "201", description = "Lane creada correctamente.")
     @PostMapping
     public ResponseEntity<LaneResponse> crear(@PathVariable Long procesoId,
                                               @PathVariable Long poolId,
@@ -43,6 +49,8 @@ public class LaneController {
         return ResponseEntity.created(ubicacion).body(lane);
     }
 
+    @Operation(summary = "Editar lane", description = "Actualiza una lane del pool.")
+    @ApiResponse(responseCode = "200", description = "Lane actualizada correctamente.")
     @PutMapping("/{laneId}")
     public ResponseEntity<LaneResponse> editar(@PathVariable Long procesoId,
                                                @PathVariable Long poolId,
@@ -52,6 +60,8 @@ public class LaneController {
         return ResponseEntity.ok(laneService.editar(procesoId, poolId, laneId, usuarioId, request));
     }
 
+    @Operation(summary = "Eliminar lane", description = "Realiza el borrado lógico de una lane.")
+    @ApiResponse(responseCode = "204", description = "Lane eliminada correctamente.")
     @DeleteMapping("/{laneId}")
     public ResponseEntity<Void> eliminar(@PathVariable Long procesoId,
                                          @PathVariable Long poolId,
@@ -61,6 +71,8 @@ public class LaneController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Listar lanes", description = "Devuelve las lanes activas de un pool.")
+    @ApiResponse(responseCode = "200", description = "Lanes consultadas correctamente.")
     @GetMapping
     public ResponseEntity<List<LaneResponse>> listar(@PathVariable Long procesoId,
                                                       @PathVariable Long poolId,

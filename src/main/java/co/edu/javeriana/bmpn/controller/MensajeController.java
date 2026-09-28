@@ -16,9 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.javeriana.bmpn.dto.mensaje.CrearMensajeRequest;
 import co.edu.javeriana.bmpn.dto.mensaje.MensajeResponse;
 import co.edu.javeriana.bmpn.service.MensajeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 // Mensajes y colaboracion entre pools
+@Tag(name = "Mensajes", description = "Comunicación modelada entre pools de un proceso.")
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/mensajes")
 public class MensajeController {
@@ -30,6 +34,8 @@ public class MensajeController {
     }
 
     //25 - 26
+    @Operation(summary = "Crear mensaje", description = "Modela un mensaje entre elementos de pools distintos.")
+    @ApiResponse(responseCode = "201", description = "Mensaje creado correctamente.")
     @PostMapping
     public ResponseEntity<MensajeResponse> crear(@PathVariable Long procesoId,
                                                  @RequestParam Long usuarioId,
@@ -39,6 +45,8 @@ public class MensajeController {
         return ResponseEntity.created(ubicacion).body(mensaje);
     }
 
+    @Operation(summary = "Consultar mensaje", description = "Devuelve un mensaje del proceso.")
+    @ApiResponse(responseCode = "200", description = "Mensaje consultado correctamente.")
     @GetMapping("/{mensajeId}")
     public ResponseEntity<MensajeResponse> obtener(@PathVariable Long procesoId,
                                                    @PathVariable Long mensajeId,
@@ -46,6 +54,8 @@ public class MensajeController {
         return ResponseEntity.ok(mensajeService.obtener(procesoId, mensajeId, usuarioId));
     }
 
+    @Operation(summary = "Eliminar mensaje", description = "Realiza el borrado lógico de un mensaje.")
+    @ApiResponse(responseCode = "204", description = "Mensaje eliminado correctamente.")
     @DeleteMapping("/{mensajeId}")
     public ResponseEntity<Void> eliminar(@PathVariable Long procesoId,
                                          @PathVariable Long mensajeId,
@@ -54,6 +64,8 @@ public class MensajeController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Listar mensajes", description = "Devuelve los mensajes activos del proceso.")
+    @ApiResponse(responseCode = "200", description = "Mensajes consultados correctamente.")
     @GetMapping
     public ResponseEntity<List<MensajeResponse>> listar(@PathVariable Long procesoId,
                                                          @RequestParam Long usuarioId) {
@@ -61,6 +73,8 @@ public class MensajeController {
     }
 
     //28
+    @Operation(summary = "Buscar mensajes por correlación", description = "Filtra los mensajes por su clave de correlación.")
+    @ApiResponse(responseCode = "200", description = "Mensajes consultados correctamente.")
     @GetMapping("/correlacion/{clave}")
     public ResponseEntity<List<MensajeResponse>> listarPorCorrelacion(@PathVariable Long procesoId,
                                                                        @PathVariable String clave,

@@ -19,8 +19,12 @@ import co.edu.javeriana.bmpn.dto.evento.CrearEventoRequest;
 import co.edu.javeriana.bmpn.dto.evento.EditarEventoRequest;
 import co.edu.javeriana.bmpn.dto.evento.EventoResponse;
 import co.edu.javeriana.bmpn.service.EventoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "Eventos", description = "Eventos BPMN asociados a un proceso.")
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/eventos")
 public class EventoController {
@@ -31,6 +35,8 @@ public class EventoController {
         this.eventoService = eventoService;
     }
 
+    @Operation(summary = "Crear evento", description = "Agrega un evento BPMN a un proceso.")
+    @ApiResponse(responseCode = "201", description = "Evento creado correctamente.")
     @PostMapping
     public ResponseEntity<EventoResponse> crear(@PathVariable Long procesoId,
                                                 @RequestParam Long usuarioId,
@@ -40,12 +46,16 @@ public class EventoController {
         return ResponseEntity.created(ubicacion).body(evento);
     }
 
+    @Operation(summary = "Listar eventos", description = "Devuelve los eventos activos de un proceso.")
+    @ApiResponse(responseCode = "200", description = "Eventos consultados correctamente.")
     @GetMapping
     public ResponseEntity<List<EventoResponse>> listar(@PathVariable Long procesoId,
                                                        @RequestParam Long usuarioId) {
         return ResponseEntity.ok(eventoService.listar(procesoId, usuarioId));
     }
 
+    @Operation(summary = "Consultar evento", description = "Devuelve un evento activo del proceso.")
+    @ApiResponse(responseCode = "200", description = "Evento consultado correctamente.")
     @GetMapping("/{id}")
     public ResponseEntity<EventoResponse> obtener(@PathVariable Long procesoId,
                                                   @PathVariable Long id,
@@ -53,6 +63,8 @@ public class EventoController {
         return ResponseEntity.ok(eventoService.obtener(procesoId, id, usuarioId));
     }
 
+    @Operation(summary = "Editar evento", description = "Actualiza los datos y posición de un evento BPMN.")
+    @ApiResponse(responseCode = "200", description = "Evento actualizado correctamente.")
     @PutMapping("/{id}")
     public ResponseEntity<EventoResponse> editar(@PathVariable Long procesoId,
                                                  @PathVariable Long id,
@@ -61,6 +73,8 @@ public class EventoController {
         return ResponseEntity.ok(eventoService.editar(procesoId, id, usuarioId, request));
     }
 
+    @Operation(summary = "Eliminar evento", description = "Realiza el borrado lógico de un evento y devuelve advertencias.")
+    @ApiResponse(responseCode = "200", description = "Evento eliminado correctamente.")
     @DeleteMapping("/{id}")
     public ResponseEntity<AdvertenciasResponse> eliminar(@PathVariable Long procesoId,
                                                          @PathVariable Long id,

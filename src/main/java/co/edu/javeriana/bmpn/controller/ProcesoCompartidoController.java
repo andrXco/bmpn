@@ -16,10 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.javeriana.bmpn.dto.procesocompartido.CompartirProcesoRequest;
 import co.edu.javeriana.bmpn.dto.procesocompartido.ProcesoCompartidoResponse;
 import co.edu.javeriana.bmpn.service.ProcesoCompartidoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 //Colaboracion entre empresas sobre un proceso 
 //23
+@Tag(name = "Procesos compartidos", description = "Colaboración entre empresas sobre un proceso BPMN.")
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/compartidos")
 public class ProcesoCompartidoController {
@@ -30,6 +34,8 @@ public class ProcesoCompartidoController {
         this.procesoCompartidoService = procesoCompartidoService;
     }
 
+    @Operation(summary = "Compartir proceso", description = "Otorga colaboración sobre un proceso a otra empresa.")
+    @ApiResponse(responseCode = "201", description = "Proceso compartido correctamente.")
     @PostMapping
     public ResponseEntity<ProcesoCompartidoResponse> compartir(@PathVariable Long procesoId,
                                                                 @RequestParam Long usuarioId,
@@ -39,6 +45,8 @@ public class ProcesoCompartidoController {
         return ResponseEntity.created(ubicacion).body(compartido);
     }
 
+    @Operation(summary = "Revocar proceso compartido", description = "Retira una colaboración previamente otorgada.")
+    @ApiResponse(responseCode = "204", description = "Colaboración revocada correctamente.")
     @DeleteMapping("/{compartidoId}")
     public ResponseEntity<Void> revocar(@PathVariable Long procesoId,
                                         @PathVariable Long compartidoId,
@@ -47,6 +55,8 @@ public class ProcesoCompartidoController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Listar empresas colaboradoras", description = "Devuelve las colaboraciones activas del proceso.")
+    @ApiResponse(responseCode = "200", description = "Colaboraciones consultadas correctamente.")
     @GetMapping
     public ResponseEntity<List<ProcesoCompartidoResponse>> listar(@PathVariable Long procesoId,
                                                                    @RequestParam Long usuarioId) {

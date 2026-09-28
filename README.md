@@ -54,6 +54,27 @@ curl "http://localhost:8080/api/procesos?usuarioId=1"
 
 En macOS o Linux reemplaza `.\mvnw.cmd` por `./mvnw`.
 
+## Documentación interactiva con Swagger UI
+
+Con la aplicación iniciada, abre [Swagger UI](http://localhost:8080/swagger-ui/index.html).
+La página se genera a partir de los controladores, DTO y validaciones del
+backend; no reemplaza los flujos de pruebas que se mantienen en Postman.
+
+También puedes consultar la especificación OpenAPI directamente:
+
+- JSON: `http://localhost:8080/v3/api-docs`
+- YAML: `http://localhost:8080/v3/api-docs.yaml`
+
+Desde Swagger UI puedes seleccionar un endpoint, usar **Try it out**, completar
+los parámetros y el cuerpo JSON, y ejecutar una petición contra tu backend
+local. La ruta de Swagger no guarda datos por sí misma: los cambios solo ocurren
+si ejecutas un endpoint que crea, edita o desactiva información.
+
+La autenticación actual es transitoria para la fase de desarrollo. En los
+endpoints que la requieren, usa el `usuarioId` que devuelve `POST /api/sesiones`.
+Cuando el proyecto incorpore Spring Security, esta parte se reemplazará por el
+mecanismo de seguridad definitivo.
+
 La prueba de humo de PostgreSQL (`.\scripts\database\database-smoke-test.ps1`)
 inserta un proceso minimo en una transaccion y hace `ROLLBACK`, asi que no deja datos.
 
@@ -102,14 +123,14 @@ estos endpoints.
 
 ### Endpoints disponibles
 
-| Método | Ruta | Operación |
-| --- | --- | --- |
-| `POST` | `/api/empresas` | Registrar una empresa y su administrador inicial |
-| `POST` | `/api/sesiones` | Iniciar sesión |
-| `GET` | `/api/usuarios?usuarioId={solicitante}` | Listar usuarios activos de la empresa del solicitante |
-| `POST` | `/api/usuarios?usuarioId={solicitante}` | Registrar un usuario |
-| `PATCH` | `/api/usuarios/{objetivo}/rol?usuarioId={solicitante}` | Cambiar el rol de acceso |
-| `DELETE` | `/api/usuarios/{objetivo}?usuarioId={solicitante}` | Desactivar un usuario |
+La API expone operaciones para empresas, autenticación, usuarios, procesos,
+actividades, gateways y arcos. La lista actualizada de rutas, cuerpos JSON,
+respuestas y códigos HTTP se consulta en Swagger UI.
+
+Para probar el flujo completo con Postman, importa los archivos de
+[`postman/`](postman/README.md). La colección está organizada por módulos,
+encadena los identificadores creados y cubre todos los endpoints actualmente
+implementados.
 
 La API no conserva una sesión HTTP. En esta etapa, el cliente envía el
 identificador del usuario solicitante y la capa de servicios obtiene desde la

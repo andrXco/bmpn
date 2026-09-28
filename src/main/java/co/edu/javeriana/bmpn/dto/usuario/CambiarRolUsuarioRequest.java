@@ -1,10 +1,12 @@
 package co.edu.javeriana.bmpn.dto.usuario;
 
 import co.edu.javeriana.bmpn.entity.RolAcceso;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 public class CambiarRolUsuarioRequest {
     @NotNull(message = "El nuevo rol es obligatorio")
+    @Schema(description = "Nuevo rol del colaborador.", example = "ADMINISTRADOR")
     private RolAcceso rolAcceso;
 
     public CambiarRolUsuarioRequest() {
