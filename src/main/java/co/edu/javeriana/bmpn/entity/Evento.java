@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
@@ -19,6 +20,9 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Table(name = "evento")
+@NamedQuery(
+        name = "Evento.listarActivosPorProceso",
+        query = "SELECT e FROM Evento e WHERE e.proceso.id = :procesoId AND e.activo = true ORDER BY e.id")
 @PrimaryKeyJoinColumn(name = "elemento_id")
 @Getter
 @NoArgsConstructor(access = PROTECTED)

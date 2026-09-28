@@ -88,4 +88,18 @@ class EmpresaServiceTest {
                 .isInstanceOf(RecursoDuplicadoException.class);
         verify(empresaRepository, never()).save(any());
     }
+
+    @Test
+    void baseVaciaSinEmpresas() {
+        when(empresaRepository.count()).thenReturn(0L);
+
+        assertThat(empresaService.hayEmpresasRegistradas()).isFalse();
+    }
+
+    @Test
+    void baseConEmpresas() {
+        when(empresaRepository.count()).thenReturn(2L);
+
+        assertThat(empresaService.hayEmpresasRegistradas()).isTrue();
+    }
 }

@@ -85,6 +85,12 @@ public class EmpresaService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Empresa no encontrada"));
     }
 
+    // Para el inicializador: solo carga datos de ejemplo si la base esta vacia
+    @Transactional(readOnly = true)
+    public boolean hayEmpresasRegistradas() {
+        return empresaRepository.count() > 0;
+    }
+
     private String normalizarEmail(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
     }

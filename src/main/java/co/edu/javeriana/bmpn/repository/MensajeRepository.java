@@ -13,7 +13,7 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
 
     Optional<Mensaje> findByIdAndProcesoIdAndActivoTrue(Long id, Long procesoId);
 
-    @Query("SELECT m FROM Mensaje m WHERE m.proceso.id = :procesoId AND m.activo = true ORDER BY m.id")
+    // Usa la named query "Mensaje.listarActivosPorProceso" declarada en la entidad
     List<Mensaje> listarActivosPorProceso(@Param("procesoId") Long procesoId);
 
     // HU-28: otro mensaje del proceso con el mismo nombre y la misma clave es ambiguo

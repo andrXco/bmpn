@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,13 +27,20 @@ import co.edu.javeriana.bmpn.dto.pool.PermisoPoolRequest;
 import co.edu.javeriana.bmpn.dto.pool.PermisoPoolResponse;
 import co.edu.javeriana.bmpn.dto.pool.PoolResponse;
 import co.edu.javeriana.bmpn.dto.pool.RolPoolResponse;
+import co.edu.javeriana.bmpn.entity.Actividad;
+import co.edu.javeriana.bmpn.entity.DisparadorEvento;
 import co.edu.javeriana.bmpn.entity.Empresa;
+import co.edu.javeriana.bmpn.entity.Evento;
+import co.edu.javeriana.bmpn.entity.Lane;
+import co.edu.javeriana.bmpn.entity.Mensaje;
 import co.edu.javeriana.bmpn.entity.PermisoPool;
 import co.edu.javeriana.bmpn.entity.Pool;
 import co.edu.javeriana.bmpn.entity.PoolRolDisponible;
 import co.edu.javeriana.bmpn.entity.Proceso;
 import co.edu.javeriana.bmpn.entity.RolAcceso;
 import co.edu.javeriana.bmpn.entity.RolProceso;
+import co.edu.javeriana.bmpn.entity.TipoActividad;
+import co.edu.javeriana.bmpn.entity.TipoEvento;
 import co.edu.javeriana.bmpn.entity.TipoParticipante;
 import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
@@ -74,6 +82,9 @@ class PoolServiceTest {
     @Mock
     private HistorialProcesoService historialProcesoService;
 
+    @Mock
+    private ArcoService arcoService;
+
     private PoolService poolService;
 
     private Empresa empresa;
@@ -84,7 +95,7 @@ class PoolServiceTest {
     void prepararDatos() {
         poolService = new PoolService(poolRepository, poolRolDisponibleService, permisoPoolService,
                 empresaService, usuarioService, procesoService, procesoCompartidoService, rolProcesoService,
-                historialProcesoService, new ModelMapperConfig().modelMapper());
+                historialProcesoService, arcoService, new ModelMapperConfig().modelMapper());
 
         empresa = new Empresa("900123456", "Empresa Demo", "contacto@demo.co");
         cliente = new Empresa("800111222", "Cliente SA", "contacto@cliente.co");
@@ -186,6 +197,34 @@ class PoolServiceTest {
         poolService.eliminar(PROCESO_ID, POOL_ID, USUARIO_ID);
 
         assertThat(externo.isActivo()).isFalse();
+    }
+
+    @Test
+    void eliminarPoolDesactivaSuContenido() {
+        usuarioYProceso(RolAcceso.ADMINISTRADOR);
+        Pool propietario = new Pool(empresa, "Empresa Demo", TipoParticipante.EMPRESA_PROPIETARIA, 0);
+        Pool poolCliente = new Pool(cliente, "Cliente SA", TipoParticipante.CLIENTE, 1);
+        Lane lane = new Lane(poolCliente, new RolProceso(cliente, "Cajero", "Recibe los pagos"), 0);
+        Actividad pagar = new Actividad(proceso, poolCliente, "Pagar", TipoActividad.USUARIO,
+                BigDecimal.ONE, BigDecimal.ONE);
+        Evento cobro = new Evento(proceso, propietario, "Cobro enviado", TipoEvento.INTERMEDIO,
+                DisparadorEvento.MENSAJE_ENVIO, false, BigDecimal.ONE, BigDecimal.ONE);
+        Mensaje factura = new Mensaje(proceso, cobro, null, poolCliente, "Factura", "numero", null, null);
+        poolCliente.getLanes().add(lane);
+        poolCliente.getElementos().add(pagar);
+        poolCliente.getMensajesRecibidos().add(factura);
+        when(poolRepository.findByIdAndProcesoIdAndActivoTrue(POOL_ID, PROCESO_ID))
+                .thenReturn(Optional.of(poolCliente));
+
+        poolService.eliminar(PROCESO_ID, POOL_ID, USUARIO_ID);
+
+        assertThat(poolCliente.isActivo()).isFalse();
+        assertThat(lane.isActivo()).isFalse();
+        assertThat(pagar.isActivo()).isFalse();
+        assertThat(factura.isActivo()).isFalse();
+        // El evento que envia la factura es del otro pool, asi que sigue activo
+        assertThat(cobro.isActivo()).isTrue();
+        verify(arcoService).desactivarArcosDePool(POOL_ID);
     }
 
     @Test

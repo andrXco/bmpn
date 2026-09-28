@@ -17,5 +17,18 @@ services:
       retries: 10
       start_period: 5s
 
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bmpn}
+      DB_USERNAME: ${POSTGRES_USER:-bmpn}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-bmpn_local}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+
 volumes:
   bmpn_postgres_data:
