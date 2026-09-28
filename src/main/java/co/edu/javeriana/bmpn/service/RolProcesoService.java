@@ -106,7 +106,7 @@ public class RolProcesoService {
 
         Page<RolProceso> pagina = rolProcesoRepository.buscar(usuario.getEmpresa().getId(),
                 activoBuscado, nombreBuscado, pageable);
-        return pagina.map(rol -> convertirAResponse(rol));
+        return pagina.map(this::convertirAResponse);
     }
 
     @Transactional(readOnly = true)
