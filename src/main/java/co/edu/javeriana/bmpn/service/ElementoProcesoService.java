@@ -1,5 +1,6 @@
 package co.edu.javeriana.bmpn.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,14 +11,11 @@ import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.ElementoProcesoRepository;
 
+@RequiredArgsConstructor
 @Service
 public class ElementoProcesoService {
 
     private final ElementoProcesoRepository elementoProcesoRepository;
-
-    public ElementoProcesoService(ElementoProcesoRepository elementoProcesoRepository) {
-        this.elementoProcesoRepository = elementoProcesoRepository;
-    }
 
     // Busca una actividad, gateway o evento activo que pertenezca al proceso
     @Transactional(readOnly = true)

@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,15 +24,12 @@ import jakarta.validation.Valid;
 
 // Mensajes y colaboracion entre pools
 @Tag(name = "Mensajes", description = "Comunicación modelada entre pools de un proceso.")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/mensajes")
 public class MensajeController {
 
     private final MensajeService mensajeService;
-
-    public MensajeController(MensajeService mensajeService) {
-        this.mensajeService = mensajeService;
-    }
 
     //25 - 26
     @Operation(summary = "Crear mensaje", description = "Modela un mensaje entre elementos de pools distintos.")

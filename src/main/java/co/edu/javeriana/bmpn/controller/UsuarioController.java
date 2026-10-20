@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,16 +26,13 @@ import co.edu.javeriana.bmpn.dto.usuario.UsuarioResponse;
 import co.edu.javeriana.bmpn.service.UsuarioService;
 import jakarta.validation.Valid;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/usuarios")
 @Tag(name = "Usuarios", description = "Administración de colaboradores de una empresa.")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-
-    public UsuarioController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
-    }
 
     @Operation(
             summary = "Listar colaboradores activos",

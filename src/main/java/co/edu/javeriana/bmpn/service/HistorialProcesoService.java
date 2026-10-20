@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,17 +15,12 @@ import co.edu.javeriana.bmpn.entity.Proceso;
 import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.repository.HistorialProcesoRepository;
 
+@RequiredArgsConstructor
 @Service
 public class HistorialProcesoService {
 
     private final HistorialProcesoRepository historialProcesoRepository;
     private final ModelMapper modelMapper;
-
-    public HistorialProcesoService(HistorialProcesoRepository historialProcesoRepository,
-                                   ModelMapper modelMapper) {
-        this.historialProcesoRepository = historialProcesoRepository;
-        this.modelMapper = modelMapper;
-    }
 
     @Transactional
     public void registrar(Proceso proceso, Usuario usuario, AccionHistorial accion, String detalle) {

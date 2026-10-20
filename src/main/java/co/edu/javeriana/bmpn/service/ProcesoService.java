@@ -2,6 +2,7 @@ package co.edu.javeriana.bmpn.service;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
 import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.repository.ProcesoRepository;
 
+@RequiredArgsConstructor
 @Service
 public class ProcesoService {
 
@@ -35,16 +37,6 @@ public class ProcesoService {
     private final UsuarioService usuarioService;
     private final HistorialProcesoService historialProcesoService;
     private final ModelMapper modelMapper;
-
-    public ProcesoService(ProcesoRepository procesoRepository,
-                          UsuarioService usuarioService,
-                          HistorialProcesoService historialProcesoService,
-                          ModelMapper modelMapper) {
-        this.procesoRepository = procesoRepository;
-        this.usuarioService = usuarioService;
-        this.historialProcesoService = historialProcesoService;
-        this.modelMapper = modelMapper;
-    }
 
     @Transactional
     public ProcesoResponse crear(Long usuarioId, CrearProcesoRequest request) {

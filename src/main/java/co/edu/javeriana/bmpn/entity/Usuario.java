@@ -15,6 +15,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
+import lombok.Getter;
+
+@Getter
 @Entity
 @Table(name = "usuario")
 public class Usuario {
@@ -82,42 +85,6 @@ public class Usuario {
 
     public boolean puedeEditar() {
         return activo && rolAcceso != RolAcceso.SOLO_LECTURA;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Empresa getEmpresa() {
-        return empresa;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public RolAcceso getRolAcceso() {
-        return rolAcceso;
-    }
-
-    public Instant getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public boolean isActivo() {
-        return activo;
     }
 
     @PrePersist

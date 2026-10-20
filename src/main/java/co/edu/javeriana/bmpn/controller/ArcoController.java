@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,15 +27,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "Arcos", description = "Secuencias entre elementos de un proceso BPMN.")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/arcos")
 public class ArcoController {
 
     private final ArcoService arcoService;
-
-    public ArcoController(ArcoService arcoService) {
-        this.arcoService = arcoService;
-    }
 
     @Operation(summary = "Crear arco", description = "Crea una secuencia entre dos elementos del mismo pool.")
     @ApiResponses({@ApiResponse(responseCode = "201", description = "Arco creado correctamente."),

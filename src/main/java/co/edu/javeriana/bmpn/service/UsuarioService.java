@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.service;
 import java.util.List;
 import java.util.Locale;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.repository.EmpresaRepository;
 import co.edu.javeriana.bmpn.repository.UsuarioRepository;
 
+@RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 public class UsuarioService {
@@ -28,17 +30,6 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
-
-    public UsuarioService(
-            EmpresaRepository empresaRepository,
-            UsuarioRepository usuarioRepository,
-            PasswordEncoder passwordEncoder,
-            ModelMapper modelMapper) {
-        this.empresaRepository = empresaRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.modelMapper = modelMapper;
-    }
 
     public List<UsuarioResponse> listarActivos(Long usuarioSolicitanteId) {
         Usuario solicitante = buscarActivo(usuarioSolicitanteId);

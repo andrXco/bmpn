@@ -2,6 +2,7 @@ package co.edu.javeriana.bmpn.service;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,14 +15,11 @@ import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.repository.PoolRolDisponibleRepository;
 
 // HU-24: roles de proceso que se pueden usar en las lanes de un pool
+@RequiredArgsConstructor
 @Service
 public class PoolRolDisponibleService {
 
     private final PoolRolDisponibleRepository poolRolDisponibleRepository;
-
-    public PoolRolDisponibleService(PoolRolDisponibleRepository poolRolDisponibleRepository) {
-        this.poolRolDisponibleRepository = poolRolDisponibleRepository;
-    }
 
     @Transactional
     public PoolRolDisponible habilitar(Pool pool, RolProceso rol) {

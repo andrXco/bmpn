@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.ActividadRepository;
 
+@RequiredArgsConstructor
 @Service
 public class ActividadService {
 
@@ -34,22 +36,6 @@ public class ActividadService {
     private final ArcoService arcoService;
     private final LaneService laneService;
     private final ModelMapper modelMapper;
-
-    public ActividadService(ActividadRepository actividadRepository,
-                            ProcesoService procesoService,
-                            UsuarioService usuarioService,
-                            HistorialProcesoService historialProcesoService,
-                            ArcoService arcoService,
-                            LaneService laneService,
-                            ModelMapper modelMapper) {
-        this.actividadRepository = actividadRepository;
-        this.procesoService = procesoService;
-        this.usuarioService = usuarioService;
-        this.historialProcesoService = historialProcesoService;
-        this.arcoService = arcoService;
-        this.laneService = laneService;
-        this.modelMapper = modelMapper;
-    }
 
     // HU-08
     @Transactional

@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,15 +27,12 @@ import jakarta.validation.Valid;
 // Lanes de un pool
 //22
 @Tag(name = "Lanes", description = "Divisiones internas de un pool BPMN.")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/pools/{poolId}/lanes")
 public class LaneController {
 
     private final LaneService laneService;
-
-    public LaneController(LaneService laneService) {
-        this.laneService = laneService;
-    }
 
     @Operation(summary = "Crear lane", description = "Crea una lane dentro de un pool del proceso.")
     @ApiResponse(responseCode = "201", description = "Lane creada correctamente.")

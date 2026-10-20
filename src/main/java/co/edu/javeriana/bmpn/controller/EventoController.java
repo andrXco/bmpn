@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,15 +26,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "Eventos", description = "Eventos BPMN asociados a un proceso.")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/eventos")
 public class EventoController {
 
     private final EventoService eventoService;
-
-    public EventoController(EventoService eventoService) {
-        this.eventoService = eventoService;
-    }
 
     @Operation(summary = "Crear evento", description = "Agrega un evento BPMN a un proceso.")
     @ApiResponse(responseCode = "201", description = "Evento creado correctamente.")

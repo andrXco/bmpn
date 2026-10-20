@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,15 +27,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "Gateways", description = "Puntos de decisión y ramificación de un proceso BPMN.")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/gateways")
 public class GatewayController {
 
     private final GatewayService gatewayService;
-
-    public GatewayController(GatewayService gatewayService) {
-        this.gatewayService = gatewayService;
-    }
 
     @Operation(summary = "Crear gateway", description = "Agrega un gateway a un pool del proceso.")
     @ApiResponses({@ApiResponse(responseCode = "201", description = "Gateway creado correctamente."),
@@ -77,7 +75,7 @@ public class GatewayController {
                                                   @Valid @RequestBody EditarGatewayRequest request) {
         return ResponseEntity.ok(gatewayService.editar(procesoId, id, usuarioId, request));
     }
-    
+
     @Operation(summary = "Eliminar gateway", description = "Realiza el borrado lógico del gateway y devuelve advertencias del diagrama.")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Gateway eliminado correctamente."),
             @ApiResponse(responseCode = "404", description = "Gateway no encontrado.")})

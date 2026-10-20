@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.PoolRepository;
 
+@RequiredArgsConstructor
 @Service
 public class PoolService {
 
@@ -44,30 +46,6 @@ public class PoolService {
     private final HistorialProcesoService historialProcesoService;
     private final ArcoService arcoService;
     private final ModelMapper modelMapper;
-
-    public PoolService(PoolRepository poolRepository,
-                       PoolRolDisponibleService poolRolDisponibleService,
-                       PermisoPoolService permisoPoolService,
-                       EmpresaService empresaService,
-                       UsuarioService usuarioService,
-                       ProcesoService procesoService,
-                       ProcesoCompartidoService procesoCompartidoService,
-                       RolProcesoService rolProcesoService,
-                       HistorialProcesoService historialProcesoService,
-                       ArcoService arcoService,
-                       ModelMapper modelMapper) {
-        this.poolRepository = poolRepository;
-        this.poolRolDisponibleService = poolRolDisponibleService;
-        this.permisoPoolService = permisoPoolService;
-        this.empresaService = empresaService;
-        this.usuarioService = usuarioService;
-        this.procesoService = procesoService;
-        this.procesoCompartidoService = procesoCompartidoService;
-        this.rolProcesoService = rolProcesoService;
-        this.historialProcesoService = historialProcesoService;
-        this.arcoService = arcoService;
-        this.modelMapper = modelMapper;
-    }
 
     //21
     @Transactional

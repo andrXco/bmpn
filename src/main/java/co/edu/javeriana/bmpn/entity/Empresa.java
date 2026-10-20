@@ -10,6 +10,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
+import lombok.Getter;
+
+@Getter
 @Entity
 @Table(name = "empresa")
 public class Empresa {
@@ -50,30 +53,6 @@ public class Empresa {
 
     public void desactivar() {
         this.activo = false;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getNit() {
-        return nit;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getCorreoContacto() {
-        return correoContacto;
-    }
-
-    public Instant getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public boolean isActivo() {
-        return activo;
     }
 
     @PrePersist

@@ -2,6 +2,7 @@ package co.edu.javeriana.bmpn.service;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,20 +22,13 @@ import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.RolProcesoRepository;
 
+@RequiredArgsConstructor
 @Service
 public class RolProcesoService {
 
     private final RolProcesoRepository rolProcesoRepository;
     private final UsuarioService usuarioService;
     private final ModelMapper modelMapper;
-
-    public RolProcesoService(RolProcesoRepository rolProcesoRepository,
-                             UsuarioService usuarioService,
-                             ModelMapper modelMapper) {
-        this.rolProcesoRepository = rolProcesoRepository;
-        this.usuarioService = usuarioService;
-        this.modelMapper = modelMapper;
-    }
 
     //17
     @Transactional

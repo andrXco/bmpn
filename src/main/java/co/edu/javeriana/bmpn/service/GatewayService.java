@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
 import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.repository.GatewayRepository;
 
+@RequiredArgsConstructor
 @Service
 public class GatewayService {
 
@@ -34,22 +36,6 @@ public class GatewayService {
     private final ArcoService arcoService;
     private final HistorialProcesoService historialProcesoService;
     private final ModelMapper modelMapper;
-
-    public GatewayService(GatewayRepository gatewayRepository,
-                          ProcesoService procesoService,
-                          UsuarioService usuarioService,
-                          ElementoProcesoService elementoProcesoService,
-                          ArcoService arcoService,
-                          HistorialProcesoService historialProcesoService,
-                          ModelMapper modelMapper) {
-        this.gatewayRepository = gatewayRepository;
-        this.procesoService = procesoService;
-        this.usuarioService = usuarioService;
-        this.elementoProcesoService = elementoProcesoService;
-        this.arcoService = arcoService;
-        this.historialProcesoService = historialProcesoService;
-        this.modelMapper = modelMapper;
-    }
 
     // HU-14
     @Transactional

@@ -2,6 +2,7 @@ package co.edu.javeriana.bmpn.service;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,14 +13,11 @@ import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.PermisoPoolRepository;
 
 // HU-24: que roles de acceso pueden crear, editar o eliminar la estructura de un pool
+@RequiredArgsConstructor
 @Service
 public class PermisoPoolService {
 
     private final PermisoPoolRepository permisoPoolRepository;
-
-    public PermisoPoolService(PermisoPoolRepository permisoPoolRepository) {
-        this.permisoPoolRepository = permisoPoolRepository;
-    }
 
     @Transactional
     public PermisoPool definir(Pool pool, RolAcceso rolAcceso,

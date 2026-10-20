@@ -2,6 +2,7 @@ package co.edu.javeriana.bmpn.service;
 
 import java.util.Locale;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.exception.AutenticacionRequeridaException;
 import co.edu.javeriana.bmpn.repository.UsuarioRepository;
 
+@RequiredArgsConstructor
 @Service
 public class AutenticacionService {
 
@@ -22,13 +24,6 @@ public class AutenticacionService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public AutenticacionService(
-            UsuarioRepository usuarioRepository,
-            PasswordEncoder passwordEncoder) {
-        this.usuarioRepository = usuarioRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Transactional(readOnly = true)
     public SesionUsuarioResponse iniciarSesion(IniciarSesionRequest request) {

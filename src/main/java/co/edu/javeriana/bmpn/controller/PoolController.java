@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,15 +32,12 @@ import jakarta.validation.Valid;
 // Pools de un proceso
 //21, 22, 24
 @Tag(name = "Pools", description = "Participantes y permisos de un proceso BPMN.")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/pools")
 public class PoolController {
 
     private final PoolService poolService;
-
-    public PoolController(PoolService poolService) {
-        this.poolService = poolService;
-    }
 
     //21
     @Operation(summary = "Crear pool", description = "Agrega un participante al proceso.")

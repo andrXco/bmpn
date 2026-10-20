@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.EventoRepository;
 
 // Eventos de inicio, intermedios y de fin; los de mensaje son el Message Throw y el Message Catch
+@RequiredArgsConstructor
 @Service
 public class EventoService {
 
@@ -38,24 +40,6 @@ public class EventoService {
     private final ArcoService arcoService;
     private final HistorialProcesoService historialProcesoService;
     private final ModelMapper modelMapper;
-
-    public EventoService(EventoRepository eventoRepository,
-                         UsuarioService usuarioService,
-                         ProcesoService procesoService,
-                         ElementoProcesoService elementoProcesoService,
-                         LaneService laneService,
-                         ArcoService arcoService,
-                         HistorialProcesoService historialProcesoService,
-                         ModelMapper modelMapper) {
-        this.eventoRepository = eventoRepository;
-        this.usuarioService = usuarioService;
-        this.procesoService = procesoService;
-        this.elementoProcesoService = elementoProcesoService;
-        this.laneService = laneService;
-        this.arcoService = arcoService;
-        this.historialProcesoService = historialProcesoService;
-        this.modelMapper = modelMapper;
-    }
 
     @Transactional
     public EventoResponse crear(Long procesoId, Long usuarioId, CrearEventoRequest request) {

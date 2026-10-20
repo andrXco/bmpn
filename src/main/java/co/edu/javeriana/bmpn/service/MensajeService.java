@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.MensajeRepository;
 
 // El sistema modela el intercambio de mensajes; no los envia ni los recibe de verdad
+@RequiredArgsConstructor
 @Service
 public class MensajeService {
 
@@ -35,22 +37,6 @@ public class MensajeService {
     private final EventoService eventoService;
     private final HistorialProcesoService historialProcesoService;
     private final ModelMapper modelMapper;
-
-    public MensajeService(MensajeRepository mensajeRepository,
-                          UsuarioService usuarioService,
-                          ProcesoService procesoService,
-                          PoolService poolService,
-                          EventoService eventoService,
-                          HistorialProcesoService historialProcesoService,
-                          ModelMapper modelMapper) {
-        this.mensajeRepository = mensajeRepository;
-        this.usuarioService = usuarioService;
-        this.procesoService = procesoService;
-        this.poolService = poolService;
-        this.eventoService = eventoService;
-        this.historialProcesoService = historialProcesoService;
-        this.modelMapper = modelMapper;
-    }
 
     // HU-25 y HU-26
     @Transactional

@@ -2,6 +2,7 @@ package co.edu.javeriana.bmpn.controller;
 
 import java.net.URI;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,16 +18,13 @@ import co.edu.javeriana.bmpn.dto.empresa.RegistrarEmpresaRequest;
 import co.edu.javeriana.bmpn.service.EmpresaService;
 import jakarta.validation.Valid;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/empresas")
 @Tag(name = "Empresas", description = "Registro de empresas y su administrador inicial.")
 public class EmpresaController {
 
     private final EmpresaService empresaService;
-
-    public EmpresaController(EmpresaService empresaService) {
-        this.empresaService = empresaService;
-    }
 
     @Operation(
             summary = "Registrar empresa",

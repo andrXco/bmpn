@@ -2,6 +2,7 @@ package co.edu.javeriana.bmpn.controller;
 
 import java.net.URI;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,15 +29,12 @@ import jakarta.validation.Valid;
 //Catalogo de roles de la empresa
 //17 a 20
 @Tag(name = "Roles de proceso", description = "Catálogo de responsabilidades funcionales de una empresa.")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/roles-proceso")
 public class RolProcesoController {
 
     private final RolProcesoService rolProcesoService;
-
-    public RolProcesoController(RolProcesoService rolProcesoService) {
-        this.rolProcesoService = rolProcesoService;
-    }
 
     //17
     @Operation(summary = "Crear rol de proceso", description = "Crea un rol funcional disponible para los procesos de la empresa.")

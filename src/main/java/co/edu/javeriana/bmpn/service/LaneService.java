@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import co.edu.javeriana.bmpn.repository.LaneRepository;
 
 //La lane distingue quien responde por cada actividad
 //22
+@RequiredArgsConstructor
 @Service
 public class LaneService {
 
@@ -35,22 +37,6 @@ public class LaneService {
     private final RolProcesoService rolProcesoService;
     private final HistorialProcesoService historialProcesoService;
     private final ModelMapper modelMapper;
-
-    public LaneService(LaneRepository laneRepository,
-                       UsuarioService usuarioService,
-                       ProcesoService procesoService,
-                       PoolService poolService,
-                       RolProcesoService rolProcesoService,
-                       HistorialProcesoService historialProcesoService,
-                       ModelMapper modelMapper) {
-        this.laneRepository = laneRepository;
-        this.usuarioService = usuarioService;
-        this.procesoService = procesoService;
-        this.poolService = poolService;
-        this.rolProcesoService = rolProcesoService;
-        this.historialProcesoService = historialProcesoService;
-        this.modelMapper = modelMapper;
-    }
 
     @Transactional
     public LaneResponse crear(Long procesoId, Long poolId, Long usuarioId, CrearLaneRequest request) {

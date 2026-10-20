@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,16 +32,13 @@ import co.edu.javeriana.bmpn.entity.EstadoProceso;
 import co.edu.javeriana.bmpn.service.ProcesoService;
 import jakarta.validation.Valid;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/procesos")
 @Tag(name = "Procesos", description = "Gestión de procesos BPMN de una empresa.")
 public class ProcesoController {
 
     private final ProcesoService procesoService;
-
-    public ProcesoController(ProcesoService procesoService) {
-        this.procesoService = procesoService;
-    }
 
     @Operation(summary = "Crear proceso", description = "Crea un proceso BPMN para la empresa del usuario solicitante.")
     @ApiResponses({

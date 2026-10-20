@@ -1,5 +1,6 @@
 package co.edu.javeriana.bmpn.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,15 +21,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "Autenticación", description = "Inicio de sesión de usuarios.")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/sesiones")
 public class AutenticacionController {
 
     private final AutenticacionService autenticacionService;
-
-    public AutenticacionController(AutenticacionService autenticacionService) {
-        this.autenticacionService = autenticacionService;
-    }
 
     @Operation(
             summary = "Iniciar sesión",

@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +22,9 @@ import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.ProcesoCompartidoRepository;
 
-//23 da a otra empresa la capacidad para participar como pool en un proceso ajeno. 
+//23 da a otra empresa la capacidad para participar como pool en un proceso ajeno.
 //PoolService consulta estaCompartidoCon(...)
+@RequiredArgsConstructor
 @Service
 public class ProcesoCompartidoService {
 
@@ -32,20 +34,6 @@ public class ProcesoCompartidoService {
     private final ProcesoService procesoService;
     private final HistorialProcesoService historialProcesoService;
     private final ModelMapper modelMapper;
-
-    public ProcesoCompartidoService(ProcesoCompartidoRepository procesoCompartidoRepository,
-                                    EmpresaService empresaService,
-                                    UsuarioService usuarioService,
-                                    ProcesoService procesoService,
-                                    HistorialProcesoService historialProcesoService,
-                                    ModelMapper modelMapper) {
-        this.procesoCompartidoRepository = procesoCompartidoRepository;
-        this.empresaService = empresaService;
-        this.usuarioService = usuarioService;
-        this.procesoService = procesoService;
-        this.historialProcesoService = historialProcesoService;
-        this.modelMapper = modelMapper;
-    }
 
     @Transactional
     public ProcesoCompartidoResponse compartir(Long procesoId, Long usuarioId, CompartirProcesoRequest request) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
 import co.edu.javeriana.bmpn.exception.SolicitudInvalidaException;
 import co.edu.javeriana.bmpn.repository.ArcoRepository;
 
+@RequiredArgsConstructor
 @Service
 public class ArcoService {
 
@@ -33,20 +35,6 @@ public class ArcoService {
     private final ElementoProcesoService elementoProcesoService;
     private final HistorialProcesoService historialProcesoService;
     private final ModelMapper modelMapper;
-
-    public ArcoService(ArcoRepository arcoRepository,
-                       ProcesoService procesoService,
-                       UsuarioService usuarioService,
-                       ElementoProcesoService elementoProcesoService,
-                       HistorialProcesoService historialProcesoService,
-                       ModelMapper modelMapper) {
-        this.arcoRepository = arcoRepository;
-        this.procesoService = procesoService;
-        this.usuarioService = usuarioService;
-        this.elementoProcesoService = elementoProcesoService;
-        this.historialProcesoService = historialProcesoService;
-        this.modelMapper = modelMapper;
-    }
 
     // HU-11
     @Transactional
@@ -176,7 +164,7 @@ public class ArcoService {
     public long contarEntradasActivas(Long elementoId) {
         return arcoRepository.countByDestinoIdAndActivoTrue(elementoId);
     }
-    
+
     // Al pasar un gateway a paralelo sus salidas pierden la condicion
     @Transactional
     public void quitarCondicionesDeSalidas(Long elementoId) {

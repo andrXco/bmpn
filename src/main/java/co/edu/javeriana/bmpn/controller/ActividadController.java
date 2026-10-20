@@ -3,6 +3,7 @@ package co.edu.javeriana.bmpn.controller;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,16 +27,13 @@ import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.service.ActividadService;
 import jakarta.validation.Valid;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/procesos/{procesoId}/actividades")
 @Tag(name = "Actividades", description = "Actividades contenidas en un proceso BPMN.")
 public class ActividadController {
 
     private final ActividadService actividadService;
-
-    public ActividadController(ActividadService actividadService) {
-        this.actividadService = actividadService;
-    }
 
     @Operation(summary = "Crear actividad", description = "Agrega una actividad BPMN a un proceso de la empresa del usuario solicitante.")
     @ApiResponses({
