@@ -29,6 +29,23 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:-bmpn_local}
     ports:
       - "${APP_PORT:-8080}:8080"
+    # La API esta lista cuando responde la documentacion de Swagger
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/v3/api-docs > /dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  # Frontend Angular (nginx). Se construye desde la carpeta bmpn-react, al lado de esta
+  front:
+    build: ${FRONT_DIR:-../bmpn-react}
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "${FRONT_PORT:-4200}:80"
 
 volumes:
   bmpn_postgres_data:
