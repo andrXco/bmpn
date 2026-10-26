@@ -13,12 +13,25 @@ No es necesario instalar Maven: el repositorio incluye Maven Wrapper.
 
 ## Levantar el servicio con Docker
 
+El frontend esta en otro repositorio (https://github.com/andrXco/bmpn-react) y se
+construye desde una carpeta al lado de esta:
+
+```text
+Proyecto/
+├── bmpn/          ← este repositorio (compose.yaml)
+└── bmpn-react/    ← frontend Angular
+```
+
+Con las dos carpetas clonadas, desde `bmpn`:
+
 ```powershell
 docker compose up -d --build --wait
 ```
 
-Compila la aplicacion dentro de una imagen, inicia PostgreSQL y luego la API en
-`http://localhost:8080/api`. Flyway crea el esquema al arrancar.
+Levanta tres contenedores: PostgreSQL, la API en `http://localhost:8080/api` y el
+frontend en `http://localhost:4200`. El frontend (nginx) reenvia `/api` a la API.
+Flyway crea el esquema al arrancar. Si el frontend esta en otra ruta, se indica
+con `FRONT_DIR`; el puerto del frontend se cambia con `FRONT_PORT`.
 
 Con la base vacia se cargan datos de ejemplo: la empresa BitWeb Demo con el
 proceso "Solicitud de vacaciones" y los usuarios `admin@bitweb.co` (id 1),
