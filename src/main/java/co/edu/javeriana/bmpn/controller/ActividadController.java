@@ -105,22 +105,20 @@ public class ActividadController {
         return ResponseEntity.ok(actividadService.editar(procesoId, id, usuarioId, request));
     }
 
-    @Operation(summary = "Eliminar actividad", description = "Elimina una actividad BPMN de un proceso.")
+    @Operation(summary = "Eliminar actividad", description = "Elimina una actividad BPMN de un proceso y devuelve las advertencias del diagrama.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Actividad eliminada correctamente."),
+            @ApiResponse(responseCode = "200", description = "Actividad eliminada; devuelve las advertencias del diagrama."),
             @ApiResponse(responseCode = "400", description = "Falta o es inválido algún identificador."),
             @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
             @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
             @ApiResponse(responseCode = "404", description = "El proceso o la actividad no existen.")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(
+    public ResponseEntity<AdvertenciasResponse> eliminar(
                                          @Parameter(description = "Identificador del proceso.", example = "1") @PathVariable Long procesoId,
                                          @Parameter(description = "Identificador de la actividad.", example = "1") @PathVariable Long id,
                                          @Parameter(description = "Identificador del usuario solicitante.", example = "10")
                                          @RequestParam Long usuarioId) {
-        actividadService.eliminar(procesoId, id, usuarioId);
-        return ResponseEntity.noContent().build();
-
+        return ResponseEntity.ok(actividadService.eliminar(procesoId, id, usuarioId));
     }
 }
