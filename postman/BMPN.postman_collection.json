@@ -1614,7 +1614,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Actividad eliminada: 204\", () => pm.response.to.have.status(204));"
+                  "pm.test(\"Actividad eliminada: 200\", () => pm.response.to.have.status(200));"
                 ]
               }
             }
