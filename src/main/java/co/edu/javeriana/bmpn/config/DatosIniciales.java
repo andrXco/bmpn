@@ -113,14 +113,15 @@ public class DatosIniciales {
         Long laneEmpleado = laneService.crear(procesoId, poolId, adminId, new CrearLaneRequest(empleadoId)).getId();
         Long laneJefe = laneService.crear(procesoId, poolId, adminId, new CrearLaneRequest(jefeId)).getId();
 
-        Long inicio = evento(procesoId, adminId, "Necesita vacaciones", TipoEvento.INICIO, laneEmpleado, 50);
-        Long diligenciar = actividad(procesoId, adminId, "Diligenciar solicitud", laneEmpleado, 150);
-        Long revisar = actividad(procesoId, adminId, "Revisar solicitud", laneJefe, 300);
+        // Posiciones del centro de cada elemento desde la esquina del pool; cada lane mide 150 de alto
+        Long inicio = evento(procesoId, adminId, "Necesita vacaciones", TipoEvento.INICIO, laneEmpleado, 60, 75);
+        Long diligenciar = actividad(procesoId, adminId, "Diligenciar solicitud", laneEmpleado, 200, 75);
+        Long revisar = actividad(procesoId, adminId, "Revisar solicitud", laneJefe, 360, 225);
         Long decision = gatewayService.crear(procesoId, adminId, new CrearGatewayRequest("Aprobada?",
-                TipoGateway.EXCLUSIVO, posicion(450), posicion(250), null)).getId();
-        Long registrar = actividad(procesoId, adminId, "Registrar vacaciones", laneJefe, 600);
-        Long aprobada = evento(procesoId, adminId, "Vacaciones aprobadas", TipoEvento.FIN, laneJefe, 750);
-        Long rechazada = evento(procesoId, adminId, "Solicitud rechazada", TipoEvento.FIN, null, 600);
+                TipoGateway.EXCLUSIVO, posicion(510), posicion(225), null)).getId();
+        Long registrar = actividad(procesoId, adminId, "Registrar vacaciones", laneJefe, 660, 190);
+        Long aprobada = evento(procesoId, adminId, "Vacaciones aprobadas", TipoEvento.FIN, laneJefe, 820, 190);
+        Long rechazada = evento(procesoId, adminId, "Solicitud rechazada", TipoEvento.FIN, laneJefe, 660, 270);
 
         arco(procesoId, adminId, inicio, diligenciar, null);
         arco(procesoId, adminId, diligenciar, revisar, null);
@@ -138,20 +139,20 @@ public class DatosIniciales {
         poolService.crear(procesoId, adminId, poolCliente);
     }
 
-    private Long evento(Long procesoId, Long usuarioId, String nombre, TipoEvento tipo, Long laneId, int x) {
+    private Long evento(Long procesoId, Long usuarioId, String nombre, TipoEvento tipo, Long laneId, int x, int y) {
         CrearEventoRequest request = new CrearEventoRequest();
         request.setNombre(nombre);
         request.setTipoEvento(tipo);
         request.setDisparador(DisparadorEvento.NINGUNO);
         request.setLaneId(laneId);
         request.setPosicionX(posicion(x));
-        request.setPosicionY(posicion(100));
+        request.setPosicionY(posicion(y));
         return eventoService.crear(procesoId, usuarioId, request).getId();
     }
 
-    private Long actividad(Long procesoId, Long usuarioId, String nombre, Long laneId, int x) {
+    private Long actividad(Long procesoId, Long usuarioId, String nombre, Long laneId, int x, int y) {
         return actividadService.crear(procesoId, usuarioId, new CrearActividadRequest(nombre,
-                TipoActividad.USUARIO, posicion(x), posicion(100), laneId, null)).getId();
+                TipoActividad.USUARIO, posicion(x), posicion(y), laneId, null)).getId();
     }
 
     private void arco(Long procesoId, Long usuarioId, Long origenId, Long destinoId, String condicion) {
