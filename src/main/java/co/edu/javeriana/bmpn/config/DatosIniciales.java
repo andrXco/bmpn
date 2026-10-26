@@ -120,7 +120,7 @@ public class DatosIniciales {
                 TipoGateway.EXCLUSIVO, posicion(450), posicion(250), null)).getId();
         Long registrar = actividad(procesoId, adminId, "Registrar vacaciones", laneJefe, 600);
         Long aprobada = evento(procesoId, adminId, "Vacaciones aprobadas", TipoEvento.FIN, laneJefe, 750);
-        Long rechazada = evento(procesoId, adminId, "Solicitud rechazada", TipoEvento.FIN, laneJefe, 600);
+        Long rechazada = evento(procesoId, adminId, "Solicitud rechazada", TipoEvento.FIN, null, 600);
 
         arco(procesoId, adminId, inicio, diligenciar, null);
         arco(procesoId, adminId, diligenciar, revisar, null);
