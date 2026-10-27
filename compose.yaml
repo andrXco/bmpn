@@ -37,15 +37,5 @@ services:
       retries: 20
       start_period: 10s
 
-  # Frontend Angular (nginx). Se construye desde la carpeta bmpn-react, al lado de esta
-  front:
-    build: ${FRONT_DIR:-../bmpn-react}
-    restart: unless-stopped
-    depends_on:
-      app:
-        condition: service_healthy
-    ports:
-      - "${FRONT_PORT:-4200}:80"
-
 volumes:
   bmpn_postgres_data:
