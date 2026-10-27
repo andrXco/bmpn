@@ -10,7 +10,6 @@ import co.edu.javeriana.bmpn.dto.autenticacion.IniciarSesionRequest;
 import co.edu.javeriana.bmpn.dto.autenticacion.SesionUsuarioResponse;
 import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.exception.AutenticacionRequeridaException;
-import co.edu.javeriana.bmpn.repository.UsuarioRepository;
 
 @Service
 public class AutenticacionService {
@@ -20,13 +19,13 @@ public class AutenticacionService {
     // que correos estan registrados en el sistema.
     private static final String MENSAJE_CREDENCIALES_INVALIDAS = "Correo o contrasena invalidos";
 
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
     private final PasswordEncoder passwordEncoder;
 
     public AutenticacionService(
-            UsuarioRepository usuarioRepository,
+            UsuarioService usuarioService,
             PasswordEncoder passwordEncoder) {
-        this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -34,7 +33,7 @@ public class AutenticacionService {
     public SesionUsuarioResponse iniciarSesion(IniciarSesionRequest request) {
         String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
 
-        Usuario usuario = usuarioRepository.findByEmailIgnoreCaseAndActivoTrue(email)
+        Usuario usuario = usuarioService.buscarActivoPorEmail(email)
                 .orElseThrow(() -> new AutenticacionRequeridaException(MENSAJE_CREDENCIALES_INVALIDAS));
 
         if (!passwordEncoder.matches(request.getPassword(), usuario.getPasswordHash())) {
