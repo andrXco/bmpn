@@ -2,6 +2,7 @@ package co.edu.javeriana.bmpn.service;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,24 +18,20 @@ import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
 import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
 import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
-import co.edu.javeriana.bmpn.repository.EmpresaRepository;
 import co.edu.javeriana.bmpn.repository.UsuarioRepository;
 
 @Service
 @Transactional(readOnly = true)
 public class UsuarioService {
 
-    private final EmpresaRepository empresaRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
     public UsuarioService(
-            EmpresaRepository empresaRepository,
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
             ModelMapper modelMapper) {
-        this.empresaRepository = empresaRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.modelMapper = modelMapper;
@@ -63,10 +60,13 @@ public class UsuarioService {
             throw new RecursoDuplicadoException("Ya existe un usuario con ese correo");
         }
 
-        Empresa empresa = empresaRepository.findByIdAndActivoTrue(solicitante.getEmpresa().getId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Empresa no encontrada"));
+        // El usuario nuevo queda en la empresa de quien lo registra
+        Empresa empresa = solicitante.getEmpresa();
+        if (!empresa.isActivo()) {
+            throw new RecursoNoEncontradoException("Empresa no encontrada");
+        }
 
-        // Igual que en EmpresaService: el texto plano solo se lee para
+        // Igual que en crearAdministrador: el texto plano solo se lee para
         // producir el hash, en la misma linea en que se construye la entidad.
         Usuario usuario = new Usuario(
                 empresa,
@@ -113,6 +113,37 @@ public class UsuarioService {
     public Usuario buscarActivo(Long usuarioId) {
         return usuarioRepository.findByIdAndActivoTrue(usuarioId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+    }
+
+    // Para AutenticacionService: si no existe, el inicio de sesion responde con su propio mensaje
+    public Optional<Usuario> buscarActivoPorEmail(String email) {
+        return usuarioRepository.findByEmailIgnoreCaseAndActivoTrue(email);
+    }
+
+    // Para EmpresaService: el correo se revisa antes de crear la empresa
+    public boolean existeEmail(String email) {
+        return usuarioRepository.existsByEmailIgnoreCase(email);
+    }
+
+    // Para EmpresaService: el primer usuario de una empresa nueva es su administrador.
+    // La contrasena en texto plano solo se lee para producir el hash.
+    @Transactional
+    public UsuarioResponse crearAdministrador(
+            Empresa empresa,
+            String email,
+            String nombre,
+            String apellido,
+            String password) {
+        Usuario administrador = new Usuario(
+                empresa,
+                email,
+                nombre,
+                apellido,
+                passwordEncoder.encode(password),
+                RolAcceso.ADMINISTRADOR);
+        usuarioRepository.save(administrador);
+
+        return modelMapper.map(administrador, UsuarioResponse.class);
     }
 
     private Usuario buscarUsuarioActivo(Long empresaId, Long usuarioId) {

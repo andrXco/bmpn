@@ -29,7 +29,6 @@ import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.exception.AccesoDenegadoException;
 import co.edu.javeriana.bmpn.exception.RecursoDuplicadoException;
 import co.edu.javeriana.bmpn.exception.RecursoNoEncontradoException;
-import co.edu.javeriana.bmpn.repository.EmpresaRepository;
 import co.edu.javeriana.bmpn.repository.UsuarioRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,9 +36,6 @@ class UsuarioServiceTest {
 
     private static final Long SOLICITANTE_ID = 1L;
     private static final Long OBJETIVO_ID = 2L;
-
-    @Mock
-    private EmpresaRepository empresaRepository;
 
     @Mock
     private UsuarioRepository usuarioRepository;
@@ -53,8 +49,8 @@ class UsuarioServiceTest {
 
     @BeforeEach
     void prepararDatos() {
-        usuarioService = new UsuarioService(empresaRepository, usuarioRepository,
-                passwordEncoder, new ModelMapperConfig().modelMapper());
+        usuarioService = new UsuarioService(usuarioRepository, passwordEncoder,
+                new ModelMapperConfig().modelMapper());
         empresa = new Empresa("900123456", "Empresa Demo", "contacto@demo.co");
     }
 
@@ -95,7 +91,6 @@ class UsuarioServiceTest {
     @Test
     void registrarUsuario() {
         solicitanteConRol(RolAcceso.ADMINISTRADOR);
-        when(empresaRepository.findByIdAndActivoTrue(any())).thenReturn(Optional.of(empresa));
         when(passwordEncoder.encode("clave12345")).thenReturn("hash-cifrado");
 
         UsuarioResponse respuesta = usuarioService.registrar(SOLICITANTE_ID,
@@ -131,6 +126,34 @@ class UsuarioServiceTest {
         assertThatThrownBy(() -> usuarioService.registrar(SOLICITANTE_ID, solicitud))
                 .isInstanceOf(RecursoDuplicadoException.class);
         verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void registrarEnEmpresaInactiva() {
+        solicitanteConRol(RolAcceso.ADMINISTRADOR);
+        empresa.desactivar();
+
+        RegistrarUsuarioRequest solicitud =
+                new RegistrarUsuarioRequest("nuevo@demo.co", "Luis", "Rojas", "clave12345", RolAcceso.EDITOR);
+        assertThatThrownBy(() -> usuarioService.registrar(SOLICITANTE_ID, solicitud))
+                .isInstanceOf(RecursoNoEncontradoException.class);
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void crearAdministrador() {
+        when(passwordEncoder.encode("clave12345")).thenReturn("hash-cifrado");
+
+        UsuarioResponse respuesta = usuarioService.crearAdministrador(empresa, "ana@demo.co", "Ana", "Paz",
+                "clave12345");
+
+        assertThat(respuesta.getEmail()).isEqualTo("ana@demo.co");
+        assertThat(respuesta.getRolAcceso()).isEqualTo(RolAcceso.ADMINISTRADOR);
+
+        ArgumentCaptor<Usuario> guardado = ArgumentCaptor.forClass(Usuario.class);
+        verify(usuarioRepository).save(guardado.capture());
+        assertThat(guardado.getValue().getPasswordHash()).isEqualTo("hash-cifrado");
+        assertThat(guardado.getValue().getEmpresa()).isEqualTo(empresa);
     }
 
     @Test
