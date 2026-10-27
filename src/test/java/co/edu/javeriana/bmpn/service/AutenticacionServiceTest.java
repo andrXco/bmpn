@@ -19,13 +19,12 @@ import co.edu.javeriana.bmpn.entity.Empresa;
 import co.edu.javeriana.bmpn.entity.RolAcceso;
 import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.exception.AutenticacionRequeridaException;
-import co.edu.javeriana.bmpn.repository.UsuarioRepository;
 
 @ExtendWith(MockitoExtension.class)
 class AutenticacionServiceTest {
 
     @Mock
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -36,14 +35,14 @@ class AutenticacionServiceTest {
 
     @BeforeEach
     void prepararDatos() {
-        autenticacionService = new AutenticacionService(usuarioRepository, passwordEncoder);
+        autenticacionService = new AutenticacionService(usuarioService, passwordEncoder);
         Empresa empresa = new Empresa("900123456", "Empresa Demo", "contacto@demo.co");
         usuario = new Usuario(empresa, "ana@demo.co", "Ana", "Paz", "hash-cifrado", RolAcceso.EDITOR);
     }
 
     @Test
     void iniciarSesion() {
-        when(usuarioRepository.findByEmailIgnoreCaseAndActivoTrue("ana@demo.co")).thenReturn(Optional.of(usuario));
+        when(usuarioService.buscarActivoPorEmail("ana@demo.co")).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matches("clave12345", "hash-cifrado")).thenReturn(true);
 
         SesionUsuarioResponse sesion = autenticacionService.iniciarSesion(
@@ -56,7 +55,7 @@ class AutenticacionServiceTest {
 
     @Test
     void iniciarSesionCorreoInexistente() {
-        when(usuarioRepository.findByEmailIgnoreCaseAndActivoTrue("otro@demo.co")).thenReturn(Optional.empty());
+        when(usuarioService.buscarActivoPorEmail("otro@demo.co")).thenReturn(Optional.empty());
 
         IniciarSesionRequest solicitud = new IniciarSesionRequest("otro@demo.co", "clave12345");
         assertThatThrownBy(() -> autenticacionService.iniciarSesion(solicitud))
@@ -66,7 +65,7 @@ class AutenticacionServiceTest {
 
     @Test
     void iniciarSesionContrasenaIncorrecta() {
-        when(usuarioRepository.findByEmailIgnoreCaseAndActivoTrue("ana@demo.co")).thenReturn(Optional.of(usuario));
+        when(usuarioService.buscarActivoPorEmail("ana@demo.co")).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matches("equivocada", "hash-cifrado")).thenReturn(false);
 
         // Mismo mensaje que con un correo inexistente: no revela si el correo esta registrado
