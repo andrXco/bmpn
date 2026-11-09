@@ -12,6 +12,9 @@ public class SesionUsuarioResponse implements Serializable {
     private String email;
     private String nombreCompleto;
     private RolAcceso rolAcceso;
+    private String accessToken;
+    private String tokenType;
+    private long expiresIn;
 
     public SesionUsuarioResponse() {
     }
@@ -21,12 +24,18 @@ public class SesionUsuarioResponse implements Serializable {
             Long empresaId,
             String email,
             String nombreCompleto,
-            RolAcceso rolAcceso) {
+            RolAcceso rolAcceso,
+            String accessToken,
+            String tokenType,
+            long expiresIn) {
         this.usuarioId = usuarioId;
         this.empresaId = empresaId;
         this.email = email;
         this.nombreCompleto = nombreCompleto;
         this.rolAcceso = rolAcceso;
+        this.accessToken = accessToken;
+        this.tokenType = tokenType;
+        this.expiresIn = expiresIn;
     }
 
     public Long getUsuarioId() {
@@ -67,5 +76,29 @@ public class SesionUsuarioResponse implements Serializable {
 
     public void setRolAcceso(RolAcceso rolAcceso) {
         this.rolAcceso = rolAcceso;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
+    }
+
+    public long getExpiresIn() {
+        return expiresIn;
+    }
+
+    public void setExpiresIn(long expiresIn) {
+        this.expiresIn = expiresIn;
     }
 }
