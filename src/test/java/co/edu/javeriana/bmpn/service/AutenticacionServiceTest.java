@@ -19,6 +19,7 @@ import co.edu.javeriana.bmpn.entity.Empresa;
 import co.edu.javeriana.bmpn.entity.RolAcceso;
 import co.edu.javeriana.bmpn.entity.Usuario;
 import co.edu.javeriana.bmpn.exception.AutenticacionRequeridaException;
+import co.edu.javeriana.bmpn.service.TokenService;
 
 @ExtendWith(MockitoExtension.class)
 class AutenticacionServiceTest {
@@ -29,13 +30,16 @@ class AutenticacionServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private TokenService tokenService;
+
     private AutenticacionService autenticacionService;
 
     private Usuario usuario;
 
     @BeforeEach
     void prepararDatos() {
-        autenticacionService = new AutenticacionService(usuarioService, passwordEncoder);
+        autenticacionService = new AutenticacionService(usuarioService, passwordEncoder, tokenService);
         Empresa empresa = new Empresa("900123456", "Empresa Demo", "contacto@demo.co");
         usuario = new Usuario(empresa, "ana@demo.co", "Ana", "Paz", "hash-cifrado", RolAcceso.EDITOR);
     }
@@ -44,6 +48,8 @@ class AutenticacionServiceTest {
     void iniciarSesion() {
         when(usuarioService.buscarActivoPorEmail("ana@demo.co")).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matches("clave12345", "hash-cifrado")).thenReturn(true);
+        when(tokenService.generar(usuario)).thenReturn(new SesionUsuarioResponse(
+                1L, 2L, "ana@demo.co", "Ana Paz", RolAcceso.EDITOR, "jwt", "Bearer", 900));
 
         SesionUsuarioResponse sesion = autenticacionService.iniciarSesion(
                 new IniciarSesionRequest(" ANA@Demo.co ", "clave12345"));

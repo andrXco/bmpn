@@ -21,12 +21,15 @@ public class AutenticacionService {
 
     private final UsuarioService usuarioService;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
     public AutenticacionService(
             UsuarioService usuarioService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            TokenService tokenService) {
         this.usuarioService = usuarioService;
         this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
     }
 
     @Transactional(readOnly = true)
@@ -40,11 +43,6 @@ public class AutenticacionService {
             throw new AutenticacionRequeridaException(MENSAJE_CREDENCIALES_INVALIDAS);
         }
 
-        return new SesionUsuarioResponse(
-                usuario.getId(),
-                usuario.getEmpresa().getId(),
-                usuario.getEmail(),
-                usuario.getNombre() + " " + usuario.getApellido(),
-                usuario.getRolAcceso());
+        return tokenService.generar(usuario);
     }
 }
