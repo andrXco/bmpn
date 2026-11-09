@@ -28,10 +28,19 @@ proceso "Solicitud de vacaciones" y los usuarios `admin@bitweb.co` (id 1),
 clave de todos es `BitWeb2026` y puede cambiarse con `DATOS_INICIALES_CLAVE`.
 Para no cargarlos, usa `DATOS_INICIALES=false`.
 
-Prueba rapida:
+La API requiere un access token Bearer. El `usuarioId` de las rutas existentes
+debe coincidir con el sujeto del token; el backend rechaza identificadores que
+no correspondan a la sesión autenticada.
+
+Prueba rápida en PowerShell:
 
 ```powershell
-curl "http://localhost:8080/api/procesos?usuarioId=1"
+$credenciales = @{ email = "admin@bitweb.co"; password = "BitWeb2026" } | ConvertTo-Json
+$sesion = Invoke-RestMethod -Method Post -Uri "http://localhost:8080/api/sesiones" `
+  -ContentType "application/json" -Body $credenciales -SessionVariable cookies
+$headers = @{ Authorization = "Bearer $($sesion.accessToken)" }
+Invoke-RestMethod -Uri "http://localhost:8080/api/procesos?usuarioId=$($sesion.usuarioId)" `
+  -Headers $headers
 ```
 
 ## Desarrollo local
@@ -72,10 +81,11 @@ los parámetros y el cuerpo JSON, y ejecutar una petición contra tu backend
 local. La ruta de Swagger no guarda datos por sí misma: los cambios solo ocurren
 si ejecutas un endpoint que crea, edita o desactiva información.
 
-La autenticación actual es transitoria para la fase de desarrollo. En los
-endpoints que la requieren, usa el `usuarioId` que devuelve `POST /api/sesiones`.
-Cuando el proyecto incorpore Spring Security, esta parte se reemplazará por el
-mecanismo de seguridad definitivo.
+El login devuelve un access token JWT de 15 minutos y establece un refresh token
+opaco en una cookie `HttpOnly`, `SameSite=Strict`. La renovación rota el refresh
+token; su hash se conserva en PostgreSQL para poder revocarlo al cerrar sesión o
+detectar reutilización. Angular conserva el access token solo en memoria y lo
+renueva cuando recibe un `401`.
 
 La prueba de humo de PostgreSQL (`.\scripts\database\database-smoke-test.ps1`)
 inserta un proceso minimo en una transaccion y hace `ROLLBACK`, asi que no deja datos.
@@ -88,11 +98,26 @@ un archivo `.env` si existe (excluido de Git). Variables disponibles:
 | Variable | Valor local predeterminado |
 | --- | --- |
 | `POSTGRES_PORT` | `5432` |
+| `BMPN_JWT_SECRET` | Requerida; clave aleatoria de al menos 32 bytes, fuera de Git |
+| `BMPN_JWT_ACCESS_EXPIRATION` | `PT15M` |
+| `BMPN_REFRESH_TOKEN_EXPIRATION` | `P5D` |
+| `BMPN_REFRESH_COOKIE_SECURE` | `false` en HTTP local; usar `true` detrás de HTTPS |
+| `CORS_ORIGENES` | `http://localhost:4200` |
 | `APP_PORT` | `8080` |
 | `DB_URL` | `jdbc:postgresql://localhost:5432/bmpn` |
 | `DB_USERNAME` | `bmpn` |
 | `DB_PASSWORD` | `bmpn_local` |
 | `DATOS_INICIALES` | `true` |
+
+Genera `BMPN_JWT_SECRET` fuera del repositorio y guárdala en `.env` (ignorado
+por Git) o en el entorno antes de iniciar Docker Compose. En PowerShell puedes
+crear una clave aleatoria para la sesión actual con:
+
+```powershell
+$env:BMPN_JWT_SECRET = [Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+```
+
+En despliegue con HTTPS, configura `BMPN_REFRESH_COOKIE_SECURE=true`.
 
 Nunca guardes credenciales de produccion en el repositorio.
 
