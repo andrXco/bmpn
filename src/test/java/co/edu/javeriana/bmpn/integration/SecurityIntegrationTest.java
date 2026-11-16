@@ -27,7 +27,7 @@ import jakarta.servlet.http.Cookie;
 
 // Pruebas de integracion de la API con Spring Security activo: se levanta la aplicacion completa
 // (filtros de seguridad, controladores, servicios y PostgreSQL) y se llama a los endpoints con MockMvc.
-// Cada prueba registra sus propias empresas; @Transactional deshace todo al terminar.
+// Cada prueba registra sus propias empresas; @Transactional deshace los cambios al terminar.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
