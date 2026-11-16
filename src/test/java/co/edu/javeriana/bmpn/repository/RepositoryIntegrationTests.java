@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.context.ActiveProfiles;
 
 import co.edu.javeriana.bmpn.entity.Empresa;
 import co.edu.javeriana.bmpn.entity.RolAcceso;
@@ -15,6 +16,7 @@ import co.edu.javeriana.bmpn.entity.Usuario;
 
 @SpringBootTest
 @Transactional
+@ActiveProfiles("test")
 class RepositoryIntegrationTests {
 
     @Autowired

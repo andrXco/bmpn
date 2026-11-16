@@ -27,6 +27,11 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bmpn}
       DB_USERNAME: ${POSTGRES_USER:-bmpn}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-bmpn_local}
+      BMPN_JWT_SECRET: "${BMPN_JWT_SECRET:?Define BMPN_JWT_SECRET en el entorno o en .env}"
+      BMPN_JWT_ACCESS_EXPIRATION: ${BMPN_JWT_ACCESS_EXPIRATION:-PT15M}
+      BMPN_REFRESH_TOKEN_EXPIRATION: ${BMPN_REFRESH_TOKEN_EXPIRATION:-P5D}
+      BMPN_REFRESH_COOKIE_SECURE: ${BMPN_REFRESH_COOKIE_SECURE:-false}
+      CORS_ORIGENES: ${CORS_ORIGENES:-http://localhost:4200}
     ports:
       - "${APP_PORT:-8080}:8080"
     # La API esta lista cuando responde la documentacion de Swagger
