@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import co.edu.javeriana.bmpn.dto.proceso.CrearProcesoRequest;
 import co.edu.javeriana.bmpn.dto.proceso.EditarProcesoRequest;
@@ -43,12 +42,10 @@ public class ProcesoController {
     }
 
     @Operation(summary = "Crear proceso", description = "Crea un proceso BPMN para la empresa del usuario solicitante.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Proceso creado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos para crear procesos.")
-    })
+    @ApiResponse(responseCode = "201", description = "Proceso creado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos para crear procesos.")
     @PostMapping
     public ResponseEntity<ProcesoResponse> crear(
                                                  @Parameter(description = "Identificador del usuario solicitante.", example = "10")
@@ -60,13 +57,11 @@ public class ProcesoController {
     }
 
     @Operation(summary = "Editar proceso", description = "Actualiza la información y el estado de un proceso BPMN.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Proceso actualizado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
-            @ApiResponse(responseCode = "404", description = "El proceso no existe.")
-    })
+    @ApiResponse(responseCode = "200", description = "Proceso actualizado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso.")
+    @ApiResponse(responseCode = "404", description = "El proceso no existe.")
     @PutMapping("/{id}")
     public ResponseEntity<ProcesoResponse> editar(
                                                   @Parameter(description = "Identificador del proceso.", example = "1")
@@ -78,13 +73,11 @@ public class ProcesoController {
     }
 
     @Operation(summary = "Eliminar proceso", description = "Realiza el borrado lógico de un proceso BPMN.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Proceso eliminado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Falta o es inválido algún identificador."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
-            @ApiResponse(responseCode = "404", description = "El proceso no existe.")
-    })
+    @ApiResponse(responseCode = "204", description = "Proceso eliminado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Falta o es inválido algún identificador.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso.")
+    @ApiResponse(responseCode = "404", description = "El proceso no existe.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(
             @Parameter(description = "Identificador del proceso.", example = "1") @PathVariable Long id,
@@ -96,11 +89,9 @@ public class ProcesoController {
     @Operation(
             summary = "Listar procesos",
             description = "Lista los procesos de la empresa del usuario solicitante, con filtros y paginación opcionales.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Procesos consultados correctamente."),
-            @ApiResponse(responseCode = "400", description = "Algún parámetro es inválido."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
-    })
+    @ApiResponse(responseCode = "200", description = "Procesos consultados correctamente.")
+    @ApiResponse(responseCode = "400", description = "Algún parámetro es inválido.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
     @GetMapping
     public ResponseEntity<Page<ProcesoResumen>> listar(
             @Parameter(description = "Identificador del usuario solicitante.", example = "10")
@@ -120,12 +111,10 @@ public class ProcesoController {
     }
 
     @Operation(summary = "Consultar detalle de proceso", description = "Devuelve la información completa de un proceso BPMN.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Proceso consultado correctamente."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
-            @ApiResponse(responseCode = "404", description = "El proceso no existe.")
-    })
+    @ApiResponse(responseCode = "200", description = "Proceso consultado correctamente.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso.")
+    @ApiResponse(responseCode = "404", description = "El proceso no existe.")
     @GetMapping("/{id}")
     public ResponseEntity<ProcesoResponse> obtenerDetalle(
                                                           @Parameter(description = "Identificador del proceso.", example = "1") @PathVariable Long id,
@@ -135,12 +124,10 @@ public class ProcesoController {
     }
 
     @Operation(summary = "Consultar historial de proceso", description = "Devuelve las modificaciones registradas para un proceso BPMN.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Historial consultado correctamente."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
-            @ApiResponse(responseCode = "404", description = "El proceso no existe.")
-    })
+    @ApiResponse(responseCode = "200", description = "Historial consultado correctamente.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso.")
+    @ApiResponse(responseCode = "404", description = "El proceso no existe.")
     @GetMapping("/{id}/historial")
     public ResponseEntity<List<HistorialResponse>> obtenerHistorial(
                                                                     @Parameter(description = "Identificador del proceso.", example = "1") @PathVariable Long id,

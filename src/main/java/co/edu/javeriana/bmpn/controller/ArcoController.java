@@ -21,7 +21,6 @@ import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.service.ArcoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -37,8 +36,8 @@ public class ArcoController {
     }
 
     @Operation(summary = "Crear arco", description = "Crea una secuencia entre dos elementos del mismo pool.")
-    @ApiResponses({@ApiResponse(responseCode = "201", description = "Arco creado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos o relación entre elementos inválida.")})
+    @ApiResponse(responseCode = "201", description = "Arco creado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos o relación entre elementos inválida.")
     @PostMapping
     public ResponseEntity<ArcoResponse> crear(@PathVariable Long procesoId,
                                               @RequestParam Long usuarioId,
@@ -57,8 +56,8 @@ public class ArcoController {
     }
 
     @Operation(summary = "Consultar arco", description = "Devuelve un arco activo del proceso.")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Arco consultado correctamente."),
-            @ApiResponse(responseCode = "404", description = "Arco no encontrado.")})
+    @ApiResponse(responseCode = "200", description = "Arco consultado correctamente.")
+    @ApiResponse(responseCode = "404", description = "Arco no encontrado.")
     @GetMapping("/{id}")
     public ResponseEntity<ArcoResponse> obtener(@PathVariable Long procesoId,
                                                 @PathVariable Long id,
@@ -67,9 +66,9 @@ public class ArcoController {
     }
 
     @Operation(summary = "Editar arco", description = "Actualiza origen, destino, etiqueta o condición de un arco.")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Arco actualizado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos o relación entre elementos inválida."),
-            @ApiResponse(responseCode = "404", description = "Arco no encontrado.")})
+    @ApiResponse(responseCode = "200", description = "Arco actualizado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos o relación entre elementos inválida.")
+    @ApiResponse(responseCode = "404", description = "Arco no encontrado.")
     @PutMapping("/{id}")
     public ResponseEntity<ArcoResponse> editar(@PathVariable Long procesoId,
                                                @PathVariable Long id,
@@ -79,8 +78,8 @@ public class ArcoController {
     }
 
     @Operation(summary = "Eliminar arco", description = "Realiza el borrado lógico del arco y devuelve advertencias del diagrama.")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Arco eliminado correctamente."),
-            @ApiResponse(responseCode = "404", description = "Arco no encontrado.")})
+    @ApiResponse(responseCode = "200", description = "Arco eliminado correctamente.")
+    @ApiResponse(responseCode = "404", description = "Arco no encontrado.")
     @DeleteMapping("/{id}")
     public ResponseEntity<AdvertenciasResponse> eliminar(@PathVariable Long procesoId,
                                                          @PathVariable Long id,

@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -69,8 +68,7 @@ public class AutenticacionController {
                               "password": "ClaveSegura123"
                             }
                             """))))
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Credenciales válidas.",
+    @ApiResponse(responseCode = "200", description = "Credenciales válidas.",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = SesionUsuarioResponse.class),
                             examples = @ExampleObject(value = """
@@ -84,14 +82,13 @@ public class AutenticacionController {
                                       "tokenType": "Bearer",
                                       "expiresIn": 900
                                     }
-                                    """))),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos.",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDto.class))),
-            @ApiResponse(responseCode = "401", description = "Correo o contraseña inválidos.",
+                                    """)))
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorDto.class)))
-    })
+    @ApiResponse(responseCode = "401", description = "Correo o contraseña inválidos.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
     @PostMapping
     public ResponseEntity<SesionUsuarioResponse> iniciarSesion(
             @Valid @RequestBody IniciarSesionRequest formulario) {

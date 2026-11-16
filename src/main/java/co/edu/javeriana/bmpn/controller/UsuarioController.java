@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import co.edu.javeriana.bmpn.dto.usuario.CambiarRolUsuarioRequest;
 import co.edu.javeriana.bmpn.dto.usuario.RegistrarUsuarioRequest;
@@ -39,12 +38,10 @@ public class UsuarioController {
     @Operation(
             summary = "Listar colaboradores activos",
             description = "Devuelve los usuarios activos de la empresa del administrador solicitante.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Colaboradores consultados correctamente."),
-            @ApiResponse(responseCode = "400", description = "Falta o es inválido el usuarioId."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos administrativos.")
-    })
+    @ApiResponse(responseCode = "200", description = "Colaboradores consultados correctamente.")
+    @ApiResponse(responseCode = "400", description = "Falta o es inválido el usuarioId.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos administrativos.")
     @GetMapping
     public ResponseEntity<List<UsuarioResponse>> listar(
             @Parameter(description = "Identificador del administrador que realiza la consulta.", example = "10")
@@ -55,13 +52,11 @@ public class UsuarioController {
     @Operation(
             summary = "Registrar colaborador",
             description = "Registra un colaborador en la empresa del administrador solicitante.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Colaborador registrado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos administrativos."),
-            @ApiResponse(responseCode = "409", description = "El correo ya está registrado en la empresa.")
-    })
+    @ApiResponse(responseCode = "201", description = "Colaborador registrado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos administrativos.")
+    @ApiResponse(responseCode = "409", description = "El correo ya está registrado en la empresa.")
     @PostMapping
     public ResponseEntity<UsuarioResponse> registrar(
             @Parameter(description = "Identificador del administrador que registra al colaborador.", example = "10")
@@ -76,13 +71,11 @@ public class UsuarioController {
     @Operation(
             summary = "Cambiar rol de colaborador",
             description = "Actualiza el rol de un colaborador de la misma empresa.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Rol actualizado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos administrativos."),
-            @ApiResponse(responseCode = "404", description = "El colaborador objetivo no existe.")
-    })
+    @ApiResponse(responseCode = "200", description = "Rol actualizado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos administrativos.")
+    @ApiResponse(responseCode = "404", description = "El colaborador objetivo no existe.")
     @PatchMapping("/{usuarioId}/rol")
     public ResponseEntity<UsuarioResponse> cambiarRol(
             @Parameter(description = "Identificador del colaborador cuyo rol cambiará.", example = "11")
@@ -102,13 +95,11 @@ public class UsuarioController {
     @Operation(
             summary = "Desactivar colaborador",
             description = "Realiza el borrado lógico de un colaborador de la misma empresa.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Colaborador desactivado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Falta o es inválido algún identificador."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos administrativos."),
-            @ApiResponse(responseCode = "404", description = "El colaborador objetivo no existe.")
-    })
+    @ApiResponse(responseCode = "204", description = "Colaborador desactivado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Falta o es inválido algún identificador.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos administrativos.")
+    @ApiResponse(responseCode = "404", description = "El colaborador objetivo no existe.")
     @DeleteMapping("/{usuarioId}")
     public ResponseEntity<Void> desactivar(
             @Parameter(description = "Identificador del colaborador que se desactivará.", example = "11")
