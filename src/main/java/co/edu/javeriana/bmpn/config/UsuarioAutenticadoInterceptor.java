@@ -16,22 +16,24 @@ public class UsuarioAutenticadoInterceptor implements HandlerInterceptor {
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler) {
-        Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
-        if (autenticacion == null || !(autenticacion.getPrincipal() instanceof Jwt jwt)) {
-            return true;
-        }
+        validarUsuarioSolicitante(request);
+        return true;
+    }
 
+    // Si la peticion trae ?usuarioId=, debe ser el mismo usuario del token; si no, responde 403
+    private void validarUsuarioSolicitante(HttpServletRequest request) {
+        Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
         String[] usuariosSolicitantes = request.getParameterValues("usuarioId");
-        if (usuariosSolicitantes == null) {
-            return true;
+        if (autenticacion == null || !(autenticacion.getPrincipal() instanceof Jwt jwt)
+                || usuariosSolicitantes == null) {
+            return;
         }
 
         for (String usuarioSolicitanteId : usuariosSolicitantes) {
-            if (!jwt.getSubject().equals(usuarioSolicitanteId)) {
+            if (!usuarioSolicitanteId.equals(jwt.getSubject())) {
                 throw new AccesoDenegadoException(
                         "El usuarioId de la solicitud no coincide con la sesión autenticada");
             }
         }
-        return true;
     }
 }
