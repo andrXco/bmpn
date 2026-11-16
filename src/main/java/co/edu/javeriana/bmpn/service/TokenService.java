@@ -53,14 +53,15 @@ public class TokenService {
                 .encode(JwtEncoderParameters.from(encabezado, claims))
                 .getTokenValue();
 
-        return new SesionUsuarioResponse(
-                usuario.getId(),
-                usuario.getEmpresa().getId(),
-                usuario.getEmail(),
-                usuario.getNombre() + " " + usuario.getApellido(),
-                usuario.getRolAcceso(),
-                accessToken,
-                "Bearer",
-                expiracion.toSeconds());
+        SesionUsuarioResponse sesion = new SesionUsuarioResponse();
+        sesion.setUsuarioId(usuario.getId());
+        sesion.setEmpresaId(usuario.getEmpresa().getId());
+        sesion.setEmail(usuario.getEmail());
+        sesion.setNombreCompleto(usuario.getNombre() + " " + usuario.getApellido());
+        sesion.setRolAcceso(usuario.getRolAcceso());
+        sesion.setAccessToken(accessToken);
+        sesion.setTokenType("Bearer");
+        sesion.setExpiresIn(expiracion.toSeconds());
+        return sesion;
     }
 }

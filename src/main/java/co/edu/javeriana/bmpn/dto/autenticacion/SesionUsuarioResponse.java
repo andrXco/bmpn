@@ -19,25 +19,6 @@ public class SesionUsuarioResponse implements Serializable {
     public SesionUsuarioResponse() {
     }
 
-    public SesionUsuarioResponse(
-            Long usuarioId,
-            Long empresaId,
-            String email,
-            String nombreCompleto,
-            RolAcceso rolAcceso,
-            String accessToken,
-            String tokenType,
-            long expiresIn) {
-        this.usuarioId = usuarioId;
-        this.empresaId = empresaId;
-        this.email = email;
-        this.nombreCompleto = nombreCompleto;
-        this.rolAcceso = rolAcceso;
-        this.accessToken = accessToken;
-        this.tokenType = tokenType;
-        this.expiresIn = expiresIn;
-    }
-
     public Long getUsuarioId() {
         return usuarioId;
     }
