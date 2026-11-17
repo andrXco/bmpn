@@ -21,7 +21,6 @@ import co.edu.javeriana.bmpn.dto.diagrama.AdvertenciasResponse;
 import co.edu.javeriana.bmpn.service.GatewayService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -37,8 +36,8 @@ public class GatewayController {
     }
 
     @Operation(summary = "Crear gateway", description = "Agrega un gateway a un pool del proceso.")
-    @ApiResponses({@ApiResponse(responseCode = "201", description = "Gateway creado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos.")})
+    @ApiResponse(responseCode = "201", description = "Gateway creado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
     @PostMapping
     public ResponseEntity<GatewayResponse> crear(@PathVariable Long procesoId,
                                                  @RequestParam Long usuarioId,
@@ -57,8 +56,8 @@ public class GatewayController {
     }
 
     @Operation(summary = "Consultar gateway", description = "Devuelve un gateway activo del proceso.")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Gateway consultado correctamente."),
-            @ApiResponse(responseCode = "404", description = "Gateway no encontrado.")})
+    @ApiResponse(responseCode = "200", description = "Gateway consultado correctamente.")
+    @ApiResponse(responseCode = "404", description = "Gateway no encontrado.")
     @GetMapping("/{id}")
     public ResponseEntity<GatewayResponse> obtener(@PathVariable Long procesoId,
                                                    @PathVariable Long id,
@@ -67,9 +66,9 @@ public class GatewayController {
     }
 
     @Operation(summary = "Editar gateway", description = "Actualiza los datos y la posición de un gateway.")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Gateway actualizado correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos."),
-            @ApiResponse(responseCode = "404", description = "Gateway no encontrado.")})
+    @ApiResponse(responseCode = "200", description = "Gateway actualizado correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
+    @ApiResponse(responseCode = "404", description = "Gateway no encontrado.")
     @PutMapping("/{id}")
     public ResponseEntity<GatewayResponse> editar(@PathVariable Long procesoId,
                                                   @PathVariable Long id,
@@ -79,8 +78,8 @@ public class GatewayController {
     }
     
     @Operation(summary = "Eliminar gateway", description = "Realiza el borrado lógico del gateway y devuelve advertencias del diagrama.")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Gateway eliminado correctamente."),
-            @ApiResponse(responseCode = "404", description = "Gateway no encontrado.")})
+    @ApiResponse(responseCode = "200", description = "Gateway eliminado correctamente.")
+    @ApiResponse(responseCode = "404", description = "Gateway no encontrado.")
     @DeleteMapping("/{id}")
     public ResponseEntity<AdvertenciasResponse> eliminar(@PathVariable Long procesoId,
                                                          @PathVariable Long id,

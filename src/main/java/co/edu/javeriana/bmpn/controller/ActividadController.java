@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import co.edu.javeriana.bmpn.dto.actividad.ActividadResponse;
 import co.edu.javeriana.bmpn.dto.actividad.CrearActividadRequest;
@@ -38,13 +37,11 @@ public class ActividadController {
     }
 
     @Operation(summary = "Crear actividad", description = "Agrega una actividad BPMN a un proceso de la empresa del usuario solicitante.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Actividad creada correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
-            @ApiResponse(responseCode = "404", description = "El proceso no existe.")
-    })
+    @ApiResponse(responseCode = "201", description = "Actividad creada correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso.")
+    @ApiResponse(responseCode = "404", description = "El proceso no existe.")
     @PostMapping
     public ResponseEntity<ActividadResponse> crear(
                                                    @Parameter(description = "Identificador del proceso.", example = "1") @PathVariable Long procesoId,
@@ -57,12 +54,10 @@ public class ActividadController {
     }
 
     @Operation(summary = "Listar actividades", description = "Devuelve las actividades de un proceso BPMN.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Actividades consultadas correctamente."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
-            @ApiResponse(responseCode = "404", description = "El proceso no existe.")
-    })
+    @ApiResponse(responseCode = "200", description = "Actividades consultadas correctamente.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso.")
+    @ApiResponse(responseCode = "404", description = "El proceso no existe.")
     @GetMapping
     public ResponseEntity<List<ActividadResponse>> listar(
                                                           @Parameter(description = "Identificador del proceso.", example = "1") @PathVariable Long procesoId,
@@ -72,12 +67,10 @@ public class ActividadController {
     }
 
     @Operation(summary = "Consultar actividad", description = "Devuelve una actividad BPMN de un proceso.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Actividad consultada correctamente."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
-            @ApiResponse(responseCode = "404", description = "El proceso o la actividad no existen.")
-    })
+    @ApiResponse(responseCode = "200", description = "Actividad consultada correctamente.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso.")
+    @ApiResponse(responseCode = "404", description = "El proceso o la actividad no existen.")
     @GetMapping("/{id}")
     public ResponseEntity<ActividadResponse> obtener(
                                                      @Parameter(description = "Identificador del proceso.", example = "1") @PathVariable Long procesoId,
@@ -88,13 +81,11 @@ public class ActividadController {
     }
 
     @Operation(summary = "Editar actividad", description = "Actualiza los datos y posición de una actividad BPMN.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Actividad actualizada correctamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
-            @ApiResponse(responseCode = "404", description = "El proceso o la actividad no existen.")
-    })
+    @ApiResponse(responseCode = "200", description = "Actividad actualizada correctamente.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso.")
+    @ApiResponse(responseCode = "404", description = "El proceso o la actividad no existen.")
     @PutMapping("/{id}")
     public ResponseEntity<ActividadResponse> editar(
                                                     @Parameter(description = "Identificador del proceso.", example = "1") @PathVariable Long procesoId,
@@ -106,13 +97,11 @@ public class ActividadController {
     }
 
     @Operation(summary = "Eliminar actividad", description = "Elimina una actividad BPMN de un proceso y devuelve las advertencias del diagrama.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Actividad eliminada; devuelve las advertencias del diagrama."),
-            @ApiResponse(responseCode = "400", description = "Falta o es inválido algún identificador."),
-            @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo."),
-            @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso."),
-            @ApiResponse(responseCode = "404", description = "El proceso o la actividad no existen.")
-    })
+    @ApiResponse(responseCode = "200", description = "Actividad eliminada; devuelve las advertencias del diagrama.")
+    @ApiResponse(responseCode = "400", description = "Falta o es inválido algún identificador.")
+    @ApiResponse(responseCode = "401", description = "El usuario solicitante no existe o está inactivo.")
+    @ApiResponse(responseCode = "403", description = "El usuario solicitante no tiene permisos sobre el proceso.")
+    @ApiResponse(responseCode = "404", description = "El proceso o la actividad no existen.")
     @DeleteMapping("/{id}")
     public ResponseEntity<AdvertenciasResponse> eliminar(
                                          @Parameter(description = "Identificador del proceso.", example = "1") @PathVariable Long procesoId,
