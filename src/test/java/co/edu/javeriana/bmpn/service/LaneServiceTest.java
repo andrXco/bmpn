@@ -185,7 +185,8 @@ class LaneServiceTest {
     @Test
     void listarLanes() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
-        procesoYPoolEncontrados();
+        when(procesoService.buscarVisibleParaEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
+        when(poolService.buscarActivo(POOL_ID, PROCESO_ID)).thenReturn(pool);
         when(laneRepository.findAllByPoolIdAndActivoTrueOrderByOrdenAsc(POOL_ID)).thenReturn(List.of(new Lane(pool, rol, 0)));
 
         assertThat(laneService.listar(PROCESO_ID, POOL_ID, USUARIO_ID)).hasSize(1);

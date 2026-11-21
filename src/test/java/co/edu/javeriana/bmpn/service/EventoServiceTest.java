@@ -99,6 +99,14 @@ class EventoServiceTest {
         return request;
     }
 
+    // Las consultas aceptan tambien procesos compartidos con la empresa (HU-23)
+    private void eventoConsultado(TipoEvento tipo, DisparadorEvento disparador) {
+        Evento evento = new Evento(proceso, pool, "Pago solicitado", tipo, disparador, false,
+                BigDecimal.ONE, BigDecimal.ONE);
+        when(procesoService.buscarVisibleParaEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
+        when(eventoRepository.findByIdAndProcesoIdAndActivoTrue(EVENTO_ID, PROCESO_ID)).thenReturn(Optional.of(evento));
+    }
+
     private Evento eventoExistente(TipoEvento tipo, DisparadorEvento disparador) {
         Evento evento = new Evento(proceso, pool, "Pago solicitado", tipo, disparador, false,
                 BigDecimal.ONE, BigDecimal.ONE);
@@ -156,7 +164,7 @@ class EventoServiceTest {
     @Test
     void recepcionSinMensajeAdvierte() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
-        eventoExistente(TipoEvento.INICIO, DisparadorEvento.MENSAJE_RECEPCION);
+        eventoConsultado(TipoEvento.INICIO, DisparadorEvento.MENSAJE_RECEPCION);
 
         EventoResponse respuesta = eventoService.obtener(PROCESO_ID, EVENTO_ID, USUARIO_ID);
 

@@ -13,6 +13,8 @@ import lombok.Setter;
 public class ProcesoResumen {
 
     private Long id;
+    // Empresa duena: si no es la del usuario, el proceso le fue compartido (HU-23)
+    private Long empresaId;
     private String nombre;
     private String categoria;
     private EstadoProceso estado;

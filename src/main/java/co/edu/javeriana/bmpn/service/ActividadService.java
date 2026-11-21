@@ -122,7 +122,7 @@ public class ActividadService {
     @Transactional(readOnly = true)
     public List<ActividadResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
 
         List<ActividadResponse> respuesta = new ArrayList<>();
         for (Actividad actividad : actividadRepository.listarActivasPorProceso(procesoId)) {
@@ -134,7 +134,7 @@ public class ActividadService {
     @Transactional(readOnly = true)
     public ActividadResponse obtener(Long procesoId, Long actividadId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
         return convertirAResponse(buscarActiva(actividadId, procesoId));
     }
 

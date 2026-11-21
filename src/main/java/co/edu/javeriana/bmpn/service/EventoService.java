@@ -135,7 +135,7 @@ public class EventoService {
     @Transactional(readOnly = true)
     public List<EventoResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
 
         List<EventoResponse> respuesta = new ArrayList<>();
         for (Evento evento : eventoRepository.listarActivosPorProceso(procesoId)) {
@@ -147,7 +147,7 @@ public class EventoService {
     @Transactional(readOnly = true)
     public EventoResponse obtener(Long procesoId, Long eventoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
         return convertirAResponse(buscarActivo(eventoId, procesoId));
     }
 

@@ -142,7 +142,7 @@ public class PoolService {
     @Transactional(readOnly = true)
     public List<PoolResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
 
         List<PoolResponse> respuesta = new ArrayList<>();
         for (Pool pool : poolRepository.findAllByProcesoIdAndActivoTrueOrderByOrdenAsc(procesoId)) {
@@ -154,7 +154,7 @@ public class PoolService {
     @Transactional(readOnly = true)
     public PoolResponse obtener(Long procesoId, Long poolId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
         return convertirAResponse(buscarActivo(poolId, procesoId));
     }
 

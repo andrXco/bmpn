@@ -105,6 +105,13 @@ class GatewayServiceTest {
                 .thenReturn(Optional.of(gateway));
     }
 
+    // Las consultas aceptan tambien procesos compartidos con la empresa (HU-23)
+    private void gatewayConsultado() {
+        when(procesoService.buscarVisibleParaEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
+        when(gatewayRepository.findByIdAndProcesoIdAndActivoTrue(GATEWAY_ID, PROCESO_ID))
+                .thenReturn(Optional.of(gateway));
+    }
+
     private void salidas(Arco... arcos) {
         when(arcoService.listarSalidasActivas(GATEWAY_ID)).thenReturn(List.of(arcos));
     }
@@ -141,7 +148,7 @@ class GatewayServiceTest {
     @Test
     void exclusivoCompletoSinAdvertencias() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
-        gatewayEncontrado();
+        gatewayConsultado();
         salidas(new Arco(proceso, gateway, aprobar, null, "Si"),
                 new Arco(proceso, gateway, rechazar, null, "No"));
 
@@ -153,7 +160,7 @@ class GatewayServiceTest {
     @Test
     void advierteSalidaSinCondicion() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
-        gatewayEncontrado();
+        gatewayConsultado();
         salidas(new Arco(proceso, gateway, aprobar, null, "Si"),
                 new Arco(proceso, gateway, rechazar, null, null));
 
@@ -166,7 +173,7 @@ class GatewayServiceTest {
     @Test
     void advierteCondicionesRepetidasEnExclusivo() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
-        gatewayEncontrado();
+        gatewayConsultado();
         salidas(new Arco(proceso, gateway, aprobar, null, "Si"),
                 new Arco(proceso, gateway, rechazar, null, "si"));
 
@@ -179,7 +186,7 @@ class GatewayServiceTest {
     @Test
     void gatewayQueJuntaCaminosNoAdvierte() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
-        gatewayEncontrado();
+        gatewayConsultado();
         salidas(new Arco(proceso, gateway, aprobar, null, null));
         when(arcoService.contarEntradasActivas(GATEWAY_ID)).thenReturn(2L);
 

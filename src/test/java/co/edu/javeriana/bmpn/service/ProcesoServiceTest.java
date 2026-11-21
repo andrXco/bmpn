@@ -216,6 +216,28 @@ class ProcesoServiceTest {
     }
 
     @Test
+    void obtenerDetalleCompartido() {
+        usuarioConRol(RolAcceso.SOLO_LECTURA);
+        // No es de la empresa del usuario, pero se lo compartieron
+        when(procesoRepository.findByIdAndEmpresaId(eq(PROCESO_ID), any())).thenReturn(Optional.empty());
+        when(procesoRepository.buscarVisible(eq(PROCESO_ID), any())).thenReturn(Optional.of(procesoExistente()));
+
+        ProcesoResponse respuesta = procesoService.obtenerDetalle(PROCESO_ID, USUARIO_ID);
+
+        assertThat(respuesta.getNombre()).isEqualTo("Solicitud de vacaciones");
+    }
+
+    @Test
+    void obtenerDetalleNoCompartido() {
+        usuarioConRol(RolAcceso.ADMINISTRADOR);
+        when(procesoRepository.findByIdAndEmpresaId(eq(PROCESO_ID), any())).thenReturn(Optional.empty());
+        when(procesoRepository.buscarVisible(eq(PROCESO_ID), any())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> procesoService.obtenerDetalle(PROCESO_ID, USUARIO_ID))
+                .isInstanceOf(RecursoNoEncontradoException.class);
+    }
+
+    @Test
     void obtenerHistorial() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
         when(procesoRepository.findByIdAndEmpresaId(eq(PROCESO_ID), any()))

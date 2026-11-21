@@ -236,7 +236,7 @@ class ActividadServiceTest {
     @Test
     void listarActividades() {
         usuarioConRol(RolAcceso.SOLO_LECTURA);
-        when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
+        when(procesoService.buscarVisibleParaEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
         when(actividadRepository.listarActivasPorProceso(PROCESO_ID))
                 .thenReturn(List.of(actividadExistente()));
 

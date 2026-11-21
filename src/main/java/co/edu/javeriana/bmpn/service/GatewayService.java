@@ -124,7 +124,7 @@ public class GatewayService {
     @Transactional(readOnly = true)
     public List<GatewayResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
 
         List<GatewayResponse> respuesta = new ArrayList<>();
         for (Gateway gateway : gatewayRepository.listarActivosPorProceso(procesoId)) {
@@ -136,7 +136,7 @@ public class GatewayService {
     @Transactional(readOnly = true)
     public GatewayResponse obtener(Long procesoId, Long gatewayId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
         return convertirAResponse(buscarActivo(gatewayId, procesoId));
     }
 

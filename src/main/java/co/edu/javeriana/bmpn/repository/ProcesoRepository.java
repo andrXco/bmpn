@@ -22,9 +22,18 @@ public interface ProcesoRepository extends JpaRepository<Proceso, Long> {
 
     Optional<Proceso> findByIdAndEmpresaId(Long id, Long empresaId);
 
-    // Si un filtro llega nulo, su condicion es verdadera y no se aplica
+    // HU-23: la empresa puede leer sus procesos activos y los que otra empresa le compartio
     @Query("SELECT p FROM Proceso p "
-            + "WHERE p.empresa.id = :empresaId "
+            + "WHERE p.id = :id AND p.activo = true "
+            + "AND (p.empresa.id = :empresaId OR EXISTS (SELECT c FROM ProcesoCompartido c "
+            + "WHERE c.proceso = p AND c.empresaInvitada.id = :empresaId AND c.activo = true))")
+    Optional<Proceso> buscarVisible(@Param("id") Long id, @Param("empresaId") Long empresaId);
+
+    // Si un filtro llega nulo, su condicion es verdadera y no se aplica.
+    // Tambien trae los procesos activos compartidos con la empresa (HU-23)
+    @Query("SELECT p FROM Proceso p "
+            + "WHERE (p.empresa.id = :empresaId OR (p.activo = true AND EXISTS (SELECT c FROM ProcesoCompartido c "
+            + "WHERE c.proceso = p AND c.empresaInvitada.id = :empresaId AND c.activo = true))) "
             + "AND (:activo IS NULL OR p.activo = :activo) "
             + "AND LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) "
             + "AND (:estado IS NULL OR p.estado = :estado) "

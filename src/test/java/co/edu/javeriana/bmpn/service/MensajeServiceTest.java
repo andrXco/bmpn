@@ -104,6 +104,13 @@ class MensajeServiceTest {
         when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
     }
 
+    // Las consultas aceptan tambien procesos compartidos con la empresa (HU-23)
+    private void usuarioQueConsulta() {
+        Usuario usuario = new Usuario(empresa, "ana@demo.co", "Ana", "Paz", "hash", RolAcceso.SOLO_LECTURA);
+        when(usuarioService.buscarActivo(USUARIO_ID)).thenReturn(usuario);
+        when(procesoService.buscarVisibleParaEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
+    }
+
     private CrearMensajeRequest solicitud(Long eventoRecepcionId, Long poolDestinoId) {
         CrearMensajeRequest request = new CrearMensajeRequest();
         request.setEventoEnvioId(THROW_ID);
@@ -239,7 +246,7 @@ class MensajeServiceTest {
 
     @Test
     void listarPorCorrelacion() {
-        usuarioYProceso();
+        usuarioQueConsulta();
         Mensaje mensaje = new Mensaje(proceso, envio, recepcion, poolBanco, "Pago solicitado", "numero",
                 PoliticaSinCorrespondencia.DESCARTAR, null);
         when(mensajeRepository.listarPorCorrelacion(PROCESO_ID, "numero")).thenReturn(List.of(mensaje));
