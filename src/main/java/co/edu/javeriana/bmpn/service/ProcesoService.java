@@ -126,7 +126,10 @@ public class ProcesoService {
     @Transactional(readOnly = true)
     public ProcesoResponse obtenerDetalle(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        Proceso proceso = buscarDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        Long empresaId = usuario.getEmpresa().getId();
+        // La empresa duena ve tambien sus procesos eliminados; una invitada solo los activos que le compartieron
+        Proceso proceso = procesoRepository.findByIdAndEmpresaId(procesoId, empresaId)
+                .orElseGet(() -> buscarVisibleParaEmpresa(procesoId, empresaId));
         return convertirAResponse(proceso);
     }
 
@@ -141,6 +144,12 @@ public class ProcesoService {
     // Publico para que los servicios de los elementos del diagrama obtengan el proceso
     public Proceso buscarActivoDeEmpresa(Long procesoId, Long empresaId) {
         return procesoRepository.findByIdAndEmpresaIdAndActivoTrue(procesoId, empresaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Proceso no encontrado"));
+    }
+
+    // HU-23: para consultar el diagrama; la empresa invitada solo lee, nunca modifica
+    public Proceso buscarVisibleParaEmpresa(Long procesoId, Long empresaId) {
+        return procesoRepository.buscarVisible(procesoId, empresaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Proceso no encontrado"));
     }
 

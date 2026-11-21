@@ -10,6 +10,7 @@ import co.edu.javeriana.bmpn.dto.evento.EventoResponse;
 import co.edu.javeriana.bmpn.dto.gateway.GatewayResponse;
 import co.edu.javeriana.bmpn.dto.mensaje.MensajeResponse;
 import co.edu.javeriana.bmpn.dto.proceso.ProcesoResponse;
+import co.edu.javeriana.bmpn.dto.proceso.ProcesoResumen;
 import co.edu.javeriana.bmpn.dto.usuario.UsuarioResponse;
 import co.edu.javeriana.bmpn.entity.Actividad;
 import co.edu.javeriana.bmpn.entity.Arco;
@@ -33,6 +34,10 @@ public class ModelMapperConfig {
                 .addMappings(mapper -> mapper.map(
                         proceso -> proceso.getEmpresa().getId(),
                         ProcesoResponse::setEmpresaId));
+        modelMapper.typeMap(Proceso.class, ProcesoResumen.class)
+                .addMappings(mapper -> mapper.map(
+                        proceso -> proceso.getEmpresa().getId(),
+                        ProcesoResumen::setEmpresaId));
         modelMapper.typeMap(Actividad.class, ActividadResponse.class)
                 .addMappings(mapper -> {
                     mapper.map(actividad -> actividad.getProceso().getId(),
