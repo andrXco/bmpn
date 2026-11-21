@@ -114,7 +114,7 @@ public class LaneService {
     @Transactional(readOnly = true)
     public List<LaneResponse> listar(Long procesoId, Long poolId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
         poolService.buscarActivo(poolId, procesoId);
 
         List<LaneResponse> respuesta = new ArrayList<>();

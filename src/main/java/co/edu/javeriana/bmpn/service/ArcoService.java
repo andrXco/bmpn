@@ -188,7 +188,7 @@ public class ArcoService {
     @Transactional(readOnly = true)
     public List<ArcoResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
 
         List<ArcoResponse> respuesta = new ArrayList<>();
         for (Arco arco : arcoRepository.listarActivosPorProceso(procesoId)) {
@@ -200,7 +200,7 @@ public class ArcoService {
     @Transactional(readOnly = true)
     public ArcoResponse obtener(Long procesoId, Long arcoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
         return convertirAResponse(buscarActivo(arcoId, procesoId));
     }
 

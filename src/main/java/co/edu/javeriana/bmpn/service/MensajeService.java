@@ -113,7 +113,7 @@ public class MensajeService {
     @Transactional(readOnly = true)
     public List<MensajeResponse> listar(Long procesoId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
 
         List<MensajeResponse> respuesta = new ArrayList<>();
         for (Mensaje mensaje : mensajeRepository.listarActivosPorProceso(procesoId)) {
@@ -125,7 +125,7 @@ public class MensajeService {
     @Transactional(readOnly = true)
     public MensajeResponse obtener(Long procesoId, Long mensajeId, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
         return convertirAResponse(buscarActivo(mensajeId, procesoId));
     }
 
@@ -133,7 +133,7 @@ public class MensajeService {
     @Transactional(readOnly = true)
     public List<MensajeResponse> listarPorCorrelacion(Long procesoId, String claveCorrelacion, Long usuarioId) {
         Usuario usuario = usuarioService.buscarActivo(usuarioId);
-        procesoService.buscarActivoDeEmpresa(procesoId, usuario.getEmpresa().getId());
+        procesoService.buscarVisibleParaEmpresa(procesoId, usuario.getEmpresa().getId());
 
         List<MensajeResponse> respuesta = new ArrayList<>();
         for (Mensaje mensaje : mensajeRepository.listarPorCorrelacion(procesoId, claveCorrelacion.trim())) {
