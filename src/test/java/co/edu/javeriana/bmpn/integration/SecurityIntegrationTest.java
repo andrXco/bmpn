@@ -175,6 +175,47 @@ class SecurityIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    // HU-23: la empresa invitada consulta el proceso compartido, pero no lo modifica ni ve su historial
+    @Test
+    void invitedCompanyReadsSharedProcessButCannotEditIt() throws Exception {
+        String processId = createProcess(adminA, "Compras");
+        mockMvc.perform(post("/api/procesos/" + processId + "/compartidos")
+                        .param("usuarioId", adminA.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminA.bearer())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"empresaInvitadaId\":" + adminB.companyId + "}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/procesos")
+                        .param("usuarioId", adminB.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminB.bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].empresaId").value(Long.valueOf(adminA.companyId)));
+
+        mockMvc.perform(get("/api/procesos/" + processId)
+                        .param("usuarioId", adminB.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminB.bearer()))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/procesos/" + processId + "/pools")
+                        .param("usuarioId", adminB.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminB.bearer()))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(put("/api/procesos/" + processId)
+                        .param("usuarioId", adminB.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminB.bearer())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(editData("Changed by B")))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(get("/api/procesos/" + processId + "/historial")
+                        .param("usuarioId", adminB.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminB.bearer()))
+                .andExpect(status().isNotFound());
+    }
+
     // ---- Permisos por rol dentro de la empresa ----
 
     @Test
@@ -237,6 +278,7 @@ class SecurityIntegrationTest {
     private static class Session {
         private String email;
         private String userId;
+        private String companyId;
         private String token;
         private Cookie cookie;
 
@@ -289,6 +331,7 @@ class SecurityIntegrationTest {
         Session session = new Session();
         session.email = email;
         session.userId = JsonPath.read(json, "$.usuarioId").toString();
+        session.companyId = JsonPath.read(json, "$.empresaId").toString();
         session.token = JsonPath.read(json, "$.accessToken");
         session.cookie = result.getResponse().getCookie(REFRESH_COOKIE);
         return session;

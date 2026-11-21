@@ -112,6 +112,13 @@ class PoolServiceTest {
         when(procesoService.buscarActivoDeEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
     }
 
+    // Las consultas aceptan tambien procesos compartidos con la empresa (HU-23)
+    private void usuarioQueConsulta() {
+        Usuario usuario = new Usuario(empresa, "ana@demo.co", "Ana", "Paz", "hash", RolAcceso.SOLO_LECTURA);
+        when(usuarioService.buscarActivo(USUARIO_ID)).thenReturn(usuario);
+        when(procesoService.buscarVisibleParaEmpresa(eq(PROCESO_ID), any())).thenReturn(proceso);
+    }
+
     private CrearPoolRequest solicitud(String nombre, TipoParticipante tipo, Long empresaParticipanteId) {
         CrearPoolRequest request = new CrearPoolRequest();
         request.setNombre(nombre);
@@ -278,7 +285,7 @@ class PoolServiceTest {
 
     @Test
     void listarPools() {
-        usuarioYProceso(RolAcceso.SOLO_LECTURA);
+        usuarioQueConsulta();
         when(poolRepository.findAllByProcesoIdAndActivoTrueOrderByOrdenAsc(PROCESO_ID))
                 .thenReturn(List.of(new Pool(empresa, "Empresa Demo", TipoParticipante.EMPRESA_PROPIETARIA, 0)));
 
