@@ -19,6 +19,7 @@ class UsuarioAutenticadoInterceptorTest {
 
     private final UsuarioAutenticadoInterceptor interceptor = new UsuarioAutenticadoInterceptor();
     private final MockHttpServletResponse response = new MockHttpServletResponse();
+    private final Object handler = new Object();
     private MockHttpServletRequest request;
 
     @BeforeEach
@@ -35,7 +36,7 @@ class UsuarioAutenticadoInterceptorTest {
     void sinAutenticacionDejaPasar() {
         request.addParameter("usuarioId", "10");
 
-        assertThat(interceptor.preHandle(request, response, new Object())).isTrue();
+        assertThat(interceptor.preHandle(request, response, handler)).isTrue();
     }
 
     @Test
@@ -44,14 +45,14 @@ class UsuarioAutenticadoInterceptorTest {
                 new UsernamePasswordAuthenticationToken("ana", null));
         request.addParameter("usuarioId", "10");
 
-        assertThat(interceptor.preHandle(request, response, new Object())).isTrue();
+        assertThat(interceptor.preHandle(request, response, handler)).isTrue();
     }
 
     @Test
     void peticionSinUsuarioIdDejaPasar() {
         autenticarComo("10");
 
-        assertThat(interceptor.preHandle(request, response, new Object())).isTrue();
+        assertThat(interceptor.preHandle(request, response, handler)).isTrue();
     }
 
     @Test
@@ -59,7 +60,7 @@ class UsuarioAutenticadoInterceptorTest {
         autenticarComo("10");
         request.addParameter("usuarioId", "10");
 
-        assertThat(interceptor.preHandle(request, response, new Object())).isTrue();
+        assertThat(interceptor.preHandle(request, response, handler)).isTrue();
     }
 
     @Test
@@ -67,7 +68,7 @@ class UsuarioAutenticadoInterceptorTest {
         autenticarComo("10");
         request.addParameter("usuarioId", "11");
 
-        assertThatThrownBy(() -> interceptor.preHandle(request, response, new Object()))
+        assertThatThrownBy(() -> interceptor.preHandle(request, response, handler))
                 .isInstanceOf(AccesoDenegadoException.class);
     }
 
