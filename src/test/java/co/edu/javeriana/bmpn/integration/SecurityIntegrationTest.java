@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jayway.jsonpath.JsonPath;
 
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.Cookie;
 
 // Pruebas de integracion de la API con Spring Security activo: se levanta la aplicacion completa
@@ -40,6 +41,9 @@ class SecurityIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private EntityManager entityManager;
 
     // Empresa A con sus tres roles y empresa B con su administrador
     private Session adminA;
@@ -129,6 +133,48 @@ class SecurityIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void refreshWithoutCookieReturns401() throws Exception {
+        mockMvc.perform(post("/api/sesiones/renovacion")
+                        .header(HttpHeaders.ORIGIN, FRONTEND_ORIGIN))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refreshWithoutOriginReturns403() throws Exception {
+        // Sin el header Origin no se acepta la cookie, aunque sea valida
+        mockMvc.perform(post("/api/sesiones/renovacion")
+                        .cookie(adminA.cookie))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void logoutRevokesTheRefreshCookie() throws Exception {
+        MvcResult result = mockMvc.perform(delete("/api/sesiones")
+                        .cookie(adminA.cookie)
+                        .header(HttpHeaders.ORIGIN, FRONTEND_ORIGIN))
+                .andExpect(status().isNoContent())
+                .andReturn();
+
+        // La respuesta manda la cookie vacia y vencida para que el navegador la borre
+        Cookie deletedCookie = result.getResponse().getCookie(REFRESH_COOKIE);
+        assertThat(deletedCookie).isNotNull();
+        assertThat(deletedCookie.getMaxAge()).isZero();
+
+        // Despues de cerrar sesion la cookie anterior ya no renueva el token
+        mockMvc.perform(post("/api/sesiones/renovacion")
+                        .cookie(adminA.cookie)
+                        .header(HttpHeaders.ORIGIN, FRONTEND_ORIGIN))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void logoutWithoutCookieReturns204() throws Exception {
+        mockMvc.perform(delete("/api/sesiones")
+                        .header(HttpHeaders.ORIGIN, FRONTEND_ORIGIN))
+                .andExpect(status().isNoContent());
+    }
+
     // ---- Aislamiento entre empresas ----
 
     @Test
@@ -179,12 +225,7 @@ class SecurityIntegrationTest {
     @Test
     void invitedCompanyReadsSharedProcessButCannotEditIt() throws Exception {
         String processId = createProcess(adminA, "Compras");
-        mockMvc.perform(post("/api/procesos/" + processId + "/compartidos")
-                        .param("usuarioId", adminA.userId)
-                        .header(HttpHeaders.AUTHORIZATION, adminA.bearer())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"empresaInvitadaId\":" + adminB.companyId + "}"))
-                .andExpect(status().isCreated());
+        shareProcess(processId, adminB);
 
         mockMvc.perform(get("/api/procesos")
                         .param("usuarioId", adminB.userId)
@@ -272,6 +313,67 @@ class SecurityIntegrationTest {
                 .andExpect(jsonPath("$.totalElements").value(0));
     }
 
+    // ---- Diagrama ----
+
+    // Al eliminar un pool se desactivan tambien sus lanes y las actividades que contiene
+    @Test
+    void deletingAPoolDeactivatesItsLanesAndActivities() throws Exception {
+        String processId = createProcess(adminA, "Compras");
+        shareProcess(processId, adminB);
+        String roleId = createRole(adminB, "Bodega");
+        String processUrl = "/api/procesos/" + processId;
+
+        String poolId = createAndGetId(adminA, processUrl + "/pools",
+                "{\"nombre\":\"Proveedor\","
+                        + "\"tipoParticipante\":\"PROVEEDOR\","
+                        + "\"empresaParticipanteId\":" + adminB.companyId + "}");
+        String laneId = createAndGetId(adminA, processUrl + "/pools/" + poolId + "/lanes",
+                "{\"rolProcesoId\":" + roleId + "}");
+
+        // Se limpia el contexto de JPA para que el proceso vuelva a cargar sus pools desde la base de datos
+        clearPersistenceContext();
+        String activityId = createAndGetId(adminA, processUrl + "/actividades",
+                "{\"nombre\":\"Despachar pedido\","
+                        + "\"tipoActividad\":\"TAREA\","
+                        + "\"posicionX\":100,\"posicionY\":80,"
+                        + "\"laneId\":" + laneId + ","
+                        + "\"poolId\":" + poolId + "}");
+
+        clearPersistenceContext();
+        mockMvc.perform(delete(processUrl + "/pools/" + poolId)
+                        .param("usuarioId", adminA.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminA.bearer()))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get(processUrl + "/actividades/" + activityId)
+                        .param("usuarioId", adminA.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminA.bearer()))
+                .andExpect(status().isNotFound());
+
+        // Solo queda el pool de la empresa propietaria
+        mockMvc.perform(get(processUrl + "/pools")
+                        .param("usuarioId", adminA.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminA.bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void ownerPoolCannotBeDeleted() throws Exception {
+        String processId = createProcess(adminA, "Ventas");
+        MvcResult result = mockMvc.perform(get("/api/procesos/" + processId)
+                        .param("usuarioId", adminA.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminA.bearer()))
+                .andExpect(status().isOk())
+                .andReturn();
+        String ownerPoolId = JsonPath.read(result.getResponse().getContentAsString(), "$.poolPropietarioId").toString();
+
+        mockMvc.perform(delete("/api/procesos/" + processId + "/pools/" + ownerPoolId)
+                        .param("usuarioId", adminA.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminA.bearer()))
+                .andExpect(status().isBadRequest());
+    }
+
     // ---- Apoyo ----
 
     // Datos de una sesion iniciada
@@ -348,6 +450,38 @@ class SecurityIntegrationTest {
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andReturn();
         return JsonPath.read(result.getResponse().getContentAsString(), "$.id").toString();
+    }
+
+    // La empresa duena comparte el proceso con la empresa invitada
+    private void shareProcess(String processId, Session guest) throws Exception {
+        mockMvc.perform(post("/api/procesos/" + processId + "/compartidos")
+                        .param("usuarioId", adminA.userId)
+                        .header(HttpHeaders.AUTHORIZATION, adminA.bearer())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"empresaInvitadaId\":" + guest.companyId + "}"))
+                .andExpect(status().isCreated());
+    }
+
+    private String createRole(Session admin, String name) throws Exception {
+        return createAndGetId(admin, "/api/roles-proceso",
+                "{\"nombre\":\"" + name + "\",\"descripcion\":\"Rol de prueba\"}");
+    }
+
+    // Hace el POST, revisa el 201 y devuelve el id del recurso creado
+    private String createAndGetId(Session session, String url, String body) throws Exception {
+        MvcResult result = mockMvc.perform(post(url)
+                        .param("usuarioId", session.userId)
+                        .header(HttpHeaders.AUTHORIZATION, session.bearer())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated())
+                .andReturn();
+        return JsonPath.read(result.getResponse().getContentAsString(), "$.id").toString();
+    }
+
+    private void clearPersistenceContext() {
+        entityManager.flush();
+        entityManager.clear();
     }
 
     private String credentials(String email, String password) {
