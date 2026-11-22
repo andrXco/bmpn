@@ -16,8 +16,6 @@ public class SesionUsuarioResponse implements Serializable {
     private String tokenType;
     private long expiresIn;
 
-    public SesionUsuarioResponse() {
-    }
 
     public Long getUsuarioId() {
         return usuarioId;

@@ -30,6 +30,7 @@ import co.edu.javeriana.bmpn.repository.ProcesoRepository;
 public class ProcesoService {
 
     private static final int ORDEN_POOL_PROPIETARIO = 0;
+    private static final String PROCESO_NO_ENCONTRADO = "Proceso no encontrado";
 
     private final ProcesoRepository procesoRepository;
     private final UsuarioService usuarioService;
@@ -144,18 +145,18 @@ public class ProcesoService {
     // Publico para que los servicios de los elementos del diagrama obtengan el proceso
     public Proceso buscarActivoDeEmpresa(Long procesoId, Long empresaId) {
         return procesoRepository.findByIdAndEmpresaIdAndActivoTrue(procesoId, empresaId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Proceso no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException(PROCESO_NO_ENCONTRADO));
     }
 
     // HU-23: para consultar el diagrama; la empresa invitada solo lee, nunca modifica
     public Proceso buscarVisibleParaEmpresa(Long procesoId, Long empresaId) {
         return procesoRepository.buscarVisible(procesoId, empresaId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Proceso no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException(PROCESO_NO_ENCONTRADO));
     }
 
     private Proceso buscarDeEmpresa(Long procesoId, Long empresaId) {
         return procesoRepository.findByIdAndEmpresaId(procesoId, empresaId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Proceso no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException(PROCESO_NO_ENCONTRADO));
     }
 
     private ProcesoResponse convertirAResponse(Proceso proceso) {
