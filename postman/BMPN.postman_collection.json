@@ -68,6 +68,10 @@
     {
       "key": "compartidoId",
       "value": ""
+    },
+    {
+      "key": "accessToken",
+      "value": ""
     }
   ],
   "item": [
@@ -119,7 +123,10 @@
                 }
               }
             },
-            "url": "{{baseUrl}}/api/empresas"
+            "url": "{{baseUrl}}/api/empresas",
+            "auth": {
+              "type": "noauth"
+            }
           }
         },
         {
@@ -133,7 +140,9 @@
                   "pm.test(\"Inicio de sesión correcto: 200\", () => pm.response.to.have.status(200));",
                   "const body = pm.response.json();",
                   "pm.test(\"La respuesta incluye usuarioId\", () => pm.expect(body.usuarioId).to.be.a('number'));",
-                  "pm.collectionVariables.set(\"usuarioId\", body.usuarioId);"
+                  "pm.collectionVariables.set(\"usuarioId\", body.usuarioId);",
+                  "pm.test(\"La respuesta incluye el access token\", () => pm.expect(body.accessToken).to.be.a('string'));",
+                  "pm.collectionVariables.set(\"accessToken\", body.accessToken);"
                 ]
               }
             }
@@ -155,7 +164,10 @@
                 }
               }
             },
-            "url": "{{baseUrl}}/api/sesiones"
+            "url": "{{baseUrl}}/api/sesiones",
+            "auth": {
+              "type": "noauth"
+            }
           }
         }
       ]
@@ -1468,7 +1480,10 @@
                 }
               }
             },
-            "url": "{{baseUrl}}/api/empresas"
+            "url": "{{baseUrl}}/api/empresas",
+            "auth": {
+              "type": "noauth"
+            }
           }
         },
         {
@@ -1779,5 +1794,15 @@
         }
       ]
     }
-  ]
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  }
 }

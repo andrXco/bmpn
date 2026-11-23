@@ -29,6 +29,14 @@ Archivo: `plan-carga-bmpn.jmx`.
 
 La cantidad de usuarios, la rampa y la duración son parámetros (`-Jusuarios`, `-Jrampa`, `-Jduracion`).
 
+## Autenticación
+
+El plan inicia sesión después de registrar la empresa, extrae el `accessToken` y lo
+envía como `Authorization: Bearer` en todas las peticiones protegidas (los usuarios
+concurrentes reutilizan el token del administrador). El token dura 15 minutos, así que
+la duración de la prueba (`-Jduracion`) debe ser menor a 900 segundos. Los resultados
+de este informe se tomaron antes de activar JWT y deben repetirse con el plan actual.
+
 ## Cómo ejecutarlo
 
 1. Levantar la base de datos y la aplicación:
