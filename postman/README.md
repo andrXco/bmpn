@@ -10,6 +10,13 @@ producción. Los identificadores de usuario, proceso, pool, rol, lane,
 actividad, gateway, arco, evento y mensaje se crean y guardan durante la
 ejecución de la colección.
 
+## Autenticación
+
+La colección usa autenticación Bearer a nivel de colección. La solicitud de inicio de
+sesión guarda el `accessToken` en la variable `accessToken`; registrar empresa e
+iniciar sesión van sin token. El access token dura 15 minutos: si la ejecución se
+detiene más tiempo, vuelve a ejecutar el inicio de sesión.
+
 ## Ejecución
 
 1. Inicia PostgreSQL con `docker compose up -d --wait`.

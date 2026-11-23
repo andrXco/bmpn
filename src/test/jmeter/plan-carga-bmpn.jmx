@@ -63,7 +63,46 @@
             <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
           </JSONPostProcessor>
           <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extraer correo del administrador" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">adminEmail</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.administradorInicial.email</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
         </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Iniciar sesion" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/sesiones</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;email&quot;:&quot;${adminEmail}&quot;,&quot;password&quot;:&quot;clave12345&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extraer accessToken" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">token</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.accessToken</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Peticiones autenticadas" enabled="true"/>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Token del administrador" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">Authorization</stringProp>
+                <stringProp name="Header.value">Bearer ${token}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Crear proceso" enabled="true">
           <stringProp name="HTTPSampler.path">/api/procesos?usuarioId=${usuarioId}</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -210,12 +249,14 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree/>
+        </hashTree>
         <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Compartir ids con los usuarios" enabled="true">
           <stringProp name="scriptLanguage">groovy</stringProp>
           <stringProp name="script">props.put(&quot;usuarioId&quot;, vars.get(&quot;usuarioId&quot;))
 props.put(&quot;procesoId&quot;, vars.get(&quot;procesoId&quot;))
 props.put(&quot;poolId&quot;, vars.get(&quot;poolId&quot;))
-props.put(&quot;laneId&quot;, vars.get(&quot;laneId&quot;))</stringProp>
+props.put(&quot;laneId&quot;, vars.get(&quot;laneId&quot;))
+props.put(&quot;token&quot;, vars.get(&quot;token&quot;))</stringProp>
           <stringProp name="parameters"></stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="cacheKey">false</stringProp>
@@ -236,6 +277,15 @@ props.put(&quot;laneId&quot;, vars.get(&quot;laneId&quot;))</stringProp>
         </elementProp>
       </ThreadGroup>
       <hashTree>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Token compartido" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="" elementType="Header">
+              <stringProp name="Header.name">Authorization</stringProp>
+              <stringProp name="Header.value">Bearer ${__P(token)}</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET listar procesos">
           <stringProp name="HTTPSampler.path">/api/procesos?usuarioId=${__P(usuarioId)}</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
