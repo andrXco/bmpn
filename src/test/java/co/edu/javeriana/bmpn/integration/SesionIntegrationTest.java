@@ -19,7 +19,7 @@ import jakarta.servlet.http.Cookie;
 class SesionIntegrationTest extends ApiIntegrationTest {
 
     @Test
-    void loginTokenCarriesCompanyAndRole() throws Exception {
+    void loginTokenCarriesCompanyAndRole() {
         assertThat(adminA.role).isEqualTo("ADMINISTRADOR");
         assertThat(readerA.role).isEqualTo("SOLO_LECTURA");
         assertThat(readerA.companyId).isEqualTo(adminA.companyId);
