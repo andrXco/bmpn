@@ -44,6 +44,31 @@ ssh -N -L 18080:127.0.0.1:18080 estudiante@10.43.99.131
 
 Abre `http://127.0.0.1:18080` mientras el túnel esté activo.
 
+## Releases y Deployments en GitHub
+
+Después de que staging aplique las puntas de ambas ramas `deploy`, ejecuta
+desde el backend local con GitHub CLI autenticado:
+
+```powershell
+pwsh -File deploy/ops/publicar-version.ps1 -Version v1.0.0 -SshTarget usuario@IP_DE_LA_VM
+```
+
+El comando comprueba el estado de los tres contenedores, la ruta `/api` y el
+CI de ambos commits. Registra `staging` como exitoso en los dos repositorios y
+publica el mismo número de versión en ambos, con enlaces a las imágenes
+verificadas. Puedes repetir el comando para completar una publicación que quedó
+a medias. El entorno `production` se configura en GitHub y su estado depende
+del despliegue en una VM de producción.
+
+| Repositorio | Releases | Deployments |
+| --- | --- | --- |
+| Backend | [Versiones](https://github.com/andrXco/bmpn/releases) | [Historial](https://github.com/andrXco/bmpn/deployments) |
+| Frontend | [Versiones](https://github.com/andrXco/bmpn-react/releases) | [Historial](https://github.com/andrXco/bmpn-react/deployments) |
+
+Para revisar una versión desde el navegador, inicia sesión en staging, abre
+la lista de procesos, abre un diagrama y recarga la página. El túnel debe
+seguir abierto y la sesión debe renovarse al recargar.
+
 ## Producción
 
 Prepara una VM aparte con Docker Compose, DNS y proxy HTTPS, conservando el
