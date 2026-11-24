@@ -6,6 +6,39 @@ imagen Docker que pasó los controles como una prepublicación `staging-<SHA>` d
 su propio repositorio. Los archivos publicados contienen la imagen y su suma
 SHA256. Las credenciales y el `.env` viven en Ubuntu.
 
+## Development en Ubuntu
+
+El servicio `bmpn-development` consulta las ramas `development` de los dos
+repositorios y construye exactamente esos commits. Los Dockerfiles de `deploy`
+aportan la configuración de infraestructura. El servicio de usuario se
+ejecuta cada cinco minutos y usa `~/bmpn-development`, un volumen separado
+de PostgreSQL y el puerto `127.0.0.1:18081`.
+
+Desde el backend en Ubuntu, instala las unidades del entorno una vez:
+
+```bash
+install -m 644 deploy/ops/bmpn-development.{service,timer} ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now bmpn-development.timer
+systemctl --user start bmpn-development.service
+```
+
+Desde el computador con la VPN, abre el túnel de development:
+
+```powershell
+ssh -N -L 127.0.0.1:18081:127.0.0.1:18081 usuario@IP_DE_LA_VM
+```
+
+Abre `http://127.0.0.1:18081`. Tras verificar el entorno, registra los commits
+en GitHub desde PowerShell con `gh` autenticado:
+
+```powershell
+pwsh -File deploy/ops/publicar-version.ps1 -Development -SshTarget usuario@IP_DE_LA_VM
+```
+
+El registro de `development` se hace con los commits que estén activos en
+Ubuntu. La publicación de un release numerado corresponde al flujo de staging.
+
 ## Staging en Ubuntu
 
 Un timer de systemd de usuario consulta la punta de `deploy` en ambos repos cada

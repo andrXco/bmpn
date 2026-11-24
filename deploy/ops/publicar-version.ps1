@@ -1,8 +1,11 @@
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'Release')]
 param(
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory, ParameterSetName = 'Release')]
     [ValidatePattern('^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$')]
     [string] $Version,
+
+    [Parameter(Mandatory, ParameterSetName = 'Development')]
+    [switch] $Development,
 
     [Parameter(Mandatory)]
     [ValidatePattern('^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+$')]
@@ -12,6 +15,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$targetEnvironment = if ($Development) { 'development' } else { 'staging' }
+$branch = if ($Development) { 'development' } else { 'deploy' }
+$port = if ($Development) { 18081 } else { 18080 }
+$imageNamespace = if ($Development) { 'bmpn-development' } else { 'bmpn-release' }
 
 function Invoke-GitHubApi {
     param([string[]] $Arguments, [hashtable] $Body)
@@ -35,27 +42,30 @@ function Get-ReleaseCommit {
 
 $healthProbe = @'
 set -euo pipefail
-cd "$HOME/bmpn-staging"
+project="bmpn-$1"
+port=$2
+image_namespace=$3
+cd "$HOME/$project"
 for component in app front; do
   case "$component" in
-    app) key=BACKEND_IMAGE; image_prefix=bmpn-release-backend ;;
-    front) key=FRONT_IMAGE; image_prefix=bmpn-release-front ;;
+    app) key=BACKEND_IMAGE; image_prefix="$image_namespace-backend" ;;
+    front) key=FRONT_IMAGE; image_prefix="$image_namespace-front" ;;
   esac
-  container="bmpn-staging-$component-1"
+  container="$project-$component-1"
   image=$(docker inspect --format '{{.Config.Image}}' "$container")
   [[ "$image" =~ ^$image_prefix:[a-f0-9]{40}$ ]]
   [[ "$(docker inspect --format '{{.State.Health.Status}}' "$container")" == healthy ]]
   grep -Fxq "$key=$image" images.env
   printf '%s=%s\n' "$key" "${image#*:}"
 done
-[[ "$(docker inspect --format '{{.State.Health.Status}}' bmpn-staging-postgres-1)" == healthy ]]
-curl -fsS --max-time 10 http://127.0.0.1:18080/healthz >/dev/null
-status=$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/empresas)
+[[ "$(docker inspect --format '{{.State.Health.Status}}' "$project-postgres-1")" == healthy ]]
+curl -fsS --max-time 10 "http://127.0.0.1:$port/healthz" >/dev/null
+status=$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' "http://127.0.0.1:$port/api/empresas")
 [[ "$status" == 401 || "$status" == 403 ]]
 '@
 
-$versions = $healthProbe | ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=8 $SshTarget "tr -d '\r' | bash -s"
-if ($LASTEXITCODE -ne 0) { throw 'Staging no pasó la comprobación por SSH.' }
+$versions = $healthProbe | ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=8 $SshTarget "tr -d '\r' | bash -s -- $targetEnvironment $port $imageNamespace"
+if ($LASTEXITCODE -ne 0) { throw "$targetEnvironment no pasó la comprobación por SSH." }
 $components = @(
     @{ Repository = 'andrXco/bmpn'; ImageKey = 'BACKEND_IMAGE' },
     @{ Repository = 'andrXco/bmpn-react'; ImageKey = 'FRONT_IMAGE' }
@@ -68,19 +78,20 @@ foreach ($component in $components) {
     if ($line -notmatch '^[A-Z_]+=([a-f0-9]{40})$') { throw "No se pudo validar el SHA de $repository." }
     $sha = $Matches[1]
     $component.Sha = $sha
-    $ref = Invoke-GitHubApi -Arguments @("repos/$repository/git/ref/heads/deploy")
+    $ref = Invoke-GitHubApi -Arguments @("repos/$repository/git/ref/heads/$branch")
     $head = $ref.object.sha
-    if ($head -ne $sha) { throw "Staging todavía no está en la punta de deploy de $repository." }
+    if ($head -ne $sha) { throw "$targetEnvironment todavía no está en la punta de $branch de $repository." }
+    $runs = gh run list -R $repository -b $branch -w CI --commit $sha --event push --status success --limit 1 --json url
+    if ($LASTEXITCODE -ne 0) { throw "No se pudo consultar el CI de $repository." }
+    $successfulRun = @($runs | ConvertFrom-Json) | Select-Object -First 1
+    $component.CiUrl = $successfulRun.url
+    if ($Development) { continue }
     $releases = Invoke-GitHubApi -Arguments @("repos/$repository/releases/tags/staging-$sha")
     $assetNames = @($releases.assets | ForEach-Object { $_.name })
     if (-not $releases.prerelease -or $assetNames -notcontains 'image.tar.gz' -or $assetNames -notcontains 'image.tar.gz.sha256') {
         throw "Faltan los archivos de staging de $repository para $sha."
     }
-    $runs = gh run list -R $repository -b deploy -w CI --commit $sha --event push --status success --limit 1 --json url
-    if ($LASTEXITCODE -ne 0) { throw "No se pudo consultar el CI de $repository." }
-    $successfulRun = @($runs | ConvertFrom-Json) | Select-Object -First 1
     if (-not $successfulRun.url) { throw "No se encontró un CI exitoso para $repository en $sha." }
-    $component.CiUrl = $successfulRun.url
     $existingCommit = Get-ReleaseCommit -Repository $repository -Tag $Version
     if ($existingCommit -and $existingCommit -ne $sha) {
         throw "$Version ya existe en $repository y apunta a otro commit."
@@ -98,37 +109,59 @@ foreach ($component in $components) {
     $repository = $component.Repository
     $sha = $component.Sha
     $settings = Invoke-GitHubApi -Arguments @("repos/$repository/environments")
-    $names = @($settings.environments | ForEach-Object { $_.name })
-    foreach ($environment in @('staging', 'production')) {
-        if ($names -notcontains $environment) {
-            $null = Invoke-GitHubApi -Arguments @('--method', 'PUT', "repos/$repository/environments/$environment") -Body @{}
+    if ($Development) {
+        $configured = $settings.environments | Where-Object { $_.name -eq 'development' }
+        if (-not $configured.deployment_branch_policy.custom_branch_policies) {
+            $null = Invoke-GitHubApi -Arguments @('--method', 'PUT', "repos/$repository/environments/development") -Body @{
+                deployment_branch_policy = @{ protected_branches = $false; custom_branch_policies = $true }
+            }
+        }
+        $policyPath = "repos/$repository/environments/development/deployment-branch-policies"
+        $policies = Invoke-GitHubApi -Arguments @($policyPath)
+        if (-not ($policies.branch_policies | Where-Object { $_.name -eq 'development' -and $_.type -eq 'branch' })) {
+            $null = Invoke-GitHubApi -Arguments @('--method', 'POST', $policyPath) -Body @{ name = 'development'; type = 'branch' }
+        }
+    } else {
+        $names = @($settings.environments | ForEach-Object { $_.name })
+        foreach ($environment in @('staging', 'production')) {
+            if ($names -notcontains $environment) {
+                $null = Invoke-GitHubApi -Arguments @('--method', 'PUT', "repos/$repository/environments/$environment") -Body @{}
+            }
         }
     }
 
-    $deployments = @(Invoke-GitHubApi -Arguments @("repos/$repository/deployments?environment=staging&sha=$sha&per_page=20"))
+    $deployments = @(Invoke-GitHubApi -Arguments @("repos/$repository/deployments?environment=$targetEnvironment&sha=$sha&per_page=20"))
     $deployment = $deployments | Where-Object { $_.sha -eq $sha } | Select-Object -First 1
     if (-not $deployment) {
+        $deploymentRef = if ($Development) { 'development' } else { $sha }
         $deployment = Invoke-GitHubApi -Arguments @('--method', 'POST', "repos/$repository/deployments") -Body @{
-            ref = $sha
-            environment = 'staging'
+            ref = $deploymentRef
+            environment = $targetEnvironment
             auto_merge = $false
             required_contexts = @()
             production_environment = $false
             transient_environment = $false
-            description = "Staging BPMN $Version comprobado en Ubuntu"
-            payload = @{ release = $Version }
+            description = "BPMN $targetEnvironment comprobado en Ubuntu"
+            payload = @{ branch = $branch; release = $Version }
         }
     }
     if (-not $deployment.id) { throw "GitHub no devolvió el ID del deployment de $repository." }
+    if ($deployment.sha -ne $sha) { throw "La rama cambió antes de registrar el deployment de $repository." }
     $statuses = @(Invoke-GitHubApi -Arguments @("repos/$repository/deployments/$($deployment.id)/statuses?per_page=1"))
     if (($statuses | Select-Object -First 1).state -ne 'success') {
-        $status = Invoke-GitHubApi -Arguments @('--method', 'POST', "repos/$repository/deployments/$($deployment.id)/statuses") -Body @{
+        $statusBody = @{
             state = 'success'
-            description = 'Staging verificado en Ubuntu con Angular, Spring Boot y PostgreSQL sanos'
-            log_url = $component.CiUrl
+            description = "$targetEnvironment verificado en Ubuntu con Angular, Spring Boot y PostgreSQL sanos"
             auto_inactive = $true
         }
-        if ($status.state -ne 'success') { throw "GitHub no confirmó el estado de staging de $repository." }
+        if ($component.CiUrl) { $statusBody.log_url = $component.CiUrl }
+        $status = Invoke-GitHubApi -Arguments @('--method', 'POST', "repos/$repository/deployments/$($deployment.id)/statuses") -Body $statusBody
+        if ($status.state -ne 'success') { throw "GitHub no confirmó $targetEnvironment en $repository." }
+    }
+
+    if ($Development) {
+        Write-Output "$repository $sha development=success"
+        continue
     }
 
     gh release view $Version -R $repository --json tagName 2>$null | Out-Null

@@ -1,0 +1,8 @@
+[Unit]
+Description=Actualizar BPMN desde la rama development de ambos repositorios
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/bmpn
+ExecStart=/bin/bash %h/bmpn/deploy/ops/development.sh
+TimeoutStartSec=20min
