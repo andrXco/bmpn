@@ -29,14 +29,20 @@ de esa sesión, mantén una sesión de ese usuario abierta al desplegar.
 
 ## Producción
 
-Prepara otra VM o un entorno aislado, un runner distinto y una revisión
-manual de la versión a desplegar. Usa imágenes identificadas por digest y
-un `.env` propio, con `BMPN_REFRESH_COOKIE_SECURE=true`,
-`DATOS_INICIALES=false` y el origen HTTPS real en `CORS_ORIGENES`. El proxy
-HTTPS publica el frontend. PostgreSQL y el backend permanecen en la red de
-Compose.
+Prepara otra VM, registra un runner exclusivo con la etiqueta
+`bmpn-production` en el repositorio privado y configura el proxy HTTPS que
+publica el frontend. En `~/bmpn-production/.env`, genera credenciales propias
+con permisos `600`. Configura `BMPN_REFRESH_COOKIE_SECURE=true`,
+`DATOS_INICIALES=false` y el origen HTTPS real en `CORS_ORIGENES`.
 
-Antes de actualizar el backend, crea y valida un respaldo de PostgreSQL.
-Flyway se ejecuta al arrancar el backend. Si hubo una migración incompatible,
-la recuperación requiere probar la restauración del respaldo junto con los
-digests anteriores. La réplica física se configura por separado.
+Cuando el servidor esté preparado, configura el entorno `production` y
+su aprobación de revisores si el plan de GitHub la permite. Activa la
+variable del repositorio `PRODUCTION_DEPLOY_ENABLED=true` y ejecuta
+**BPMN production** desde `main` con el par de digests de una ejecución
+exitosa de staging.
+
+El workflow crea un respaldo de PostgreSQL y verifica que se pueda listar
+antes de actualizar frontend y backend. Flyway se ejecuta al arrancar el
+backend. Si hubo una migración incompatible, prueba la restauración del
+respaldo junto con los digests anteriores. La réplica física se configura
+por separado.

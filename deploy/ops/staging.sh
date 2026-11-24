@@ -48,3 +48,7 @@ fi
 
 printf 'BACKEND_IMAGE=%s\nFRONT_IMAGE=%s\n' "$BACKEND_IMAGE" "$FRONT_IMAGE" > images.env
 "${compose[@]}" ps
+{
+  echo '### Imágenes verificadas en staging'
+  printf -- '- Backend: `%s`\n- Frontend: `%s`\n' "$BACKEND_IMAGE" "$FRONT_IMAGE"
+} >> "$GITHUB_STEP_SUMMARY"
