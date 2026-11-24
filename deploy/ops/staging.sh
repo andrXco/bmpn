@@ -3,18 +3,36 @@ set -euo pipefail
 umask 077
 
 script_dir=$(cd -- "$(dirname -- "$0")" && pwd)
+source "$script_dir/release-images.sh"
+
 stage_dir="$HOME/bmpn-staging"
-
-[[ "${BACKEND_IMAGE:-}" =~ ^ghcr\.io/andrxco/bmpn-deploy-backend@sha256:[a-f0-9]{64}$ ]]
-[[ "${FRONT_IMAGE:-}" =~ ^ghcr\.io/andrxco/bmpn-deploy-front@sha256:[a-f0-9]{64}$ ]]
-
 mkdir -p -- "$stage_dir"
 cd -- "$stage_dir"
 exec 9>.deploy.lock
-flock -w 180 9
+flock -n 9 || exit 0
+
+backend_sha=$(deploy_head bmpn)
+front_sha=$(deploy_head bmpn-react)
+if [[ -f images.env ]] &&
+  grep -Fxq "BACKEND_IMAGE=bmpn-release-backend:$backend_sha" images.env &&
+  grep -Fxq "FRONT_IMAGE=bmpn-release-front:$front_sha" images.env; then
+  exit 0
+fi
+
+work_dir=$(mktemp -d "$stage_dir/.release.XXXXXX")
+trap 'rm -rf -- "$work_dir"' EXIT
+if prepare_release_pair "$backend_sha" "$front_sha"; then
+  echo "Imágenes verificadas para $backend_sha y $front_sha"
+else
+  result=$?
+  if [[ "$result" == 4 ]]; then
+    echo 'Esperando que GitHub Actions publique ambas imágenes de deploy.'
+    exit 0
+  fi
+  exit "$result"
+fi
 
 if [[ ! -f .env ]]; then
-  env_file=$(mktemp .env.XXXXXX)
   {
     printf 'POSTGRES_PASSWORD=%s\n' "$(openssl rand -hex 32)"
     printf 'BMPN_JWT_SECRET=%s\n' "$(openssl rand -hex 32)"
@@ -23,32 +41,14 @@ if [[ ! -f .env ]]; then
     printf 'BMPN_REFRESH_COOKIE_SECURE=false\n'
     printf 'CORS_ORIGENES=http://127.0.0.1:18080,http://localhost:18080\n'
     printf 'HTTP_PORT=18080\n'
-  } > "$env_file"
-  mv -- "$env_file" .env
+  } > "$work_dir/.env"
+  mv -- "$work_dir/.env" .env
 fi
 
-docker_auth=$(mktemp -d)
-trap 'rm -f -- "$docker_auth/config.json"; rmdir -- "$docker_auth"' EXIT
-export DOCKER_CONFIG="$docker_auth"
-printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
-unset GHCR_TOKEN
-
-install -m 600 -- "$script_dir/compose.yaml" compose.yaml
-compose=(docker compose -p bmpn-staging --env-file .env -f compose.yaml)
-"${compose[@]}" pull
-"${compose[@]}" up -d --wait --wait-timeout 360
-
-origin=http://127.0.0.1:18080
-curl -fsS --max-time 10 "$origin/healthz"
-api_status=$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' "$origin/api/empresas")
-if [[ "$api_status" != 401 && "$api_status" != 403 ]]; then
-  echo "Expected Spring Security to reject the unauthenticated API request, got $api_status" >&2
-  exit 1
-fi
-
-printf 'BACKEND_IMAGE=%s\nFRONT_IMAGE=%s\n' "$BACKEND_IMAGE" "$FRONT_IMAGE" > images.env
+compose=(docker compose -p bmpn-staging --project-directory "$stage_dir" --env-file .env -f "$work_dir/compose.yaml")
+"${compose[@]}" up -d --no-recreate --wait --wait-timeout 180 postgres
+"${compose[@]}" up -d --no-deps --pull never --wait --wait-timeout 240 app
+"${compose[@]}" up -d --no-deps --pull never --force-recreate --wait --wait-timeout 90 front
+verify_application http://127.0.0.1:18080
+save_release_state
 "${compose[@]}" ps
-{
-  echo '### Imágenes verificadas en staging'
-  printf -- '- Backend: `%s`\n- Frontend: `%s`\n' "$BACKEND_IMAGE" "$FRONT_IMAGE"
-} >> "$GITHUB_STEP_SUMMARY"

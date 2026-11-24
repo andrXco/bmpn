@@ -1,0 +1,10 @@
+[Unit]
+Description=Consultar publicaciones de las ramas deploy de BPMN
+
+[Timer]
+OnBootSec=90s
+OnUnitInactiveSec=3min
+Unit=bmpn-staging.service
+
+[Install]
+WantedBy=timers.target
