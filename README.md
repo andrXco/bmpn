@@ -22,6 +22,10 @@ al arrancar. El frontend tiene su propio Docker en el repositorio
 [bmpn-react](https://github.com/andrXco/bmpn-react) y llama a esta API; CORS permite
 el origen `http://localhost:4200` (se cambia con `CORS_ORIGENES`).
 
+El stack de servidor que consume imagenes publicadas en GHCR está en
+[`deploy/README.md`](deploy/README.md). Es independiente del Compose de desarrollo
+que construye el backend localmente.
+
 Con la base vacia se cargan datos de ejemplo: la empresa BitWeb Demo con el
 proceso "Solicitud de vacaciones" y los usuarios `admin@bitweb.co` (id 1),
 `editor@bitweb.co` y `lector@bitweb.co`, ademas de la empresa Cliente Demo. La
