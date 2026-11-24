@@ -1,0 +1,78 @@
+name: Cobertura
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coverage-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coverage:
+    name: Generar cobertura con JaCoCo
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: bmpn
+          POSTGRES_USER: bmpn
+          POSTGRES_PASSWORD: bmpn_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bmpn -d bmpn"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/bmpn
+      DB_USERNAME: bmpn
+      DB_PASSWORD: bmpn_ci
+
+    steps:
+      - name: Descargar el codigo
+        uses: actions/checkout@v6
+
+      - name: Configurar Java 17 y cache de Maven
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Ejecutar pruebas y generar reporte JaCoCo
+        run: ./mvnw --batch-mode --no-transfer-progress clean verify
+
+      - name: Calcular porcentaje de cobertura
+        id: cobertura
+        shell: bash
+        run: |
+          awk -F, 'NR > 1 { missed += $4; covered += $5 } END {
+            total = missed + covered
+            if (total == 0) {
+              print "No se encontraron instrucciones en el reporte JaCoCo" > "/dev/stderr"
+              exit 1
+            }
+            porcentaje = (covered / total) * 100
+            printf "porcentaje=%.2f\n", porcentaje >> ENVIRON["GITHUB_OUTPUT"]
+            printf "## Cobertura JaCoCo\n\n" >> ENVIRON["GITHUB_STEP_SUMMARY"]
+            printf "**Cobertura de instrucciones: %.2f%%**\n\n", porcentaje >> ENVIRON["GITHUB_STEP_SUMMARY"]
+            printf "El reporte HTML y el XML pueden descargarse desde los artefactos de esta ejecución.\n" >> ENVIRON["GITHUB_STEP_SUMMARY"]
+          }' target/site/jacoco/jacoco.csv
+
+      - name: Conservar reporte de cobertura
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-de-cobertura-jacoco
+          path: target/site/jacoco/
+          if-no-files-found: warn
+          retention-days: 7

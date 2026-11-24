@@ -1,0 +1,63 @@
+name: bmpn
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bmpn}
+      POSTGRES_USER: ${POSTGRES_USER:-bmpn}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD in the server .env}
+    volumes:
+      - bmpn_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    image: ${BACKEND_IMAGE:?Define BACKEND_IMAGE with the complete image reference}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bmpn}
+      DB_USERNAME: ${POSTGRES_USER:-bmpn}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      BMPN_JWT_SECRET: ${BMPN_JWT_SECRET:?Define BMPN_JWT_SECRET in the server .env}
+      BMPN_JWT_ACCESS_EXPIRATION: ${BMPN_JWT_ACCESS_EXPIRATION:-PT15M}
+      BMPN_REFRESH_TOKEN_EXPIRATION: ${BMPN_REFRESH_TOKEN_EXPIRATION:-P5D}
+      BMPN_REFRESH_COOKIE_SECURE: ${BMPN_REFRESH_COOKIE_SECURE:-true}
+      CORS_ORIGENES: ${CORS_ORIGENES:?Define CORS_ORIGENES in the server .env}
+      DATOS_INICIALES: ${DATOS_INICIALES:-false}
+      DATOS_INICIALES_CLAVE: ${DATOS_INICIALES_CLAVE:-}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/v3/api-docs >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+
+  front:
+    image: ${FRONT_IMAGE:?Define FRONT_IMAGE with the complete image reference}
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+        restart: true
+    environment:
+      BACKEND_URL: http://app:8080
+    ports:
+      - "127.0.0.1:${HTTP_PORT:-8080}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 5s
+
+volumes:
+  bmpn_postgres_data:

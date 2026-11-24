@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bmpn}
+      POSTGRES_USER: ${POSTGRES_USER:-bmpn}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bmpn_local}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - bmpn_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bmpn}
+      DB_USERNAME: ${POSTGRES_USER:-bmpn}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-bmpn_local}
+      BMPN_JWT_SECRET: "${BMPN_JWT_SECRET:?Define BMPN_JWT_SECRET en el entorno o en .env}"
+      BMPN_JWT_ACCESS_EXPIRATION: ${BMPN_JWT_ACCESS_EXPIRATION:-PT15M}
+      BMPN_REFRESH_TOKEN_EXPIRATION: ${BMPN_REFRESH_TOKEN_EXPIRATION:-P5D}
+      BMPN_REFRESH_COOKIE_SECURE: ${BMPN_REFRESH_COOKIE_SECURE:-false}
+      CORS_ORIGENES: ${CORS_ORIGENES:-http://localhost:4200}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    # La API esta lista cuando responde la documentacion de Swagger
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/v3/api-docs > /dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  bmpn_postgres_data:

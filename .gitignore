@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local environment ###
+.env
+
+
+/AGENTS.md
+/.agents/
+/.codex/
+/tools/
+/Proyecto-BPMN/
+/Spring-Boot-4.1.1/

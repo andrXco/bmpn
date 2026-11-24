@@ -1,0 +1,8 @@
+[Unit]
+Description=Actualizar BPMN staging con versiones verificadas de GitHub
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/bmpn
+ExecStart=/bin/bash %h/bmpn/deploy/ops/staging.sh
+TimeoutStartSec=20min
