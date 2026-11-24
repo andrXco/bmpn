@@ -11,8 +11,11 @@ cd -- "$stage_dir"
 exec 9>.deploy.lock
 flock -n 9 || exit 0
 
-backend_sha=$(deploy_head bmpn)
-front_sha=$(deploy_head bmpn-react)
+case $# in
+  0) backend_sha=$(deploy_head bmpn); front_sha=$(deploy_head bmpn-react) ;;
+  2) backend_sha=$1; front_sha=$2 ;;
+  *) printf 'Uso: bash %s [SHA_BACKEND SHA_FRONTEND]\n' "$0" >&2; exit 2 ;;
+esac
 if [[ -f images.env ]] &&
   grep -Fxq "BACKEND_IMAGE=bmpn-release-backend:$backend_sha" images.env &&
   grep -Fxq "FRONT_IMAGE=bmpn-release-front:$front_sha" images.env; then

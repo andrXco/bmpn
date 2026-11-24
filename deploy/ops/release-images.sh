@@ -39,7 +39,7 @@ load_release_image() {
 }
 
 prepare_release_pair() {
-  local back_url front_url release url rc
+  local back_url front_url release url rc checkout_dir
   back_url=$(release_url bmpn "$1") || return 1
   front_url=$(release_url bmpn-react "$2") || return 1
   for release in backend front; do
@@ -52,9 +52,11 @@ prepare_release_pair() {
   export FRONT_IMAGE="bmpn-release-front:$2"
   load_release_image "$back_url" "$BACKEND_IMAGE" "$work_dir/backend.sha256" || return 1
   load_release_image "$front_url" "$FRONT_IMAGE" "$work_dir/front.sha256" || return 1
-  curl --proto '=https' --fail --silent --show-error --connect-timeout 10 --max-time 60 \
-    --output "$work_dir/compose.yaml" \
-    "https://raw.githubusercontent.com/andrXco/bmpn/$1/deploy/compose.yaml"
+  checkout_dir=$(cd -- "$script_dir/../.." && pwd) || return 1
+  if ! git -C "$checkout_dir" cat-file -e "$1^{commit}" 2>/dev/null; then
+    git -C "$checkout_dir" fetch --no-tags https://github.com/andrXco/bmpn.git "$1" || return 1
+  fi
+  git -C "$checkout_dir" show "$1:deploy/compose.yaml" > "$work_dir/compose.yaml"
 }
 
 verify_application() {
