@@ -1,0 +1,31 @@
+START Running Jmeter on Tue Nov 24 01:29:39 UTC 2026
+JVM_ARGS=-Xmn1366m -Xms5464m -Xmx5464m
+jmeter args=-n -t /tests/plan-carga-bmpn.jmx -l /results/sostenida-100.jtl -Jhost=host.docker.internal -Jpuerto=8080 -Jusuarios=100 -Jrampa=20 -Jduracion=180 -e -o /reports/sostenida-100
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Nov 24, 2026 1:29:49 AM java.util.prefs.FileSystemPreferences$1 run
+INFO: Created user preferences directory.
+Creating summariser <summary>
+Created the tree successfully using /tests/plan-carga-bmpn.jmx
+Starting standalone test @ November 24, 2026 1:29:55 AM GMT (1795483795037)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +      1 in 00:00:05 =    0.2/s Avg:   683 Min:   683 Max:   683 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+summary +   4441 in 00:00:27 =  163.2/s Avg:   299 Min:    18 Max:  2144 Err:     0 (0.00%) Active: 100 Started: 100 Finished: 0
+summary =   4442 in 00:00:32 =  137.1/s Avg:   299 Min:    18 Max:  2144 Err:     0 (0.00%)
+summary +   3875 in 00:00:30 =  128.6/s Avg:   757 Min:    30 Max:  6428 Err:     0 (0.00%) Active: 100 Started: 100 Finished: 0
+summary =   8317 in 00:01:03 =  133.0/s Avg:   512 Min:    18 Max:  6428 Err:     0 (0.00%)
+summary +   5343 in 00:00:30 =  178.9/s Avg:   566 Min:    21 Max:  7098 Err:     0 (0.00%) Active: 100 Started: 100 Finished: 0
+summary =  13660 in 00:01:32 =  147.8/s Avg:   533 Min:    18 Max:  7098 Err:     0 (0.00%)
+summary +   4661 in 00:00:30 =  155.4/s Avg:   631 Min:    17 Max:  6480 Err:     0 (0.00%) Active: 100 Started: 100 Finished: 0
+summary =  18321 in 00:02:02 =  149.7/s Avg:   558 Min:    17 Max:  7098 Err:     0 (0.00%)
+summary +   4007 in 00:00:30 =  133.4/s Avg:   754 Min:    14 Max:  9499 Err:     0 (0.00%) Active: 100 Started: 100 Finished: 0
+summary =  22328 in 00:02:32 =  146.5/s Avg:   593 Min:    14 Max:  9499 Err:     0 (0.00%)
+summary +   3146 in 00:00:30 =  105.0/s Avg:   935 Min:    21 Max: 12440 Err:     0 (0.00%) Active: 100 Started: 100 Finished: 0
+summary =  25474 in 00:03:02 =  139.6/s Avg:   636 Min:    14 Max: 12440 Err:     0 (0.00%)
+summary +    738 in 00:00:08 =   92.4/s Avg:  1131 Min:    27 Max: 11048 Err:     0 (0.00%) Active: 0 Started: 100 Finished: 100
+summary =  26212 in 00:03:10 =  137.7/s Avg:   649 Min:    14 Max: 12440 Err:     0 (0.00%)
+Tidying up ...    @ November 24, 2026 1:33:07 AM GMT (1795483987997)
+... end of run
+END Running Jmeter on Tue Nov 24 01:33:24 UTC 2026
