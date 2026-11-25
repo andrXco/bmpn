@@ -1,0 +1,23 @@
+START Running Jmeter on Tue Nov 24 01:38:12 UTC 2026
+JVM_ARGS=-Xmn1224m -Xms4896m -Xmx4896m
+jmeter args=-n -t /tests/plan-carga-bmpn.jmx -l /results/estres-1200.jtl -Jhost=host.docker.internal -Jpuerto=8080 -Jusuarios=1200 -Jrampa=10 -Jduracion=60 -e -o /reports/estres-1200
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Nov 24, 2026 1:38:16 AM java.util.prefs.FileSystemPreferences$1 run
+INFO: Created user preferences directory.
+Creating summariser <summary>
+Created the tree successfully using /tests/plan-carga-bmpn.jmx
+Starting standalone test @ November 24, 2026 1:38:18 AM GMT (1795484298237)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +   2511 in 00:00:10 =  245.6/s Avg:   442 Min:    14 Max:  3359 Err:     0 (0.00%) Active: 608 Started: 608 Finished: 0
+summary +  11593 in 00:00:30 =  386.5/s Avg:  2780 Min:   120 Max: 15706 Err:     0 (0.00%) Active: 1200 Started: 1200 Finished: 0
+summary =  14104 in 00:00:40 =  350.7/s Avg:  2364 Min:    14 Max: 15706 Err:     0 (0.00%)
+summary +   5612 in 00:00:30 =  187.1/s Avg:  5047 Min:   919 Max: 29126 Err:     0 (0.00%) Active: 969 Started: 1200 Finished: 231
+summary =  19716 in 00:01:10 =  280.8/s Avg:  3128 Min:    14 Max: 29126 Err:     0 (0.00%)
+summary +   1067 in 00:00:12 =   87.5/s Avg: 14019 Min:    78 Max: 69726 Err:     0 (0.00%) Active: 0 Started: 1200 Finished: 1200
+summary =  20783 in 00:01:22 =  252.2/s Avg:  3687 Min:    14 Max: 69726 Err:     0 (0.00%)
+Tidying up ...    @ November 24, 2026 1:39:42 AM GMT (1795484382198)
+... end of run
+END Running Jmeter on Tue Nov 24 01:39:51 UTC 2026

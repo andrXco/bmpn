@@ -1,0 +1,21 @@
+START Running Jmeter on Tue Nov 24 01:34:59 UTC 2026
+JVM_ARGS=-Xmn1296m -Xms5184m -Xmx5184m
+jmeter args=-n -t /tests/plan-carga-bmpn.jmx -l /results/estres-500.jtl -Jhost=host.docker.internal -Jpuerto=8080 -Jusuarios=500 -Jrampa=10 -Jduracion=60 -e -o /reports/estres-500
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Nov 24, 2026 1:35:03 AM java.util.prefs.FileSystemPreferences$1 run
+INFO: Created user preferences directory.
+Creating summariser <summary>
+Created the tree successfully using /tests/plan-carga-bmpn.jmx
+Starting standalone test @ November 24, 2026 1:35:06 AM GMT (1795484106722)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +   4346 in 00:00:21 =  204.1/s Avg:  1192 Min:    23 Max:  7055 Err:     0 (0.00%) Active: 500 Started: 500 Finished: 0
+summary +   6836 in 00:00:30 =  227.3/s Avg:  2099 Min:   187 Max: 18863 Err:     0 (0.00%) Active: 500 Started: 500 Finished: 0
+summary =  11182 in 00:00:51 =  217.6/s Avg:  1746 Min:    23 Max: 18863 Err:     0 (0.00%)
+summary +   2701 in 00:00:20 =  136.6/s Avg:  3495 Min:   237 Max: 20356 Err:     0 (0.00%) Active: 0 Started: 500 Finished: 500
+summary =  13883 in 00:01:11 =  195.1/s Avg:  2086 Min:    23 Max: 20356 Err:     0 (0.00%)
+Tidying up ...    @ November 24, 2026 1:36:19 AM GMT (1795484179860)
+... end of run
+END Running Jmeter on Tue Nov 24 01:36:34 UTC 2026
